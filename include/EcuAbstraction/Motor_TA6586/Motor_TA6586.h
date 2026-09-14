@@ -2,13 +2,14 @@
 #define ROBOT_MOTOR_TA6586_H
 
 #include <Arduino.h>
+#include "GenericRobotController.h"
 
-class MotorTA6586 {
+class MotorTA6586 : public IMotor {
 public:
     MotorTA6586(uint8_t forwardPin, uint8_t backwardPin);
-    void begin();
-    void setSpeed(int16_t speed);
-    void stop();
+    void begin() override;
+    void setSpeed(int16_t speed) override;
+    void stop() override;
 
 private:
     uint8_t _forwardPin;

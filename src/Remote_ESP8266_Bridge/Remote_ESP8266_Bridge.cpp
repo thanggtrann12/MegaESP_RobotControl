@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
+#include <GenericLogger.h>
 #include <GenericOTA.h>
 #include <Std_Types.h>
 
@@ -19,16 +20,18 @@ struct_message myData;
 // Broadcast để kiểm thử khi chưa cấu hình MAC riêng của robot.
 uint8_t robotMac[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
+ASSIGN_LOG_MACROS(RemoteESP8266Bridge, Serial);
+
 // Callback khi nhận dữ liệu từ ESP32-C3
 void OnDataRecv(uint8_t *mac_addr, uint8_t *incomingData, uint8_t len) {
-  Serial.printf("[ESP-NOW] Data received from MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+  RemoteESP8266Bridge_LogD("Data received from MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+                           mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
   if (len == sizeof(myData)) {
     memcpy(&myData, incomingData, sizeof(myData));
 
     // Log dữ liệu nhận được
-    Serial.printf("[ESP-NOW] Received -> lx:%d, ly:%d, rx:%d, ry:%d, btn:%d\n", 
-                  myData.lx, myData.ly, myData.rx, myData.ry, myData.buttons);
+    RemoteESP8266Bridge_LogD("Received -> lx:%d, ly:%d, rx:%d, ry:%d, btn:%d",
+                 myData.lx, myData.ly, myData.rx, myData.ry, myData.buttons);
   }
 }
 
@@ -56,12 +59,12 @@ void SendControlPacket(const ControlPacket& packet) {
 }
 
 void ProcessControlPacket(const ControlPacket& packet) {
-  Serial.printf("[BRIDGE] RX J1(%d, %d) J2(%d, %d) buttons=0x%04X\n",
-                packet.joy1_x,
-                packet.joy1_y,
-                packet.joy2_x,
-                packet.joy2_y,
-                packet.buttons);
+  RemoteESP8266Bridge_LogD("RX J1(%d, %d) J2(%d, %d) buttons=0x%04X",
+                           packet.joy1_x,
+                           packet.joy1_y,
+                           packet.joy2_x,
+                           packet.joy2_y,
+                           packet.buttons);
 
   SendControlPacket(packet);
 
@@ -69,7 +72,7 @@ void ProcessControlPacket(const ControlPacket& packet) {
                                 reinterpret_cast<uint8_t*>(const_cast<ControlPacket*>(&packet)),
                                 sizeof(ControlPacket));
   if (result != 0) {
-    Serial.printf("[ESP-NOW] Send to robot failed: %u\n", result);
+    RemoteESP8266Bridge_LogE("Send to robot failed: %u", result);
   }
 }
 
@@ -88,7 +91,7 @@ void ProcessMegaSerial() {
       if (byte == '\n' || byte == '\r') {
         command[commandLength] = '\0';
         if (strcmp(command, "ESP_RESET") == 0) {
-          Serial.println(F("[BRIDGE] Reset command received"));
+          RemoteESP8266Bridge_LogW("Reset command received");
           Serial.flush();
           delay(20);
           ESP.restart();
@@ -134,27 +137,24 @@ void setup() {
   Serial.begin(115200);
   delay(100);
 
-  Serial.println("\n==============================================");
-  Serial.println("  ESP8266: DUAL MODE (WIFI + OTA + ESP-NOW)   ");
-  Serial.println("==============================================");
+  RemoteESP8266Bridge_LogI("ESP8266: DUAL MODE (WIFI + OTA + ESP-NOW)");
 
   // Khởi tạo ESP-NOW trước; OTA/WiFi chạy nền và không được chặn remote.
   if (esp_now_init() != 0) {
-    Serial.println("[ERROR] ESPNow Init Failed!");
+    RemoteESP8266Bridge_LogF("ESP-NOW init failed");
     return;
   }
 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
   if (esp_now_add_peer(robotMac, ESP_NOW_ROLE_COMBO, 0, nullptr, 0) != 0) {
-    Serial.println("[ERROR] ESP-NOW robot peer setup failed");
+    RemoteESP8266Bridge_LogE("ESP-NOW robot peer setup failed");
   }
   esp_now_register_recv_cb(OnDataRecv);
-  Serial.println("[SYSTEM] ESP-NOW initialized & Ready!");
+  RemoteESP8266Bridge_LogI("ESP-NOW initialized and ready");
 
   GenericOTA::begin(ssid, password, "esp8266-mega-wifi", WIFI_AP_STA);
-  Serial.printf("Current WiFi Channel: %d (MUST MATCH ESP32-C3!)\n", WiFi.channel());
-  Serial.print("My MAC: ");
-  Serial.println(WiFi.macAddress());
+  RemoteESP8266Bridge_LogI("Current WiFi channel: %d", WiFi.channel());
+  RemoteESP8266Bridge_LogI("My MAC: %s", WiFi.macAddress().c_str());
 
   lastSendTime = millis();
 }

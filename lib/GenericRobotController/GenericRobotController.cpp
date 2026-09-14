@@ -1,4 +1,7 @@
 #include "GenericRobotController.h"
+#include <GenericLogger.h>
+
+ASSIGN_LOG_MACROS(GenericRobotController, Serial);
 
 GenericRobotController::GenericRobotController(IMotor& leftMotor, IMotor& rightMotor)
     : _leftMotor(leftMotor),
@@ -23,15 +26,11 @@ void GenericRobotController::handlePacket(const ControlPacket& packet) {
 
     if (millis() - _lastLogTime >= 500) {
         _lastLogTime = millis();
-        logPacket(packet);
-        Serial.print(F("[MOTOR] throttle="));
-        Serial.print(throttle);
-        Serial.print(F(" steering="));
-        Serial.print(steering);
-        Serial.print(F(" left="));
-        Serial.print(leftSpeed);
-        Serial.print(F(" right="));
-        Serial.println(rightSpeed);
+        GenericRobotController_LogI("throttle=%d steering=%d left=%d right=%d",
+                        throttle,
+                        steering,
+                        leftSpeed,
+                        rightSpeed);
     }
 }
 
@@ -53,12 +52,9 @@ void GenericRobotController::stopMotors() {
 }
 
 void GenericRobotController::logPacket(const ControlPacket& packet) {
-    Serial.print(F("[ROBOT] J1("));
-    Serial.print(packet.joy1_x);
-    Serial.print(F(", "));
-    Serial.print(packet.joy1_y);
-    Serial.print(F(") J2X("));
-    Serial.print(packet.joy2_x);
-    Serial.print(F(") buttons=0x"));
-    Serial.println(packet.buttons, HEX);
+    GenericRobotController_LogD("J1(%d, %d) J2X(%d) buttons=0x%04X",
+                                packet.joy1_x,
+                                packet.joy1_y,
+                                packet.joy2_x,
+                                packet.buttons);
 }

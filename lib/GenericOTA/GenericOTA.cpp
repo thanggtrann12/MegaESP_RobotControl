@@ -1,4 +1,7 @@
 #include "GenericOTA.h"
+#include <GenericLogger.h>
+
+ASSIGN_LOG_MACROS(GenericOTA, Serial);
 
 namespace {
 bool otaStarted = false;
@@ -15,7 +18,7 @@ bool GenericOTA::begin(const char* ssid,
     WiFi.begin(ssid, password);
     otaHostname = hostname;
 
-    Serial.println(F("[OTA] WiFi connection started (non-blocking)"));
+    GenericOTA_LogI("WiFi connection started (non-blocking)");
     return true;
 }
 
@@ -24,7 +27,7 @@ void GenericOTA::handle() {
         if (millis() - lastWifiAttempt >= 10000) {
             lastWifiAttempt = millis();
             WiFi.reconnect();
-            Serial.println(F("[OTA] WiFi unavailable, retrying in background"));
+            GenericOTA_LogW("WiFi unavailable, retrying in background");
         }
         return;
     }
@@ -32,22 +35,21 @@ void GenericOTA::handle() {
     if (!otaStarted) {
         ArduinoOTA.setHostname(otaHostname);
         ArduinoOTA.onStart([]() {
-            Serial.println(F("[OTA] Update started"));
+            GenericOTA_LogI("Update started");
         });
         ArduinoOTA.onEnd([]() {
-            Serial.println(F("[OTA] Update finished"));
+            GenericOTA_LogI("Update finished");
         });
         ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-            Serial.printf("[OTA] Progress: %u%%\r", (progress * 100U) / total);
+            GenericOTA_LogD("Progress: %u%%", (progress * 100U) / total);
         });
         ArduinoOTA.onError([](ota_error_t error) {
-            Serial.printf("[OTA] Error: %u\n", error);
+            GenericOTA_LogE("Update error: %u", error);
         });
         ArduinoOTA.begin();
         otaStarted = true;
 
-        Serial.print(F("[OTA] Ready as "));
-        Serial.println(otaHostname);
+        GenericOTA_LogI("Ready as %s", otaHostname);
     }
 
     ArduinoOTA.handle();

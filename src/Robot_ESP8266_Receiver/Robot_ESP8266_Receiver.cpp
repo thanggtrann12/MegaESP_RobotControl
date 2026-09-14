@@ -1,10 +1,13 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <GenericOTA.h>
+#include <GenericLogger.h>
 #include <Std_Types.h>
 
 const char* ssid = "BOSS T4 NGOAI 2G";
 const char* password = "d12345678";
+
+ASSIGN_LOG_MACROS(RobotESP8266Receiver, Serial);
 
 void ProcessMegaCommand() {
   static char command[16];
@@ -15,7 +18,7 @@ void ProcessMegaCommand() {
     if (character == '\n' || character == '\r') {
       command[commandLength] = '\0';
       if (strcmp(command, "ESP_RESET") == 0) {
-        Serial.println(F("[ROBOT ESP] Reset command received"));
+        RobotESP8266Receiver_LogW("Reset command received");
         Serial.flush();
         delay(20);
         ESP.restart();
@@ -30,7 +33,7 @@ void ProcessMegaCommand() {
 
 void OnControlPacketReceived(uint8_t* macAddress, uint8_t* incomingData, uint8_t length) {
   if (length != sizeof(ControlPacket)) {
-    Serial.printf("[ROBOT] Invalid ESP-NOW length: %u\n", length);
+    RobotESP8266Receiver_LogE("Invalid ESP-NOW length: %u", length);
     return;
   }
 
@@ -54,19 +57,17 @@ void setup() {
   Serial.begin(115200);
   delay(100);
 
-  Serial.println("\n==============================================");
-  Serial.println("  ESP8266: DUAL MODE  ");
-  Serial.println("==============================================");
+  RobotESP8266Receiver_LogI("ESP8266: DUAL MODE");
   GenericOTA::begin(ssid, password, "robot-esp8266", WIFI_AP_STA);
 
   if (esp_now_init() != 0) {
-    Serial.println("[ROBOT] ESP-NOW init failed");
+    RobotESP8266Receiver_LogF("ESP-NOW init failed");
     return;
   }
 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
   esp_now_register_recv_cb(OnControlPacketReceived);
-  Serial.println("[ROBOT] ESP-NOW receiver ready");
+  RobotESP8266Receiver_LogI("ESP-NOW receiver ready");
 }
 
 void loop() {

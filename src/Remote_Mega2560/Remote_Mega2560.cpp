@@ -1,5 +1,6 @@
 #include <Std_Types.h>
 #include <ComManager.h>
+#include <GenericLogger.h>
 #include <Swc_Joystick.h>
 #include <Swc_Button.h>
 #include "Remote_Pin_Cfg.h"
@@ -10,6 +11,8 @@ static Swc_Joystick joysticks(
     REMOTE_PIN_JOY1_Y,
     REMOTE_PIN_JOY2_X);
 static Swc_Button   buttons;
+
+ASSIGN_LOG_MACROS(RemoteMega2560, Serial);
 
 void setup() {
     Serial.begin(115200);
@@ -22,26 +25,23 @@ void setup() {
     comBridge.Init(REMOTE_UART_ESP32_BAUD);
     comBridge.SendCommand("ESP_RESET");
 
-    Serial.println(F("[REMOTE] Mega 2560 started"));
-    Serial.println(F("[REMOTE] Serial3 bridge ready at 115200 baud"));
+    RemoteMega2560_LogI("Mega 2560 started");
+    RemoteMega2560_LogI("Serial3 bridge ready at 115200 baud");
 }
 
 void loop() {
     static uint32 lastExec = 0;
-    char espLog[96];
+    static uint32 lastEchoLog = 0;
     ControlPacket echoedPacket;
 
-    if (comBridge.ReadPacket(echoedPacket)) {
-        Serial.print(F("[ESP ECHO OK] J1("));
-        Serial.print(echoedPacket.joy1_x);
-        Serial.print(F(", "));
-        Serial.print(echoedPacket.joy1_y);
-        Serial.print(F(") J2("));
-        Serial.print(echoedPacket.joy2_x);
-        Serial.print(F(", "));
-        Serial.print(echoedPacket.joy2_y);
-        Serial.print(F(") buttons=0x"));
-        Serial.println(echoedPacket.buttons, HEX);
+    if (comBridge.ReadPacket(echoedPacket) && millis() - lastEchoLog >= 500) {
+        lastEchoLog = millis();
+        RemoteMega2560_LogD("ESP ECHO OK J1(%d, %d) J2(%d, %d) buttons=0x%04X",
+                            echoedPacket.joy1_x,
+                            echoedPacket.joy1_y,
+                            echoedPacket.joy2_x,
+                            echoedPacket.joy2_y,
+                            echoedPacket.buttons);
     }
 
     if (millis() - lastExec >= 20) { // Chu kỳ 50Hz chuẩn

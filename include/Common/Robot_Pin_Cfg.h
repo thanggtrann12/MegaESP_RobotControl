@@ -4,15 +4,20 @@
 #include <Arduino.h>
 
 // =========================================================================
-// 1. Cấu hình Chân Điều khiển IC Động cơ TA6586 (Cần chân PWM)
+// 1. Cấu hình Channel PCA9685 điều khiển L298N
 // =========================================================================
-// Động cơ Trái (Left Motor)
-#define ROBOT_PIN_MOTOR_L_FI    2    // Forward Input (PWM)
-#define ROBOT_PIN_MOTOR_L_BI    3    // Backward Input (PWM)
+#define ROBOT_PCA9685_ADDRESS   0x40
+#define ROBOT_PCA9685_FREQUENCY 1000
 
-// Động cơ Phải (Right Motor)
-#define ROBOT_PIN_MOTOR_R_FI    4    // Forward Input (PWM)
-#define ROBOT_PIN_MOTOR_R_BI    5    // Backward Input (PWM)
+// Động cơ trái: ENA, IN1, IN2
+#define ROBOT_MOTOR_L_EN        0
+#define ROBOT_MOTOR_L_IN1       1
+#define ROBOT_MOTOR_L_IN2       2
+
+// Động cơ phải: IN3, IN4, ENB
+#define ROBOT_MOTOR_R_IN1       4
+#define ROBOT_MOTOR_R_IN2       5
+#define ROBOT_MOTOR_R_EN        6
 
 // =========================================================================
 // 2. Cấu hình Chân Servo / Cơ cấu Tay cẩu

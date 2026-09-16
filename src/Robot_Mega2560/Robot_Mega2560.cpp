@@ -2,18 +2,28 @@
 #include <ComManager.h>
 #include <GenericRobotController.h>
 #include <GenericLogger.h>
-#include <Motor_TA6586.h>
+#include <PCA9685Motor.h>
 #include "Robot_Pin_Cfg.h"
 
 static ComManager robotCom(ROBOT_UART_ESP8266);
-static MotorTA6586 leftMotor(ROBOT_PIN_MOTOR_L_FI, ROBOT_PIN_MOTOR_L_BI);
-static MotorTA6586 rightMotor(ROBOT_PIN_MOTOR_R_FI, ROBOT_PIN_MOTOR_R_BI);
+static PCA9685Motor leftMotor(Wire,
+							  ROBOT_PCA9685_ADDRESS,
+							  ROBOT_MOTOR_L_EN,
+							  ROBOT_MOTOR_L_IN1,
+							  ROBOT_MOTOR_L_IN2,
+							  ROBOT_PCA9685_FREQUENCY);
+static PCA9685Motor rightMotor(Wire,
+							   ROBOT_PCA9685_ADDRESS,
+							   ROBOT_MOTOR_R_EN,
+							   ROBOT_MOTOR_R_IN1,
+							   ROBOT_MOTOR_R_IN2,
+							   ROBOT_PCA9685_FREQUENCY);
 static GenericRobotController robot(leftMotor, rightMotor);
 
 ASSIGN_LOG_MACROS(RobotMega2560, Serial);
 
 void setup() {
-	Serial.begin(115200);
+	Serial.begin(115200); // Debug on USB Serial only; Serial2 conflicts with the ESP8266 UART link
 	robotCom.Init(ROBOT_UART_ESP8266_BAUD);
 	robot.begin();
 	robotCom.SendCommand("ESP_RESET");

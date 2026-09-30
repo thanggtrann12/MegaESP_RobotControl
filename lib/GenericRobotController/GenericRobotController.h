@@ -23,9 +23,20 @@ public:
     void begin();
     void handlePacket(const ControlPacket &packet);
     void update();
+    bool setKinematicsMode(KinematicsMode mode);
+    KinematicsMode getKinematicsMode() const;
+    void setControlSource(ControlSource source);
+    ControlSource getControlSource() const;
+    void setHmiMotion(int8_t throttle, int8_t strafe, int8_t rotation);
+    bool setManualMotor(uint8_t motorId, int16_t speed);
+    void releaseManualMotor(uint8_t motorId);
+    void setPwmLimit(uint8_t limit);
+    uint8_t getPwmLimit() const;
 
 private:
     static int16_t mapAxisToMotor(int16_t value);
+    void applyMotion(int8_t throttle, int8_t strafe, int8_t rotation);
+    IMotor *getMotor(uint8_t motorId);
     void stopMotors();
     void logPacket(const ControlPacket &packet);
 
@@ -37,6 +48,17 @@ private:
     uint32_t _lastLogTime;
     uint16_t _lastSequenceNumber;
     bool _hasSequenceNumber;
+    KinematicsMode _kinematicsMode;
+    ControlSource _controlSource;
+    uint8_t _pwmLimit;
+    bool _hmiMotionActive;
+    int8_t _hmiThrottle;
+    int8_t _hmiStrafe;
+    int8_t _hmiRotation;
+    uint32_t _hmiMotionTime;
+    bool _manualOverrideActive;
+    uint8_t _manualMotorId;
+    uint32_t _manualCommandTime;
 };
 
 #endif

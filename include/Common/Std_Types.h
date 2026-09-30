@@ -28,6 +28,21 @@ enum ControlMessageType : uint8_t
     HEARTBEAT_MESSAGE = 0x02
 };
 
+enum class KinematicsMode : uint8_t
+{
+    MODE_2WD_DIFF = 0,
+    MODE_4WD_MECANUM = 1,
+    MODE_OMNI_3WD = 2,
+    MODE_OMNI_4WD = 3,
+    MODE_CUSTOM = 4
+};
+
+enum class ControlSource : uint8_t
+{
+    REMOTE = 0,
+    HMI_MANUAL = 1
+};
+
 inline uint8_t CalculateControlPacketCrc(const ControlPacket &packet)
 {
     const uint8_t *bytes = reinterpret_cast<const uint8_t *>(&packet);

@@ -54,7 +54,104 @@ GenericRobotController::GenericRobotController(IMotor &leftMotor1,
       _lastPacketTime(0),
       _lastLogTime(0),
       _lastSequenceNumber(0),
-      _hasSequenceNumber(false) {}
+      _hasSequenceNumber(false),
+      _kinematicsMode(KinematicsMode::MODE_4WD_MECANUM),
+      _controlSource(ControlSource::REMOTE),
+      _pwmLimit(255),
+      _hmiMotionActive(false),
+      _hmiThrottle(0),
+      _hmiStrafe(0),
+      _hmiRotation(0),
+      _hmiMotionTime(0),
+      _manualOverrideActive(false),
+      _manualMotorId(0),
+      _manualCommandTime(0) {}
+
+bool GenericRobotController::setKinematicsMode(KinematicsMode mode)
+{
+    if (mode != KinematicsMode::MODE_2WD_DIFF &&
+        mode != KinematicsMode::MODE_4WD_MECANUM)
+    {
+        return false;
+    }
+    _kinematicsMode = mode;
+    stopMotors();
+    return true;
+}
+
+KinematicsMode GenericRobotController::getKinematicsMode() const
+{
+    return _kinematicsMode;
+}
+
+void GenericRobotController::setControlSource(ControlSource source)
+{
+    _controlSource = source;
+    _hmiMotionActive = false;
+    _manualOverrideActive = false;
+    _manualMotorId = 0;
+    stopMotors();
+}
+
+ControlSource GenericRobotController::getControlSource() const
+{
+    return _controlSource;
+}
+
+void GenericRobotController::setHmiMotion(int8_t throttle, int8_t strafe, int8_t rotation)
+{
+    if (_controlSource != ControlSource::HMI_MANUAL || _manualOverrideActive)
+    {
+        return;
+    }
+    _hmiThrottle = constrain(throttle, -100, 100);
+    _hmiStrafe = constrain(strafe, -100, 100);
+    _hmiRotation = constrain(rotation, -100, 100);
+    _hmiMotionTime = millis();
+    _hmiMotionActive = true;
+}
+
+bool GenericRobotController::setManualMotor(uint8_t motorId, int16_t speed)
+{
+    if (_controlSource != ControlSource::HMI_MANUAL)
+    {
+        return false;
+    }
+
+    IMotor *motor = getMotor(motorId);
+    if (motor == nullptr)
+    {
+        return false;
+    }
+
+    _hmiMotionActive = false;
+    _manualOverrideActive = true;
+    _manualMotorId = motorId;
+    _manualCommandTime = millis();
+    stopMotors();
+    motor->setSpeed(constrain(speed, -_pwmLimit, _pwmLimit));
+    return true;
+}
+
+void GenericRobotController::releaseManualMotor(uint8_t motorId)
+{
+    if (_manualOverrideActive && (motorId == 0 || motorId == _manualMotorId))
+    {
+        stopMotors();
+        _manualOverrideActive = false;
+        _manualMotorId = 0;
+    }
+}
+
+void GenericRobotController::setPwmLimit(uint8_t limit)
+{
+    _pwmLimit = limit;
+}
+
+uint8_t GenericRobotController::getPwmLimit() const
+{
+    return _pwmLimit;
+}
 
 void GenericRobotController::begin()
 {
@@ -87,25 +184,50 @@ void GenericRobotController::handlePacket(const ControlPacket &packet)
         return;
     }
 
-    int16_t throttle = mapAxisToMotor(packet.throttle);
-    int16_t strafe = mapAxisToMotor(packet.strafe);
-    int16_t rotation = mapAxisToMotor(packet.rotation);
+    if (_controlSource != ControlSource::REMOTE || _manualOverrideActive ||
+        (_hmiMotionActive && millis() - _hmiMotionTime <= 500))
+    {
+        return;
+    }
+    _hmiMotionActive = false;
 
-    // Standard mecanum mix; correct individual motor polarity separately if needed.
-    int16_t frontLeft = throttle + strafe + rotation;
-    int16_t rearLeft = throttle - strafe + rotation;
-    int16_t frontRight = throttle - strafe - rotation;
-    int16_t rearRight = throttle + strafe - rotation;
+    applyMotion(packet.throttle, packet.strafe, packet.rotation);
+}
+
+void GenericRobotController::applyMotion(int8_t throttleValue, int8_t strafeValue, int8_t rotationValue)
+{
+    int16_t throttle = mapAxisToMotor(throttleValue);
+    int16_t strafe = mapAxisToMotor(strafeValue);
+    int16_t rotation = mapAxisToMotor(rotationValue);
+
+    int16_t frontLeft;
+    int16_t rearLeft;
+    int16_t frontRight;
+    int16_t rearRight;
+    if (_kinematicsMode == KinematicsMode::MODE_2WD_DIFF)
+    {
+        frontLeft = throttle + rotation;
+        rearLeft = frontLeft;
+        frontRight = throttle - rotation;
+        rearRight = frontRight;
+    }
+    else
+    {
+        frontLeft = throttle + strafe + rotation;
+        rearLeft = throttle - strafe + rotation;
+        frontRight = throttle - strafe - rotation;
+        rearRight = throttle + strafe - rotation;
+    }
 
     // Normalize PWM nếu vượt quá 255
     int16_t maxMagnitude = max(max(abs(frontLeft), abs(rearLeft)),
                                max(abs(frontRight), abs(rearRight)));
-    if (maxMagnitude > 255)
+    if (maxMagnitude > _pwmLimit)
     {
-        frontLeft = static_cast<int16_t>(frontLeft * 255L / maxMagnitude);
-        rearLeft = static_cast<int16_t>(rearLeft * 255L / maxMagnitude);
-        frontRight = static_cast<int16_t>(frontRight * 255L / maxMagnitude);
-        rearRight = static_cast<int16_t>(rearRight * 255L / maxMagnitude);
+        frontLeft = static_cast<int16_t>(frontLeft * _pwmLimit / maxMagnitude);
+        rearLeft = static_cast<int16_t>(rearLeft * _pwmLimit / maxMagnitude);
+        frontRight = static_cast<int16_t>(frontRight * _pwmLimit / maxMagnitude);
+        rearRight = static_cast<int16_t>(rearRight * _pwmLimit / maxMagnitude);
     }
 
     _leftMotor1.setSpeed(frontLeft);
@@ -116,8 +238,8 @@ void GenericRobotController::handlePacket(const ControlPacket &packet)
     {
         _lastLogTime = millis();
         GenericRobotController_LogI("motion=%s %s throttle=%d strafe=%d rotation=%d FL=%d RL=%d FR=%d RR=%d",
-                                    GetTranslationDirection(packet.throttle, packet.strafe),
-                                    GetRotationDirection(packet.rotation),
+                                    GetTranslationDirection(throttleValue, strafeValue),
+                                    GetRotationDirection(rotationValue),
                                     throttle,
                                     strafe,
                                     rotation,
@@ -130,6 +252,28 @@ void GenericRobotController::handlePacket(const ControlPacket &packet)
 
 void GenericRobotController::update()
 {
+    if (_manualOverrideActive)
+    {
+        if (millis() - _manualCommandTime > 500)
+        {
+            releaseManualMotor(_manualMotorId);
+        }
+        return;
+    }
+
+    if (_hmiMotionActive)
+    {
+        if (millis() - _hmiMotionTime > 500)
+        {
+            _hmiMotionActive = false;
+            stopMotors();
+            return;
+        }
+        applyMotion(_hmiThrottle, _hmiStrafe, _hmiRotation);
+        _lastPacketTime = millis();
+        return;
+    }
+
     if (millis() - _lastPacketTime > 500)
     {
         stopMotors();
@@ -158,4 +302,21 @@ void GenericRobotController::logPacket(const ControlPacket &packet)
                                 packet.rotation,
                                 packet.buttons,
                                 packet.sequenceNum);
+}
+
+IMotor *GenericRobotController::getMotor(uint8_t motorId)
+{
+    switch (motorId)
+    {
+    case 1:
+        return &_leftMotor1;
+    case 2:
+        return &_leftMotor2;
+    case 3:
+        return &_rightMotor1;
+    case 4:
+        return &_rightMotor2;
+    default:
+        return nullptr;
+    }
 }

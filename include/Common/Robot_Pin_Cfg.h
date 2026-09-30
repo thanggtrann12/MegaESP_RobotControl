@@ -34,4 +34,10 @@
 #define ROBOT_UART_ESP8266 Serial3
 #define ROBOT_UART_ESP8266_BAUD 115200
 
+#define ROBOT_UART_HMI Serial2
+#define ROBOT_UART_HMI_BAUD 115200
+
+static const uint8_t DIGITAL_PINS[8] = {39, 41, 43, 45, 47, 49, 51, 53};
+static const uint8_t ANALOG_PINS[6] = {A0, A1, A2, A3, A4, A5};
+
 #endif // ROBOT_PIN_CFG_H

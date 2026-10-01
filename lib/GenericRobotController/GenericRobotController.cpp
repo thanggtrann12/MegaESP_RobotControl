@@ -43,19 +43,13 @@ namespace
     }
 }
 
-GenericRobotController::GenericRobotController(IMotor &leftMotor1,
-                                               IMotor &leftMotor2,
-                                               IMotor &rightMotor1,
-                                               IMotor &rightMotor2)
-    : _leftMotor1(leftMotor1),
-      _leftMotor2(leftMotor2),
-      _rightMotor1(rightMotor1),
-      _rightMotor2(rightMotor2),
+GenericRobotController::GenericRobotController(IMotorOutput &motorOutput, IKinematics &kinematics)
+    : _motorOutput(motorOutput),
+      _kinematics(&kinematics),
       _lastPacketTime(0),
       _lastLogTime(0),
       _lastSequenceNumber(0),
       _hasSequenceNumber(false),
-      _kinematicsMode(KinematicsMode::MODE_4WD_MECANUM),
       _controlSource(ControlSource::REMOTE),
       _pwmLimit(255),
       _hmiMotionActive(false),
@@ -67,21 +61,20 @@ GenericRobotController::GenericRobotController(IMotor &leftMotor1,
       _manualMotorId(0),
       _manualCommandTime(0) {}
 
-bool GenericRobotController::setKinematicsMode(KinematicsMode mode)
+bool GenericRobotController::setKinematics(IKinematics &kinematics)
 {
-    if (mode != KinematicsMode::MODE_2WD_DIFF &&
-        mode != KinematicsMode::MODE_4WD_MECANUM)
+    if (kinematics.getWheelCount() != _motorOutput.getMotorCount())
     {
         return false;
     }
-    _kinematicsMode = mode;
+    _kinematics = &kinematics;
     stopMotors();
     return true;
 }
 
 KinematicsMode GenericRobotController::getKinematicsMode() const
 {
-    return _kinematicsMode;
+    return _kinematics->getMode();
 }
 
 void GenericRobotController::setControlSource(ControlSource source)
@@ -118,7 +111,7 @@ bool GenericRobotController::setManualMotor(uint8_t motorId, int16_t speed)
         return false;
     }
 
-    IMotor *motor = getMotor(motorId);
+    IMotor *motor = _motorOutput.getMotor(motorId);
     if (motor == nullptr)
     {
         return false;
@@ -155,10 +148,7 @@ uint8_t GenericRobotController::getPwmLimit() const
 
 void GenericRobotController::begin()
 {
-    _leftMotor1.begin();
-    _leftMotor2.begin();
-    _rightMotor1.begin();
-    _rightMotor2.begin();
+    _motorOutput.begin();
 }
 
 void GenericRobotController::handlePacket(const ControlPacket &packet)
@@ -200,53 +190,25 @@ void GenericRobotController::applyMotion(int8_t throttleValue, int8_t strafeValu
     int16_t strafe = mapAxisToMotor(strafeValue);
     int16_t rotation = mapAxisToMotor(rotationValue);
 
-    int16_t frontLeft;
-    int16_t rearLeft;
-    int16_t frontRight;
-    int16_t rearRight;
-    if (_kinematicsMode == KinematicsMode::MODE_2WD_DIFF)
-    {
-        frontLeft = throttle + rotation;
-        rearLeft = frontLeft;
-        frontRight = throttle - rotation;
-        rearRight = frontRight;
-    }
-    else
-    {
-        frontLeft = throttle + strafe + rotation;
-        rearLeft = throttle - strafe + rotation;
-        frontRight = throttle - strafe - rotation;
-        rearRight = throttle + strafe - rotation;
-    }
+    int16_t speeds[MAX_DRIVE_WHEELS] = {0};
+    uint8_t wheelCount = _kinematics->getWheelCount();
+    _kinematics->computeWheelSpeeds(throttle, strafe, rotation, speeds);
+    _motorOutput.applyWheelSpeeds(speeds, wheelCount, _pwmLimit);
 
-    // Normalize PWM nếu vượt quá 255
-    int16_t maxMagnitude = max(max(abs(frontLeft), abs(rearLeft)),
-                               max(abs(frontRight), abs(rearRight)));
-    if (maxMagnitude > _pwmLimit)
-    {
-        frontLeft = static_cast<int16_t>(frontLeft * _pwmLimit / maxMagnitude);
-        rearLeft = static_cast<int16_t>(rearLeft * _pwmLimit / maxMagnitude);
-        frontRight = static_cast<int16_t>(frontRight * _pwmLimit / maxMagnitude);
-        rearRight = static_cast<int16_t>(rearRight * _pwmLimit / maxMagnitude);
-    }
-
-    _leftMotor1.setSpeed(frontLeft);
-    _leftMotor2.setSpeed(rearLeft);
-    _rightMotor1.setSpeed(frontRight);
-    _rightMotor2.setSpeed(rearRight);
     if (millis() - _lastLogTime >= 500)
     {
         _lastLogTime = millis();
-        GenericRobotController_LogI("motion=%s %s throttle=%d strafe=%d rotation=%d FL=%d RL=%d FR=%d RR=%d",
+        GenericRobotController_LogI("mode=%u motion=%s %s throttle=%d strafe=%d rotation=%d",
+                                    static_cast<uint8_t>(_kinematics->getMode()),
                                     GetTranslationDirection(throttleValue, strafeValue),
                                     GetRotationDirection(rotationValue),
                                     throttle,
                                     strafe,
-                                    rotation,
-                                    frontLeft,
-                                    rearLeft,
-                                    frontRight,
-                                    rearRight);
+                                    rotation);
+        for (uint8_t index = 0; index < wheelCount; ++index)
+        {
+            GenericRobotController_LogD("wheel[%u]=%d", index, speeds[index]);
+        }
     }
 }
 
@@ -287,36 +249,5 @@ int16_t GenericRobotController::mapAxisToMotor(int16_t value)
 
 void GenericRobotController::stopMotors()
 {
-    _leftMotor1.stop();
-    _leftMotor2.stop();
-    _rightMotor1.stop();
-    _rightMotor2.stop();
-}
-
-void GenericRobotController::logPacket(const ControlPacket &packet)
-{
-    GenericRobotController_LogD("type=%u throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
-                                packet.msgType,
-                                packet.throttle,
-                                packet.strafe,
-                                packet.rotation,
-                                packet.buttons,
-                                packet.sequenceNum);
-}
-
-IMotor *GenericRobotController::getMotor(uint8_t motorId)
-{
-    switch (motorId)
-    {
-    case 1:
-        return &_leftMotor1;
-    case 2:
-        return &_leftMotor2;
-    case 3:
-        return &_rightMotor1;
-    case 4:
-        return &_rightMotor2;
-    default:
-        return nullptr;
-    }
+    _motorOutput.stop();
 }

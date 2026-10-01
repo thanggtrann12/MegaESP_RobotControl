@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "GenericRobotController.h"
+#include "IMotor.h"
 
 class MotorTA6586 : public IMotor
 {

@@ -3,27 +3,21 @@
 
 #include <Arduino.h>
 #include "Std_Types.h"
+#include "IMotor.h"
+#include "IMotorOutput.h"
+#include "IKinematics.h"
 
-class IMotor
-{
-public:
-    virtual ~IMotor() = default;
-    virtual void begin() = 0;
-    virtual void setSpeed(int16_t speed) = 0;
-    virtual void stop() = 0;
-};
-
+// Topology-agnostic: owns control state, command arbitration, and the
+// watchdog. Motor count/layout and motion mixing are fully delegated to
+// the injected IMotorOutput and IKinematics implementations.
 class GenericRobotController
 {
 public:
-    GenericRobotController(IMotor &leftMotor1,
-                           IMotor &leftMotor2,
-                           IMotor &rightMotor1,
-                           IMotor &rightMotor2);
+    GenericRobotController(IMotorOutput &motorOutput, IKinematics &kinematics);
     void begin();
     void handlePacket(const ControlPacket &packet);
     void update();
-    bool setKinematicsMode(KinematicsMode mode);
+    bool setKinematics(IKinematics &kinematics);
     KinematicsMode getKinematicsMode() const;
     void setControlSource(ControlSource source);
     ControlSource getControlSource() const;
@@ -36,19 +30,14 @@ public:
 private:
     static int16_t mapAxisToMotor(int16_t value);
     void applyMotion(int8_t throttle, int8_t strafe, int8_t rotation);
-    IMotor *getMotor(uint8_t motorId);
     void stopMotors();
-    void logPacket(const ControlPacket &packet);
 
-    IMotor &_leftMotor1;
-    IMotor &_leftMotor2;
-    IMotor &_rightMotor1;
-    IMotor &_rightMotor2;
+    IMotorOutput &_motorOutput;
+    IKinematics *_kinematics;
     uint32_t _lastPacketTime;
     uint32_t _lastLogTime;
     uint16_t _lastSequenceNumber;
     bool _hasSequenceNumber;
-    KinematicsMode _kinematicsMode;
     ControlSource _controlSource;
     uint8_t _pwmLimit;
     bool _hmiMotionActive;

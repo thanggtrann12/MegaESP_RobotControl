@@ -4,11 +4,12 @@
 #include <Arduino.h>
 #include "GenericRobotController.h"
 #include "IOPinManager.h"
+#include "KinematicsRegistry.h"
 
 class HMIService
 {
 public:
-    HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins);
+    HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry);
     void update();
 
 private:
@@ -22,6 +23,7 @@ private:
     Stream &_serial;
     GenericRobotController &_robot;
     IOPinManager &_ioPins;
+    KinematicsRegistry &_kinematicsRegistry;
     char _buffer[96];
     size_t _length;
     uint8_t _terminatorCount;

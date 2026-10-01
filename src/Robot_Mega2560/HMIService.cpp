@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-HMIService::HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins)
-    : _serial(serial), _robot(robot), _ioPins(ioPins), _length(0), _terminatorCount(0), _lastHeartbeat(0)
+HMIService::HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry)
+    : _serial(serial), _robot(robot), _ioPins(ioPins), _kinematicsRegistry(kinematicsRegistry), _length(0), _terminatorCount(0), _lastHeartbeat(0)
 {
     _buffer[0] = '\0';
 }
@@ -86,7 +86,8 @@ void HMIService::processCommand()
             sendMessage("CMD_MODE:ERR,VALUE");
             return;
         }
-        if (_robot.setKinematicsMode(static_cast<KinematicsMode>(mode)))
+        IKinematics *kinematics = _kinematicsRegistry.find(static_cast<KinematicsMode>(mode));
+        if (kinematics != nullptr && _robot.setKinematics(*kinematics))
         {
             sendMessage("CMD_MODE:OK");
         }

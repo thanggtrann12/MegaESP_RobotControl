@@ -19,6 +19,8 @@ public:
      * @param speed Motor speed in implementation-specific range.
      */
     virtual void setSpeed(int16_t speed) = 0;
+    /** @brief Sets whether signed speed commands are inverted. */
+    virtual void setInverted(bool inverted) = 0;
     /** @brief Stops motor output. */
     virtual void stop() = 0;
 };

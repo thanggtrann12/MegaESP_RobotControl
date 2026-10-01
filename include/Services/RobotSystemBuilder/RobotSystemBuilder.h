@@ -4,6 +4,8 @@
 #include <Arduino.h>
 
 #include "ComManager.h"
+#include "ConfigurationManager.h"
+#include "CapabilityRegistry.h"
 #include "DifferentialKinematics.h"
 #include "GenericRobotController.h"
 #include "HMIService.h"
@@ -20,8 +22,8 @@
  * @brief Robot system composition layer with EEPROM motor binding support.
  */
 
-#ifndef EEPROM_MOTOR_CFG_ADDR
-#define EEPROM_MOTOR_CFG_ADDR 0x10
+#ifndef EEPROM_ROBOT_CONFIG_ADDR
+#define EEPROM_ROBOT_CONFIG_ADDR 0x10
 #endif
 
 class RobotSystemBuilder
@@ -41,11 +43,7 @@ public:
     /** @brief Runs one system update cycle. */
     void update();
 
-    /**
-     * @brief Loads motor-role bindings from EEPROM and applies them.
-     * @return true if a valid binding table is loaded.
-     */
-    bool loadMotorConfigFromEEPROM();
+    bool handleHMIConfigCommand(HmiConfigCommand command, uint8_t valueA, uint8_t valueB);
 
     /**
      * @brief Handles one HMI binding command and persists when complete.
@@ -59,8 +57,11 @@ public:
     HMIService &getHMIService() { return _hmiService; }
 
 private:
-    bool saveMotorConfigToEEPROM();
+    bool applyConfiguration(const RobotConfig &config, bool persist);
+    bool bindMotorConfiguration(const RobotConfig &config);
 
+    CapabilityRegistry _capabilities;
+    ConfigurationManager _configurationManager;
     ComManager _robotCom;
     MotorManager _motorManager;
     IMotor *_driveMotors[4];
@@ -75,7 +76,6 @@ private:
 
     bool _isBuilt;
     bool _kinematicsRegistered;
-    KinematicsMode _activeMode;
 };
 
 #endif

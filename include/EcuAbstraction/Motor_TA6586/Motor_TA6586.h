@@ -37,6 +37,7 @@ public:
      * @param speed Signed speed command.
      */
     void setSpeed(int16_t speed) override;
+    void setInverted(bool inverted) override;
     /** @brief Stops motor output on both direction channels. */
     void stop() override;
 
@@ -58,6 +59,7 @@ private:
     uint8_t _biChannel;
     uint8_t _fiChannel;
     uint16_t _pwmFrequency;
+    bool _inverted;
 };
 
 #endif

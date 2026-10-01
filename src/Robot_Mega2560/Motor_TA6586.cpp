@@ -28,7 +28,8 @@ MotorTA6586::MotorTA6586(TwoWire &wire,
       _pcaAddress(pcaAddress),
       _biChannel(biChannel),
       _fiChannel(fiChannel),
-      _pwmFrequency(pwmFrequency) {}
+    _pwmFrequency(pwmFrequency),
+    _inverted(false) {}
 
 void MotorTA6586::begin()
 {
@@ -47,6 +48,10 @@ void MotorTA6586::begin()
 
 void MotorTA6586::setSpeed(int16_t speed)
 {
+    if (_inverted)
+    {
+        speed = -speed;
+    }
     speed = constrain(speed, -255, 255);
     uint16_t pwm = static_cast<uint16_t>(abs(speed) * 4095L / 255L);
     if (speed > 0)
@@ -130,4 +135,9 @@ void MotorTA6586::setPwmFrequency(uint16_t frequency)
     _wire->write(PCA9685_MODE1);
     _wire->write(PCA9685_AI | PCA9685_RESTART);
     _wire->endTransmission();
+}
+
+void MotorTA6586::setInverted(bool inverted)
+{
+    _inverted = inverted;
 }

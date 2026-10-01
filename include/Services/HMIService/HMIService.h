@@ -3,8 +3,23 @@
 
 #include <Arduino.h>
 #include "GenericRobotController.h"
+#include "CapabilityRegistry.h"
 #include "IOPinManager.h"
 #include "KinematicsRegistry.h"
+
+enum class HmiConfigCommand : uint8_t
+{
+    BEGIN,
+    SET_MODE,
+    SET_PWM,
+    SET_PROFILE,
+    SET_MOTOR,
+    SET_INVERT,
+    VALIDATE,
+    APPLY,
+    ABORT,
+    SAVE
+};
 
 /**
  * @file HMIService.h
@@ -19,6 +34,7 @@ class HMIService
 {
 public:
     using MotorBindHandler = void (*)(void *context, uint8_t slotIndex, MotorRole roleId);
+    using ConfigHandler = bool (*)(void *context, HmiConfigCommand command, uint8_t valueA, uint8_t valueB);
 
     /**
      * @brief Constructs an HMI service bound to robot and IO components.
@@ -27,7 +43,11 @@ public:
      * @param ioPins IO pin manager target.
      * @param kinematicsRegistry Registry used to switch kinematics mode.
      */
-    HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry);
+    HMIService(Stream &serial,
+               GenericRobotController &robot,
+               IOPinManager &ioPins,
+               KinematicsRegistry &kinematicsRegistry,
+               const CapabilityRegistry &capabilities);
     /** @brief Polls stream, parses commands, and sends heartbeat responses. */
     void update();
     /**
@@ -36,6 +56,7 @@ public:
      * @param context Opaque pointer passed back to callback.
      */
     void setMotorBindHandler(MotorBindHandler handler, void *context);
+    void setConfigHandler(ConfigHandler handler, void *context);
 
 private:
     /** @brief Parses and executes one complete buffered command. */
@@ -45,6 +66,7 @@ private:
      * @param message Null-terminated response text.
      */
     void sendMessage(const char *message);
+    void sendCapabilities();
     /**
      * @brief Sends formatted IO status response for one pin.
      * @param pin Pin identifier to report.
@@ -89,12 +111,15 @@ private:
     GenericRobotController &_robot;
     IOPinManager &_ioPins;
     KinematicsRegistry &_kinematicsRegistry;
+    const CapabilityRegistry &_capabilities;
     char _buffer[96];
     size_t _length;
     uint8_t _terminatorCount;
     uint32_t _lastHeartbeat;
     MotorBindHandler _motorBindHandler;
     void *_motorBindContext;
+    ConfigHandler _configHandler;
+    void *_configContext;
 };
 
 #endif

@@ -4,51 +4,60 @@
  */
 
 #include "RobotSystemBuilder.h"
-#include <EEPROM.h>
 
 namespace
 {
-void OnMotorBindCommand(void *context, uint8_t slotIndex, MotorRole roleId)
-{
-    if (context == nullptr)
+    void OnMotorBindCommand(void *context, uint8_t slotIndex, MotorRole roleId)
     {
-        return;
+        if (context == nullptr)
+        {
+            return;
+        }
+
+        static_cast<RobotSystemBuilder *>(context)->handleTJCMotorBindCommand(slotIndex, roleId);
     }
 
-    static_cast<RobotSystemBuilder *>(context)->handleTJCMotorBindCommand(slotIndex, roleId);
-}
+    bool OnConfigCommand(void *context, HmiConfigCommand command, uint8_t valueA, uint8_t valueB)
+    {
+        if (context == nullptr)
+        {
+            return false;
+        }
+
+        return static_cast<RobotSystemBuilder *>(context)->handleHMIConfigCommand(command, valueA, valueB);
+    }
 }
 
 RobotSystemBuilder::RobotSystemBuilder()
-    : _robotCom(ROBOT_UART_ESP8266),
+    : _capabilities(),
+      _configurationManager(_capabilities, EEPROM_ROBOT_CONFIG_ADDR),
+      _robotCom(ROBOT_UART_ESP8266),
       _driveMotors{nullptr, nullptr, nullptr, nullptr},
       _motorOutput(_driveMotors, 4),
-            _differentialKinematics(),
+      _differentialKinematics(),
       _robot(_motorOutput, _mecanumKinematics),
-      _hmiService(ROBOT_UART_HMI, _robot, _ioPins, _kinematicsRegistry),
+      _hmiService(ROBOT_UART_HMI, _robot, _ioPins, _kinematicsRegistry, _capabilities),
       _isBuilt(false),
-      _kinematicsRegistered(false),
-      _activeMode(KinematicsMode::MODE_4WD_MECANUM)
+      _kinematicsRegistered(false)
 {
-        _hmiService.setMotorBindHandler(OnMotorBindCommand, this);
+    _hmiService.setMotorBindHandler(OnMotorBindCommand, this);
+    _hmiService.setConfigHandler(OnConfigCommand, this);
 }
 
 void RobotSystemBuilder::build(KinematicsMode mode)
 {
     _motorManager.initTA6586Array(Wire, ROBOT_PCA9685_ADDRESS, ROBOT_PCA9685_FREQUENCY);
 
-    if (!loadMotorConfigFromEEPROM())
+    const bool loaded = _configurationManager.load();
+    if (!loaded)
     {
-        _motorManager.setDefaultDriveBinding();
-        saveMotorConfigToEEPROM();
+        RobotConfig defaults = _configurationManager.getActive();
+        defaults.kinematicsMode = mode;
+        UpdateRobotConfigCrc(defaults);
+        _configurationManager.updateStaged(defaults);
+        _configurationManager.apply();
+        _configurationManager.save();
     }
-
-    if (!_motorManager.buildDriveArray(_driveMotors, 4))
-    {
-        _motorManager.setDefaultDriveBinding();
-        _motorManager.buildDriveArray(_driveMotors, 4);
-    }
-    _motorOutput.setMotors(_driveMotors, 4);
 
     if (!_kinematicsRegistered)
     {
@@ -57,14 +66,7 @@ void RobotSystemBuilder::build(KinematicsMode mode)
         _kinematicsRegistered = true;
     }
 
-    _activeMode = mode;
-    IKinematics *targetKinematics = _kinematicsRegistry.find(_activeMode);
-    if (targetKinematics != nullptr)
-    {
-        _robot.setKinematics(*targetKinematics);
-    }
-
-    _isBuilt = true;
+    _isBuilt = applyConfiguration(_configurationManager.getActive(), false);
 }
 
 void RobotSystemBuilder::begin()
@@ -99,78 +101,148 @@ void RobotSystemBuilder::update()
     _robot.update();
 }
 
-bool RobotSystemBuilder::loadMotorConfigFromEEPROM()
+void RobotSystemBuilder::handleTJCMotorBindCommand(uint8_t slotIndex, MotorRole roleId)
 {
-    const uint8_t motorCount = _motorManager.getMotorCount();
-    if (motorCount == 0)
+    if (slotIndex >= MAX_MOTOR_PORT)
     {
-        return false;
+        return;
     }
 
-    MotorBindingConfig config;
-    EEPROM.get(EEPROM_MOTOR_CFG_ADDR, config);
-
-    uint8_t calculatedCrc = 0;
-    for (uint8_t index = 0; index < motorCount; ++index)
+    RobotConfig candidate = _configurationManager.getActive();
+    candidate.motorRoles[slotIndex] = roleId;
+    UpdateRobotConfigCrc(candidate);
+    if (!applyConfiguration(candidate, true))
     {
-        calculatedCrc ^= static_cast<uint8_t>(config.motor[index].role);
+        return;
     }
-
-    if (config.crc != calculatedCrc || static_cast<uint8_t>(config.motor[0].role) == 0xFF)
-    {
-        return false;
-    }
-
-    for (uint8_t index = 0; index < motorCount; ++index)
-    {
-        _motorManager.bindMotorRole(index, config.motor[index].role);
-    }
-
-    return _motorManager.isFullyBound();
 }
 
-bool RobotSystemBuilder::saveMotorConfigToEEPROM()
+bool RobotSystemBuilder::applyConfiguration(const RobotConfig &config, bool persist)
 {
-    const uint8_t motorCount = _motorManager.getMotorCount();
-    if (motorCount == 0)
+    if (!_configurationManager.validate(config))
     {
         return false;
     }
 
-    MotorBindingConfig config;
-    for (uint8_t index = 0; index < 6; ++index)
+    const RobotConfig previous = _configurationManager.getActive();
+    const uint8_t outputCount = config.kinematicsMode == KinematicsMode::MODE_2WD_DIFF ? 2 : 4;
+    if (!bindMotorConfiguration(config))
     {
-        config.motor[index].role = MotorRole::UNBOUND;
+        bindMotorConfiguration(previous);
+        return false;
     }
 
-    uint8_t calculatedCrc = 0;
-    for (uint8_t index = 0; index < motorCount; ++index)
+    if (!_motorManager.buildDriveArray(_driveMotors, outputCount, config.kinematicsMode))
     {
-        config.motor[index].role = _motorManager.getMotorRole(index);
-        calculatedCrc ^= static_cast<uint8_t>(config.motor[index].role);
+        bindMotorConfiguration(previous);
+        _motorManager.buildDriveArray(_driveMotors, 4, previous.kinematicsMode);
+        return false;
     }
-    config.crc = calculatedCrc;
 
-    EEPROM.put(EEPROM_MOTOR_CFG_ADDR, config);
+    _robot.setControlSource(_robot.getControlSource());
+    _motorOutput.setMotors(_driveMotors, outputCount);
+    _robot.setPwmLimit(config.pwmLimit);
+    _robot.setMotionProfile(config.motionProfile);
+
+    IKinematics *targetKinematics = _kinematicsRegistry.find(config.kinematicsMode);
+    if (targetKinematics == nullptr || !_robot.setKinematics(*targetKinematics))
+    {
+        bindMotorConfiguration(previous);
+        _motorOutput.setMotors(_driveMotors, previous.kinematicsMode == KinematicsMode::MODE_2WD_DIFF ? 2 : 4);
+        _robot.setPwmLimit(previous.pwmLimit);
+        _robot.setMotionProfile(previous.motionProfile);
+        IKinematics *previousKinematics = _kinematicsRegistry.find(previous.kinematicsMode);
+        if (previousKinematics != nullptr)
+        {
+            _robot.setKinematics(*previousKinematics);
+        }
+        return false;
+    }
+
+    _configurationManager.updateStaged(config);
+    if (!_configurationManager.apply())
+    {
+        return false;
+    }
+
+    return !persist || _configurationManager.save();
+}
+
+bool RobotSystemBuilder::bindMotorConfiguration(const RobotConfig &config)
+{
+    if (config.motorCount > _motorManager.getMotorCount())
+    {
+        return false;
+    }
+
+    for (uint8_t index = 0; index < _motorManager.getMotorCount(); ++index)
+    {
+        const bool configured = index < config.motorCount;
+        const MotorRole role = configured ? config.motorRoles[index] : MotorRole::UNBOUND;
+        const bool inverted = configured && config.motorInverted[index] != 0;
+        if (!_motorManager.bindMotorRole(index, role, inverted))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
-void RobotSystemBuilder::handleTJCMotorBindCommand(uint8_t slotIndex, MotorRole roleId)
+bool RobotSystemBuilder::handleHMIConfigCommand(HmiConfigCommand command, uint8_t valueA, uint8_t valueB)
 {
-    if (!_motorManager.bindMotorRole(slotIndex, roleId))
+    RobotConfig candidate;
+    switch (command)
     {
-        return;
+    case HmiConfigCommand::BEGIN:
+        _configurationManager.beginStage();
+        return true;
+    case HmiConfigCommand::ABORT:
+        _configurationManager.abortStage();
+        return true;
+    case HmiConfigCommand::VALIDATE:
+        return _configurationManager.validateStaged();
+    case HmiConfigCommand::APPLY:
+        return applyConfiguration(_configurationManager.getStaged(), false);
+    case HmiConfigCommand::SAVE:
+        return _configurationManager.save();
+    case HmiConfigCommand::SET_MODE:
+        candidate = _configurationManager.getStaged();
+        candidate.kinematicsMode = static_cast<KinematicsMode>(valueA);
+        UpdateRobotConfigCrc(candidate);
+        return _configurationManager.updateStaged(candidate);
+    case HmiConfigCommand::SET_PWM:
+        candidate = _configurationManager.getStaged();
+        candidate.pwmLimit = valueA;
+        UpdateRobotConfigCrc(candidate);
+        return _configurationManager.updateStaged(candidate);
+    case HmiConfigCommand::SET_PROFILE:
+        if (valueA > static_cast<uint8_t>(MotionProfile::LIMITED_ACCELERATION))
+        {
+            return false;
+        }
+        candidate = _configurationManager.getStaged();
+        candidate.motionProfile = static_cast<MotionProfile>(valueA);
+        UpdateRobotConfigCrc(candidate);
+        return _configurationManager.updateStaged(candidate);
+    case HmiConfigCommand::SET_INVERT:
+        if (valueA >= MAX_MOTOR_PORT || valueB > 1)
+        {
+            return false;
+        }
+        candidate = _configurationManager.getStaged();
+        candidate.motorInverted[valueA] = valueB;
+        UpdateRobotConfigCrc(candidate);
+        return _configurationManager.updateStaged(candidate);
+    case HmiConfigCommand::SET_MOTOR:
+        if (valueA >= MAX_MOTOR_PORT)
+        {
+            return false;
+        }
+        candidate = _configurationManager.getStaged();
+        candidate.motorRoles[valueA] = static_cast<MotorRole>(valueB);
+        UpdateRobotConfigCrc(candidate);
+        return _configurationManager.updateStaged(candidate);
     }
-
-    if (!_motorManager.isFullyBound())
-    {
-        return;
-    }
-
-    if (_motorManager.buildDriveArray(_driveMotors, 4))
-    {
-        _motorOutput.setMotors(_driveMotors, 4);
-    }
-
-    saveMotorConfigToEEPROM();
+    return false;
 }

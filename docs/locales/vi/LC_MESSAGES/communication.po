@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"POT-Creation-Date: 2026-10-01 21:37+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../../source/communication.rst:2
 msgid "Communication Protocols & ESP-NOW"
@@ -31,94 +31,562 @@ msgid ""
 "Communication between TJC Screen / Remote Bridge and Arduino Mega uses "
 "structured ASCII strings."
 msgstr ""
-"Giao tiếp giữa màn hình TJC / cầu nối Remote và Arduino Mega sử dụng chuỗi "
-"ASCII có cấu trúc."
+"Giao tiếp giữa màn hình TJC / cầu nối Remote và Arduino Mega sử dụng "
+"chuỗi ASCII có cấu trúc."
 
 #: ../../../source/communication.rst:10
-msgid "TJC/Remote -> Robot Mega"
+#, fuzzy
+msgid "TJC <-> Robot Mega Command Table"
 msgstr "TJC/Remote -> Robot Mega"
 
-#: ../../../source/communication.rst:16
-msgid "Command Format"
-msgstr "Định dạng lệnh"
-
-#: ../../../source/communication.rst:17
-msgid "Action Description"
-msgstr "Mô tả hành động"
-
-#: ../../../source/communication.rst:18
-msgid "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
-msgstr "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
-
-#: ../../../source/communication.rst:19
-msgid "Passes velocity vector inputs normalized within $[-1.0, 1.0]$."
-msgstr "Truyền vector vận tốc đầu vào đã được chuẩn hóa trong khoảng $[-1.0, 1.0]$."
+#: ../../../source/communication.rst:12
+msgid ""
+"Commands are ASCII strings terminated by three ``0xFF`` bytes. The Mega "
+"answers with an ASCII response using the same terminator unless stated "
+"otherwise."
+msgstr ""
 
 #: ../../../source/communication.rst:20
-msgid "``CMD_MODE:<0-4>``"
-msgstr "``CMD_MODE:<0-4>``"
+msgid "Direction"
+msgstr ""
 
 #: ../../../source/communication.rst:21
-msgid "Switches kinematic mode profile at runtime."
-msgstr "Chuyển profile chế độ động học trong thời gian chạy."
+msgid "TJC command"
+msgstr ""
 
 #: ../../../source/communication.rst:22
-msgid "``CMD_MAP:<ID>,<ROLE>``"
-msgstr "``CMD_MAP:<ID>,<ROLE>``"
+msgid "Mega response"
+msgstr ""
 
 #: ../../../source/communication.rst:23
-msgid ""
-"Maps physical motor channel ``<ID>`` to a logical role (e.g., "
-"``CMD_MAP:0,FL``)."
+msgid "Meaning and conditions"
 msgstr ""
-"Ánh xạ kênh động cơ vật lý ``<ID>`` sang một vai trò logic (ví dụ: "
-"``CMD_MAP:0,FL``)."
 
-#: ../../../source/communication.rst:24
-msgid "``CMD_ESTOP:1``"
-msgstr "``CMD_ESTOP:1``"
+#: ../../../source/communication.rst:24 ../../../source/communication.rst:28
+#: ../../../source/communication.rst:32 ../../../source/communication.rst:36
+#: ../../../source/communication.rst:40 ../../../source/communication.rst:44
+#: ../../../source/communication.rst:48 ../../../source/communication.rst:52
+#: ../../../source/communication.rst:56 ../../../source/communication.rst:60
+#: ../../../source/communication.rst:64 ../../../source/communication.rst:68
+#: ../../../source/communication.rst:72 ../../../source/communication.rst:76
+#: ../../../source/communication.rst:80 ../../../source/communication.rst:84
+#: ../../../source/communication.rst:88
+msgid "TJC -> Mega"
+msgstr ""
 
 #: ../../../source/communication.rst:25
-msgid "Triggers an immediate emergency stop."
-msgstr "Kích hoạt dừng khẩn cấp ngay lập tức."
+msgid "``CMD_CAP:GET``"
+msgstr ""
 
 #: ../../../source/communication.rst:26
-msgid "``CMD_M:<ID>,<DIR>,<PWM>``"
-msgstr "``CMD_M:<ID>,<DIR>,<PWM>``"
+msgid "``CAP:KIN,<5 flags>,DRV,<flag>``"
+msgstr ""
 
 #: ../../../source/communication.rst:27
-msgid "Manual press-to-run motor test command."
-msgstr "Lệnh kiểm thử động cơ thủ công theo kiểu nhấn để chạy."
+msgid "Returns compiled kinematics and driver capabilities."
+msgstr ""
+
+#: ../../../source/communication.rst:29
+msgid "``CMD_CTRL:MANUAL``"
+msgstr ""
 
 #: ../../../source/communication.rst:30
+msgid "``CMD_CTRL:OK,MANUAL``"
+msgstr ""
+
+#: ../../../source/communication.rst:31
+msgid "Selects HMI manual control source."
+msgstr ""
+
+#: ../../../source/communication.rst:33
+msgid "``CMD_CTRL:REMOTE``"
+msgstr ""
+
+#: ../../../source/communication.rst:34
+msgid "``CMD_CTRL:OK,REMOTE``"
+msgstr ""
+
+#: ../../../source/communication.rst:35
+msgid "Selects ESP-NOW remote control source."
+msgstr ""
+
+#: ../../../source/communication.rst:37
+msgid "``CMD_CFG:BEGIN``"
+msgstr ""
+
+#: ../../../source/communication.rst:38 ../../../source/communication.rst:62
+msgid "``CMD_CFG:OK``"
+msgstr ""
+
+#: ../../../source/communication.rst:39
+msgid "Copies active config to staged config."
+msgstr ""
+
+#: ../../../source/communication.rst:41
+msgid "``CMD_CFG:MODE,<0-4>``"
+msgstr ""
+
+#: ../../../source/communication.rst:42 ../../../source/communication.rst:46
+#: ../../../source/communication.rst:50
+msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``"
+msgstr ""
+
+#: ../../../source/communication.rst:43
+msgid "Stages kinematics mode; it does not change runtime until ``APPLY``."
+msgstr ""
+
+#: ../../../source/communication.rst:45
+msgid "``CMD_CFG:PWM,<0-255>``"
+msgstr ""
+
+#: ../../../source/communication.rst:47
+msgid "Stages the PWM limit."
+msgstr ""
+
+#: ../../../source/communication.rst:49
+msgid "``CMD_CFG:PROFILE,<0|1>``"
+msgstr ""
+
+#: ../../../source/communication.rst:51
+msgid "Stages ``DIRECT`` or ``LIMITED_ACCELERATION``."
+msgstr ""
+
+#: ../../../source/communication.rst:53
+msgid "``CMD_CFG:VALIDATE``"
+msgstr ""
+
+#: ../../../source/communication.rst:54 ../../../source/communication.rst:58
+#: ../../../source/communication.rst:66
+msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR``"
+msgstr ""
+
+#: ../../../source/communication.rst:55
+msgid "Validates capability, topology, roles, version and CRC."
+msgstr ""
+
+#: ../../../source/communication.rst:57
+msgid "``CMD_CFG:APPLY``"
+msgstr ""
+
+#: ../../../source/communication.rst:59
+msgid "Safely applies the staged configuration and stops motors during switch."
+msgstr ""
+
+#: ../../../source/communication.rst:61
+msgid "``CMD_CFG:ABORT``"
+msgstr ""
+
+#: ../../../source/communication.rst:63
+msgid "Discards staged changes."
+msgstr ""
+
+#: ../../../source/communication.rst:65
+msgid "``CMD_CFG:SAVE``"
+msgstr ""
+
+#: ../../../source/communication.rst:67
+msgid ""
+"Saves the active config to EEPROM when it changed and the write budget "
+"allows it."
+msgstr ""
+
+#: ../../../source/communication.rst:69
+msgid "``CMD_MODE:<0-4>``"
+msgstr ""
+
+#: ../../../source/communication.rst:70
+msgid "``CMD_MODE:OK`` or ``CMD_MODE:ERR,UNSUPPORTED``"
+msgstr ""
+
+#: ../../../source/communication.rst:71
+msgid "Legacy compatibility command; internally stages and applies the mode."
+msgstr ""
+
+#: ../../../source/communication.rst:73
+msgid "``CMD_JOY:<throttle>,<strafe>,<rotation>``"
+msgstr ""
+
+#: ../../../source/communication.rst:74
+msgid "Error response only on failure."
+msgstr ""
+
+#: ../../../source/communication.rst:75
+msgid "HMI motion in ``[-100,100]``; requires manual control source."
+msgstr ""
+
+#: ../../../source/communication.rst:77
+msgid "``CMD_M:<id>,<FWD|REV|STOP>,<pwm>``"
+msgstr ""
+
+#: ../../../source/communication.rst:78
+msgid "``CMD_M:OK,...`` or ``CMD_M:ERR,...``"
+msgstr ""
+
+#: ../../../source/communication.rst:79
+msgid "Manual motor test; requires manual control source."
+msgstr ""
+
+#: ../../../source/communication.rst:81
+msgid "``CMD_LIMIT:PWM,<0-255>``"
+msgstr ""
+
+#: ../../../source/communication.rst:82
+msgid "``CMD_LIMIT:OK`` or ``CMD_LIMIT:ERR,VALUE``"
+msgstr ""
+
+#: ../../../source/communication.rst:83
+msgid "Changes active controller PWM limit for the current runtime."
+msgstr ""
+
+#: ../../../source/communication.rst:85
+msgid "``CMD_SIM:TOGGLE_IO,<pin>``"
+msgstr ""
+
+#: ../../../source/communication.rst:86 ../../../source/communication.rst:90
+msgid "``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``"
+msgstr ""
+
+#: ../../../source/communication.rst:87
+msgid "Toggles simulation state for a configured I/O pin."
+msgstr ""
+
+#: ../../../source/communication.rst:89
+msgid "``CMD_SIM:RESET_IO,<pin>``"
+msgstr ""
+
+#: ../../../source/communication.rst:91
+msgid "Restores a configured I/O pin to real state."
+msgstr ""
+
+#: ../../../source/communication.rst:92 ../../../source/communication.rst:96
+msgid "Mega -> TJC"
+msgstr ""
+
+#: ../../../source/communication.rst:93
+msgid "Periodic heartbeat"
+msgstr ""
+
+#: ../../../source/communication.rst:94
+msgid "``CMD_SYS:OK``"
+msgstr ""
+
+#: ../../../source/communication.rst:95
+msgid "Sent every 500 ms while HMI service is running."
+msgstr ""
+
+#: ../../../source/communication.rst:97
+msgid "Invalid command"
+msgstr ""
+
+#: ../../../source/communication.rst:98
+msgid "``CMD_ERR:UNKNOWN_COMMAND``"
+msgstr ""
+
+#: ../../../source/communication.rst:99
+msgid "Command was not recognized."
+msgstr ""
+
+#: ../../../source/communication.rst:102
+msgid "Slot-based configuration commands"
+msgstr ""
+
+#: ../../../source/communication.rst:104
+msgid ""
+"The protocol uses 1-based slots. Firmware converts them to internal "
+"indexes 0 through 5."
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Command"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Response"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Meaning"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "``CMD_CFG:MOTOR,<slot 1-6>,<role>``"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "``CMD_CFG:OK`` / ``ERR``"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Stage physical slot role mapping."
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "``CMD_CFG:INVERT,<slot 1-6>,<0|1>``"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Stage motor direction inversion."
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "``CMD_MAP:<slot 1-6>,<role>``"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "``CMD_MAP:OK`` / ``ERR``"
+msgstr ""
+
+#: ../../../source/communication.rst:1
+msgid "Legacy mapping command."
+msgstr ""
+
+#: ../../../source/communication.rst:116
 msgid "ESP-NOW Wireless Bridge"
 msgstr "Cầu nối không dây ESP-NOW"
 
-#: ../../../source/communication.rst:32
+#: ../../../source/communication.rst:118
 msgid ""
 "The wireless link operates over 2.4 GHz ESP-NOW with an observed latency "
 "of approximately **~2.5 ms**."
 msgstr ""
-"Liên kết không dây hoạt động trên ESP-NOW 2.4 GHz với độ trễ quan sát được "
-"xấp xỉ **~2.5 ms**."
+"Liên kết không dây hoạt động trên ESP-NOW 2.4 GHz với độ trễ quan sát "
+"được xấp xỉ **~2.5 ms**."
 
-#: ../../../source/communication.rst:34
+#: ../../../source/communication.rst:120
 msgid "Packets include:"
 msgstr "Gói dữ liệu bao gồm:"
 
-#: ../../../source/communication.rst:36
+#: ../../../source/communication.rst:122
 msgid "Protocol Version"
 msgstr "Phiên bản giao thức"
 
-#: ../../../source/communication.rst:37
+#: ../../../source/communication.rst:123
 msgid "Sequence Number (detects duplicate, out-of-order, or dropped frames)"
 msgstr "Số thứ tự (phát hiện khung trùng lặp, sai thứ tự hoặc bị rơi)"
 
-#: ../../../source/communication.rst:38
+#: ../../../source/communication.rst:124
 msgid "Payload Data (Velocity Vectors, Buttons, Mode Flags)"
 msgstr "Dữ liệu payload (vector vận tốc, nút bấm, cờ chế độ)"
 
-#: ../../../source/communication.rst:39
+#: ../../../source/communication.rst:125
 msgid "CRC Verification"
 msgstr "Kiểm tra CRC"
+
+#~ msgid "Command Format"
+#~ msgstr "Định dạng lệnh"
+
+#~ msgid "Action Description"
+#~ msgstr "Mô tả hành động"
+
+#~ msgid "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
+#~ msgstr "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
+
+#~ msgid "Passes velocity vector inputs normalized within $[-1.0, 1.0]$."
+#~ msgstr ""
+#~ "Truyền vector vận tốc đầu vào đã"
+#~ " được chuẩn hóa trong khoảng $[-1.0,"
+#~ " 1.0]$."
+
+#~ msgid ""
+#~ "Maps physical motor channel ``<ID>`` to"
+#~ " a logical role (e.g., ``CMD_MAP:0,FL``)."
+#~ msgstr ""
+#~ "Ánh xạ kênh động cơ vật lý "
+#~ "``<ID>`` sang một vai trò logic "
+#~ "(ví dụ: ``CMD_MAP:0,FL``)."
+
+#~ msgid "Triggers an immediate emergency stop."
+#~ msgstr "Kích hoạt dừng khẩn cấp ngay lập tức."
+
+#~ msgid "Manual press-to-run motor test command."
+#~ msgstr "Lệnh kiểm thử động cơ thủ công theo kiểu nhấn để chạy."
+
+#~ msgid "Direction"
+#~ msgstr ""
+
+#~ msgid "TJC command"
+#~ msgstr ""
+
+#~ msgid "Mega response"
+#~ msgstr ""
+
+#~ msgid "Meaning and conditions"
+#~ msgstr ""
+
+#~ msgid "TJC -> Mega"
+#~ msgstr "TJC/Remote -> Robot Mega"
+
+#~ msgid "``CMD_CAP:GET``"
+#~ msgstr "``CMD_ESTOP:1``"
+
+#~ msgid "``CAP:KIN,<5 flags>,DRV,<flag>``"
+#~ msgstr ""
+
+#~ msgid "Returns compiled kinematics and driver capabilities."
+#~ msgstr ""
+
+#~ msgid "``CMD_CTRL:MANUAL``"
+#~ msgstr ""
+
+#~ msgid "``CMD_CTRL:OK,MANUAL``"
+#~ msgstr ""
+
+#~ msgid "Selects HMI manual control source."
+#~ msgstr ""
+
+#~ msgid "``CMD_CTRL:REMOTE``"
+#~ msgstr ""
+
+#~ msgid "``CMD_CTRL:OK,REMOTE``"
+#~ msgstr ""
+
+#~ msgid "Selects ESP-NOW remote control source."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:BEGIN``"
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:OK``"
+#~ msgstr "``CMD_ESTOP:1``"
+
+#~ msgid "Copies active config to staged config."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:MODE,<0-4>``"
+#~ msgstr "``CMD_MODE:<0-4>``"
+
+#~ msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``"
+#~ msgstr ""
+
+#~ msgid "Stages kinematics mode; it does not change runtime until ``APPLY``."
+#~ msgstr "Chuyển profile chế độ động học trong thời gian chạy."
+
+#~ msgid "``CMD_CFG:PWM,<0-255>``"
+#~ msgstr "``CMD_MODE:<0-4>``"
+
+#~ msgid "Stages the PWM limit."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:PROFILE,<0|1>``"
+#~ msgstr "``CMD_MODE:<0-4>``"
+
+#~ msgid "Stages ``DIRECT`` or ``LIMITED_ACCELERATION``."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:MOTOR,<slot>,<role>``"
+#~ msgstr "``CMD_MAP:<ID>,<ROLE>``"
+
+#~ msgid "Stages a physical slot to logical role mapping."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:VALIDATE``"
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR``"
+#~ msgstr ""
+
+#~ msgid "Validates capability, topology, roles, version and CRC."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:APPLY``"
+#~ msgstr ""
+
+#~ msgid "Safely applies the staged configuration and stops motors during switch."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:ABORT``"
+#~ msgstr ""
+
+#~ msgid "Discards staged changes."
+#~ msgstr ""
+
+#~ msgid "``CMD_CFG:SAVE``"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Saves the active config to EEPROM "
+#~ "when it changed and the write "
+#~ "budget allows it."
+#~ msgstr ""
+
+#~ msgid "``CMD_MODE:<0-4>``"
+#~ msgstr "``CMD_MODE:<0-4>``"
+
+#~ msgid "``CMD_MODE:OK`` or ``CMD_MODE:ERR,UNSUPPORTED``"
+#~ msgstr ""
+
+#~ msgid "Legacy compatibility command; internally stages and applies the mode."
+#~ msgstr ""
+
+#~ msgid "``CMD_MAP:<slot>,<role>``"
+#~ msgstr "``CMD_MAP:<ID>,<ROLE>``"
+
+#~ msgid "``CMD_MAP:OK`` or ``CMD_MAP:ERR,...``"
+#~ msgstr ""
+
+#~ msgid "Legacy compatibility command; internally stages and applies mapping."
+#~ msgstr ""
+
+#~ msgid "``CMD_JOY:<throttle>,<strafe>,<rotation>``"
+#~ msgstr ""
+
+#~ msgid "Error response only on failure."
+#~ msgstr ""
+
+#~ msgid "HMI motion in ``[-100,100]``; requires manual control source."
+#~ msgstr ""
+
+#~ msgid "``CMD_M:<id>,<FWD|REV|STOP>,<pwm>``"
+#~ msgstr "``CMD_M:<ID>,<DIR>,<PWM>``"
+
+#~ msgid "``CMD_M:OK,...`` or ``CMD_M:ERR,...``"
+#~ msgstr ""
+
+#~ msgid "Manual motor test; requires manual control source."
+#~ msgstr ""
+
+#~ msgid "``CMD_LIMIT:PWM,<0-255>``"
+#~ msgstr "``CMD_MODE:<0-4>``"
+
+#~ msgid "``CMD_LIMIT:OK`` or ``CMD_LIMIT:ERR,VALUE``"
+#~ msgstr ""
+
+#~ msgid "Changes active controller PWM limit for the current runtime."
+#~ msgstr ""
+
+#~ msgid "``CMD_SIM:TOGGLE_IO,<pin>``"
+#~ msgstr ""
+
+#~ msgid "``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``"
+#~ msgstr ""
+
+#~ msgid "Toggles simulation state for a configured I/O pin."
+#~ msgstr ""
+
+#~ msgid "``CMD_SIM:RESET_IO,<pin>``"
+#~ msgstr "``CMD_ESTOP:1``"
+
+#~ msgid "Restores a configured I/O pin to real state."
+#~ msgstr ""
+
+#~ msgid "Mega -> TJC"
+#~ msgstr ""
+
+#~ msgid "Periodic heartbeat"
+#~ msgstr ""
+
+#~ msgid "``CMD_SYS:OK``"
+#~ msgstr "``CMD_ESTOP:1``"
+
+#~ msgid "Sent every 500 ms while HMI service is running."
+#~ msgstr ""
+
+#~ msgid "Invalid command"
+#~ msgstr ""
+
+#~ msgid "``CMD_ERR:UNKNOWN_COMMAND``"
+#~ msgstr ""
+
+#~ msgid "Command was not recognized."
+#~ msgstr ""
 

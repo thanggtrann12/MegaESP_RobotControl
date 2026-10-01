@@ -56,6 +56,17 @@ enum class ControlSource : uint8_t
     HMI_MANUAL = 1
 };
 
+enum class RobotDriverType : uint8_t
+{
+    TA6586_PCA9685 = 0
+};
+
+enum class MotionProfile : uint8_t
+{
+    DIRECT = 0,
+    LIMITED_ACCELERATION = 1
+};
+
 /**
  * @brief Logical motor role used for dynamic slot binding.
  */
@@ -66,25 +77,11 @@ enum class MotorRole : uint8_t
     REAR_LEFT,
     FRONT_RIGHT,
     REAR_RIGHT,
+    LEFT_MOTOR,
+    RIGHT_MOTOR,
     STEER_ACTUATOR,
-    AUXILIARY
-};
-
-/**
- * @brief Role binding entry for one physical motor slot.
- */
-struct MotorBinding
-{
-    MotorRole role;
-};
-
-/**
- * @brief Persistent motor binding table with simple XOR checksum.
- */
-struct MotorBindingConfig
-{
-    MotorBinding motor[6];
-    uint8_t crc;
+    AUXILIARY,
+    INVALID
 };
 
 /**

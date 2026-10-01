@@ -80,6 +80,8 @@ public:
      * @param limit PWM cap.
      */
     void setPwmLimit(uint8_t limit);
+    /** @brief Sets the active motion profile. */
+    void setMotionProfile(MotionProfile profile);
     /**
      * @brief Gets current PWM output limit.
      * @return PWM cap value.
@@ -111,6 +113,8 @@ private:
     bool _hasSequenceNumber;
     ControlSource _controlSource;
     uint8_t _pwmLimit;
+    MotionProfile _motionProfile;
+    int16_t _lastWheelSpeeds[MAX_DRIVE_WHEELS] = {0};
     bool _hmiMotionActive;
     int8_t _hmiThrottle;
     int8_t _hmiStrafe;

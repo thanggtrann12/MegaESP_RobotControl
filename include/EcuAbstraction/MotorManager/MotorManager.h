@@ -29,28 +29,18 @@ public:
     {
         cleanup();
 
-        
         for (uint8_t slot = 0; slot < MAX_MOTOR_PORT; ++slot)
         {
             _slots[slot].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_L1_BI + slot * 2, ROBOT_MOTOR_L1_FI + slot * 2, pwmFrequency);
             _slots[slot].role = MotorRole::UNBOUND;
             _slots[slot].isBound = false;
-            _rawMotors[slot] = _slots[slot].ptr;
         }
 
         _motorCount = MAX_MOTOR_PORT;
         return true;
     }
 
-    void setDefaultDriveBinding()
-    {
-        bindMotorRole(0, MotorRole::FRONT_LEFT);
-        bindMotorRole(1, MotorRole::REAR_LEFT);
-        bindMotorRole(2, MotorRole::FRONT_RIGHT);
-        bindMotorRole(3, MotorRole::REAR_RIGHT);
-    }
-
-    bool bindMotorRole(uint8_t slotIndex, MotorRole role)
+    bool bindMotorRole(uint8_t slotIndex, MotorRole role, bool inverted = false)
     {
         if (slotIndex >= _motorCount || _slots[slotIndex].ptr == nullptr)
         {
@@ -59,37 +49,31 @@ public:
 
         _slots[slotIndex].role = role;
         _slots[slotIndex].isBound = (role != MotorRole::UNBOUND);
+        _slots[slotIndex].ptr->setInverted(inverted);
         return true;
-    }
-
-    bool isFullyBound() const
-    {
-        for (uint8_t index = 0; index < _motorCount; ++index)
-        {
-            if (!_slots[index].isBound)
-            {
-                return false;
-            }
-        }
-        return _motorCount > 0;
-    }
-
-    MotorRole getMotorRole(uint8_t slotIndex) const
-    {
-        if (slotIndex >= _motorCount)
-        {
-            return MotorRole::UNBOUND;
-        }
-        return _slots[slotIndex].role;
     }
 
     uint8_t getMotorCount() const { return _motorCount; }
 
-    IMotor **getMotorArray() { return _rawMotors; }
-
-    bool buildDriveArray(IMotor **outMotors, uint8_t outCount) const
+    bool buildDriveArray(IMotor **outMotors, uint8_t outCount, KinematicsMode mode) const
     {
-        if (outMotors == nullptr || outCount < 4)
+        if (outMotors == nullptr)
+        {
+            return false;
+        }
+
+        if (mode == KinematicsMode::MODE_2WD_DIFF)
+        {
+            if (outCount < 2)
+            {
+                return false;
+            }
+            outMotors[0] = findByRole(MotorRole::LEFT_MOTOR);
+            outMotors[1] = findByRole(MotorRole::RIGHT_MOTOR);
+            return outMotors[0] != nullptr && outMotors[1] != nullptr;
+        }
+
+        if (outCount < 4)
         {
             return false;
         }
@@ -114,7 +98,6 @@ public:
             }
             _slots[index].role = MotorRole::UNBOUND;
             _slots[index].isBound = false;
-            _rawMotors[index] = nullptr;
         }
         _motorCount = 0;
     }
@@ -133,7 +116,6 @@ private:
     }
 
     MotorSlot _slots[MAX_MOTOR_PORT];
-    IMotor *_rawMotors[MAX_MOTOR_PORT] = {nullptr};
     uint8_t _motorCount;
 };
 

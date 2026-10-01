@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"POT-Creation-Date: 2026-10-01 20:00+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../../source/development.rst:2
 msgid "Development, Testing & Roadmap"
@@ -35,23 +35,22 @@ msgid ""
 "**Kinematics Test:** Verify math using simulated inputs without physical "
 "movement."
 msgstr ""
-"**Kiểm thử động học:** Xác minh phép tính bằng đầu vào mô phỏng mà không cần "
-"chuyển động vật lý."
+"**Kiểm thử động học:** Xác minh phép tính bằng đầu vào mô phỏng mà không "
+"cần chuyển động vật lý."
 
 #: ../../../source/development.rst:9
 msgid ""
 "**Wireless Test:** Validate ESP-NOW packet sequence numbers and CRC "
 "checks."
-msgstr ""
-"**Kiểm thử không dây:** Xác thực số thứ tự gói ESP-NOW và kiểm tra CRC."
+msgstr "**Kiểm thử không dây:** Xác thực số thứ tự gói ESP-NOW và kiểm tra CRC."
 
 #: ../../../source/development.rst:10
 msgid ""
 "**Integration Test:** Execute full end-to-end testing from remote control"
 " to physical movement."
 msgstr ""
-"**Kiểm thử tích hợp:** Thực hiện kiểm thử end-to-end đầy đủ từ điều khiển từ "
-"xa đến chuyển động thực tế."
+"**Kiểm thử tích hợp:** Thực hiện kiểm thử end-to-end đầy đủ từ điều khiển"
+" từ xa đến chuyển động thực tế."
 
 #: ../../../source/development.rst:13
 msgid "Current Status & Roadmap"
@@ -62,36 +61,80 @@ msgid ""
 "**Phase 1 — Core Motor System:** Arduino Mega 2560 motor control & basic "
 "abstraction."
 msgstr ""
-"**Giai đoạn 1 — Hệ động cơ cốt lõi:** Điều khiển động cơ trên Arduino Mega "
-"2560 và lớp trừu tượng cơ bản."
+"**Giai đoạn 1 — Hệ động cơ cốt lõi:** Điều khiển động cơ trên Arduino "
+"Mega 2560 và lớp trừu tượng cơ bản."
 
 #: ../../../source/development.rst:16
 msgid "**Phase 2 — HMI:** TJC display interface, manual testing, simulation mode."
 msgstr ""
-"**Giai đoạn 2 — HMI:** Giao diện hiển thị TJC, kiểm thử thủ công, chế độ mô "
-"phỏng."
+"**Giai đoạn 2 — HMI:** Giao diện hiển thị TJC, kiểm thử thủ công, chế độ "
+"mô phỏng."
 
 #: ../../../source/development.rst:17
 msgid ""
 "**Phase 3 — Configurable Robot:** EEPROM storage, motor role mapping, "
 "inversion settings."
 msgstr ""
-"**Giai đoạn 3 — Robot có thể cấu hình:** Lưu trữ EEPROM, ánh xạ vai trò động "
-"cơ, cài đặt đảo chiều."
+"**Giai đoạn 3 — Robot có thể cấu hình:** Lưu trữ EEPROM, ánh xạ vai trò "
+"động cơ, cài đặt đảo chiều."
 
 #: ../../../source/development.rst:18
 msgid ""
 "**Phase 4 — Wireless Remote:** ESP-NOW communication link with timeout "
 "watchdog."
 msgstr ""
-"**Giai đoạn 4 — Điều khiển từ xa không dây:** Liên kết truyền thông ESP-NOW "
-"kèm watchdog timeout."
+"**Giai đoạn 4 — Điều khiển từ xa không dây:** Liên kết truyền thông ESP-"
+"NOW kèm watchdog timeout."
 
 #: ../../../source/development.rst:19
 msgid ""
 "**Phase 5 — Multi-Kinematics:** Runtime switching between Differential, "
 "Mecanum, and Omni drive models."
 msgstr ""
-"**Giai đoạn 5 — Đa động học:** Chuyển đổi thời gian chạy giữa các mô hình "
-"truyền động Differential, Mecanum và Omni."
+"**Giai đoạn 5 — Đa động học:** Chuyển đổi thời gian chạy giữa các mô hình"
+" truyền động Differential, Mecanum và Omni."
+
+#: ../../../source/development.rst:22
+msgid "PlatformIO Environment Layout"
+msgstr ""
+
+#: ../../../source/development.rst:24
+msgid ""
+"Each environment selects exactly one application folder under ``src/`` "
+"with ``build_src_filter``:"
+msgstr ""
+
+#: ../../../source/development.rst:27
+msgid "``src/Remote_Mega2560`` — handheld Mega application."
+msgstr ""
+
+#: ../../../source/development.rst:28
+msgid "``src/Remote_ESP8266_Bridge`` — handheld ESP-NOW bridge."
+msgstr ""
+
+#: ../../../source/development.rst:29
+msgid "``src/Robot_ESP8266_Receiver`` — robot-side ESP-NOW receiver."
+msgstr ""
+
+#: ../../../source/development.rst:30
+msgid "``src/Robot_Mega2560`` — Universal Robot Hub runtime."
+msgstr ""
+
+#: ../../../source/development.rst:32
+msgid ""
+"Reusable components stay under ``lib/``. The robot Mega environment "
+"explicitly owns the ``GenericRobotController`` and ``GenericLogger`` "
+"source files because these internal libraries are compiled as part of "
+"that firmware. They are excluded from automatic library discovery there "
+"to avoid duplicate objects. Other environments consume only the libraries"
+" they reference."
+msgstr ""
+
+#: ../../../source/development.rst:38
+msgid ""
+"Do not use a per-environment ``src_dir`` in this project: the installed "
+"PlatformIO version ignores that option. Add a new firmware target by "
+"creating one application directory under ``src/`` and adding one matching"
+" ``build_src_filter`` block in ``platformio.ini``."
+msgstr ""
 

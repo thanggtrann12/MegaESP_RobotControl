@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"POT-Creation-Date: 2026-10-01 21:09+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../../source/configuration.rst:2
 msgid "Dynamic Motor Mapping & Configuration"
@@ -31,8 +31,8 @@ msgid ""
 "A key feature of this controller is separating logical motor roles from "
 "physical output channels."
 msgstr ""
-"Một tính năng quan trọng của bộ điều khiển này là tách vai trò động cơ logic "
-"khỏi các kênh đầu ra vật lý."
+"Một tính năng quan trọng của bộ điều khiển này là tách vai trò động cơ "
+"logic khỏi các kênh đầu ra vật lý."
 
 #: ../../../source/configuration.rst:10
 msgid "Mecanum Profile Example"
@@ -47,22 +47,92 @@ msgid "Configuration Validation Rules"
 msgstr "Quy tắc kiểm tra hợp lệ cấu hình"
 
 #: ../../../source/configuration.rst:30
-msgid "Before saving changes to EEPROM, ``ConfigManager`` validates:"
-msgstr "Trước khi lưu thay đổi vào EEPROM, ``ConfigManager`` sẽ kiểm tra:"
-
-#: ../../../source/configuration.rst:32
-msgid "Physical channel exists ($0 \\rightarrow 5$)."
-msgstr "Kênh vật lý phải tồn tại ($0 \\rightarrow 5$)."
-
-#: ../../../source/configuration.rst:33
-msgid "Assigned role is valid for the current kinematics mode."
-msgstr "Vai trò được gán phải hợp lệ với chế độ động học hiện tại."
+msgid ""
+"The runtime keeps one active configuration and one staged configuration. "
+"TJC updates the staged copy and only ``CMD_CFG:APPLY`` changes the "
+"running robot. ``CMD_CFG:SAVE`` persists the already-applied "
+"configuration to EEPROM."
+msgstr ""
 
 #: ../../../source/configuration.rst:34
-msgid "No duplicate channel conflicts exist."
-msgstr "Không được tồn tại xung đột trùng kênh."
+msgid "The current configuration protocol is:"
+msgstr ""
 
-#: ../../../source/configuration.rst:35
-msgid "Maximum power limits fall within valid bounds ($0 \\rightarrow 255$)."
-msgstr "Giới hạn công suất tối đa phải nằm trong khoảng hợp lệ ($0 \\rightarrow 255$)."
+#: ../../../source/configuration.rst:50
+msgid ""
+"The capability response has the form "
+"``CAP:KIN,<diff>,<mecanum>,<omni3>,<omni4>,<custom>,DRV,<ta6586-pca9685>``."
+" The HMI must use this response to hide unsupported configuration "
+"choices."
+msgstr ""
+
+#: ../../../source/configuration.rst:53
+#, fuzzy
+msgid "Before applying or saving changes, ``ConfigurationManager`` validates:"
+msgstr "Trước khi lưu thay đổi vào EEPROM, ``ConfigManager`` sẽ kiểm tra:"
+
+#: ../../../source/configuration.rst:55
+msgid ""
+"Protocol slot exists ($1 \\rightarrow 6$); firmware converts it to "
+"internal index $0 \\rightarrow 5$."
+msgstr ""
+
+#: ../../../source/configuration.rst:56
+msgid "The selected kinematics is advertised by ``CapabilityRegistry``."
+msgstr ""
+
+#: ../../../source/configuration.rst:57
+msgid ""
+"Differential mode requires exactly one ``LEFT_MOTOR`` and one "
+"``RIGHT_MOTOR`` role."
+msgstr ""
+
+#: ../../../source/configuration.rst:58
+msgid "Mecanum mode requires the four front/rear left/right roles exactly once."
+msgstr ""
+
+#: ../../../source/configuration.rst:59
+msgid "Unused physical slots may remain ``UNBOUND``."
+msgstr ""
+
+#: ../../../source/configuration.rst:60
+msgid "The selected driver, inversion flags and PWM limit are valid."
+msgstr ""
+
+#: ../../../source/configuration.rst:61
+msgid "Configuration version and CRC are valid before EEPROM load."
+msgstr ""
+
+#: ../../../source/configuration.rst:63
+msgid ""
+"Motion profiles are currently ``0 = DIRECT`` and ``1 = "
+"LIMITED_ACCELERATION``. The latter limits per-update wheel speed changes "
+"before PWM scaling."
+msgstr ""
+
+#: ../../../source/configuration.rst:66
+msgid ""
+"The Mega2560 firmware currently advertises Differential and Mecanum "
+"kinematics with the TA6586/PCA9685 driver. New hardware or kinematics "
+"must be implemented and registered in firmware before the HMI can select "
+"them."
+msgstr ""
+
+#~ msgid "Assigned role is valid for the current kinematics mode."
+#~ msgstr "Vai trò được gán phải hợp lệ với chế độ động học hiện tại."
+
+#~ msgid "No duplicate channel conflicts exist."
+#~ msgstr "Không được tồn tại xung đột trùng kênh."
+
+#~ msgid "The four required drive roles exist exactly once."
+#~ msgstr ""
+
+#~ msgid "Maximum power limits fall within valid bounds ($0 \\rightarrow 255$)."
+#~ msgstr ""
+#~ "Giới hạn công suất tối đa phải "
+#~ "nằm trong khoảng hợp lệ ($0 "
+#~ "\\rightarrow 255$)."
+
+#~ msgid "Physical channel exists ($0 \\rightarrow 5$)."
+#~ msgstr "Kênh vật lý phải tồn tại ($0 \\rightarrow 5$)."
 

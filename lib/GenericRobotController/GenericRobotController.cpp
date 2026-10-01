@@ -57,6 +57,7 @@ GenericRobotController::GenericRobotController(IMotorOutput &motorOutput, IKinem
       _hasSequenceNumber(false),
       _controlSource(ControlSource::REMOTE),
       _pwmLimit(255),
+    _motionProfile(MotionProfile::DIRECT),
       _hmiMotionActive(false),
       _hmiThrottle(0),
       _hmiStrafe(0),
@@ -146,6 +147,16 @@ void GenericRobotController::setPwmLimit(uint8_t limit)
     _pwmLimit = limit;
 }
 
+void GenericRobotController::setMotionProfile(MotionProfile profile)
+{
+    _motionProfile = profile;
+    for (uint8_t index = 0; index < MAX_DRIVE_WHEELS; ++index)
+    {
+        _lastWheelSpeeds[index] = 0;
+    }
+    stopMotors();
+}
+
 uint8_t GenericRobotController::getPwmLimit() const
 {
     return _pwmLimit;
@@ -198,6 +209,27 @@ void GenericRobotController::applyMotion(int8_t throttleValue, int8_t strafeValu
     int16_t speeds[MAX_DRIVE_WHEELS] = {0};
     uint8_t wheelCount = _kinematics->getWheelCount();
     _kinematics->computeWheelSpeeds(throttle, strafe, rotation, speeds);
+
+    if (_motionProfile == MotionProfile::LIMITED_ACCELERATION)
+    {
+        constexpr int16_t MAX_STEP_PER_UPDATE = 32;
+        for (uint8_t index = 0; index < wheelCount; ++index)
+        {
+            const int16_t delta = speeds[index] - _lastWheelSpeeds[index];
+            if (delta > MAX_STEP_PER_UPDATE)
+                speeds[index] = _lastWheelSpeeds[index] + MAX_STEP_PER_UPDATE;
+            else if (delta < -MAX_STEP_PER_UPDATE)
+                speeds[index] = _lastWheelSpeeds[index] - MAX_STEP_PER_UPDATE;
+            _lastWheelSpeeds[index] = speeds[index];
+        }
+    }
+    else
+    {
+        for (uint8_t index = 0; index < wheelCount; ++index)
+        {
+            _lastWheelSpeeds[index] = speeds[index];
+        }
+    }
     _motorOutput.applyWheelSpeeds(speeds, wheelCount, _pwmLimit);
 
     if (millis() - _lastLogTime >= 500)
@@ -254,5 +286,9 @@ int16_t GenericRobotController::mapAxisToMotor(int16_t value)
 
 void GenericRobotController::stopMotors()
 {
+    for (uint8_t index = 0; index < MAX_DRIVE_WHEELS; ++index)
+    {
+        _lastWheelSpeeds[index] = 0;
+    }
     _motorOutput.stop();
 }

@@ -7,16 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-HMIService::HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry)
+HMIService::HMIService(Stream &serial,
+                       GenericRobotController &robot,
+                       IOPinManager &ioPins,
+                       KinematicsRegistry &kinematicsRegistry,
+                       const CapabilityRegistry &capabilities)
     : _serial(serial),
       _robot(robot),
       _ioPins(ioPins),
       _kinematicsRegistry(kinematicsRegistry),
+      _capabilities(capabilities),
       _length(0),
       _terminatorCount(0),
       _lastHeartbeat(0),
       _motorBindHandler(nullptr),
-      _motorBindContext(nullptr)
+      _motorBindContext(nullptr),
+      _configHandler(nullptr),
+      _configContext(nullptr)
 {
     _buffer[0] = '\0';
 }
@@ -25,6 +32,12 @@ void HMIService::setMotorBindHandler(MotorBindHandler handler, void *context)
 {
     _motorBindHandler = handler;
     _motorBindContext = context;
+}
+
+void HMIService::setConfigHandler(ConfigHandler handler, void *context)
+{
+    _configHandler = handler;
+    _configContext = context;
 }
 
 void HMIService::update()
@@ -97,6 +110,115 @@ void HMIService::processCommand()
         return;
     }
 
+    if (strcmp(_buffer, "CMD_CAP:GET") == 0)
+    {
+        sendCapabilities();
+        return;
+    }
+
+    if (strcmp(_buffer, "CMD_CFG:BEGIN") == 0 ||
+        strcmp(_buffer, "CMD_CFG:VALIDATE") == 0 ||
+        strcmp(_buffer, "CMD_CFG:APPLY") == 0 ||
+        strcmp(_buffer, "CMD_CFG:ABORT") == 0 ||
+        strcmp(_buffer, "CMD_CFG:SAVE") == 0)
+    {
+        HmiConfigCommand command = HmiConfigCommand::BEGIN;
+        const char *suffix = _buffer + 8;
+        if (strcmp(suffix, "VALIDATE") == 0)
+            command = HmiConfigCommand::VALIDATE;
+        else if (strcmp(suffix, "APPLY") == 0)
+            command = HmiConfigCommand::APPLY;
+        else if (strcmp(suffix, "ABORT") == 0)
+            command = HmiConfigCommand::ABORT;
+        else if (strcmp(suffix, "SAVE") == 0)
+            command = HmiConfigCommand::SAVE;
+
+        if (_configHandler != nullptr && _configHandler(_configContext, command, 0, 0))
+            sendMessage("CMD_CFG:OK");
+        else
+            sendMessage("CMD_CFG:ERR");
+        return;
+    }
+
+    if (strncmp(_buffer, "CMD_CFG:MODE,", 13) == 0 ||
+        strncmp(_buffer, "CMD_CFG:PWM,", 12) == 0 ||
+        strncmp(_buffer, "CMD_CFG:PROFILE,", 16) == 0)
+    {
+        const bool isMode = strncmp(_buffer, "CMD_CFG:MODE,", 13) == 0;
+        const bool isProfile = strncmp(_buffer, "CMD_CFG:PROFILE,", 16) == 0;
+        const char *valueText = _buffer + (isMode ? 13 : (isProfile ? 16 : 12));
+        long value;
+        const long maximum = isMode ? 4 : (isProfile ? 1 : 255);
+        if (!parseInteger(valueText, value) || value < 0 || value > maximum ||
+            _configHandler == nullptr ||
+            !_configHandler(_configContext,
+                            isMode ? HmiConfigCommand::SET_MODE : (isProfile ? HmiConfigCommand::SET_PROFILE : HmiConfigCommand::SET_PWM),
+                            static_cast<uint8_t>(value), 0))
+        {
+            sendMessage("CMD_CFG:ERR,VALUE");
+        }
+        else
+        {
+            sendMessage("CMD_CFG:OK");
+        }
+        return;
+    }
+
+    if (strncmp(_buffer, "CMD_CFG:MOTOR,", 14) == 0)
+    {
+        char *slotText = _buffer + 14;
+        char *roleText = strchr(slotText, ',');
+        long slot;
+        long role;
+        if (roleText == nullptr)
+        {
+            sendMessage("CMD_CFG:ERR,FORMAT");
+            return;
+        }
+        *roleText++ = '\0';
+        if (!parseInteger(slotText, slot) || !parseInteger(roleText, role) ||
+            slot < 1 || slot > MAX_MOTOR_PORT ||
+            role < 0 || role > static_cast<long>(MotorRole::AUXILIARY) ||
+            _configHandler == nullptr ||
+            !_configHandler(_configContext, HmiConfigCommand::SET_MOTOR,
+                            static_cast<uint8_t>(slot - 1), static_cast<uint8_t>(role)))
+        {
+            sendMessage("CMD_CFG:ERR,VALUE");
+        }
+        else
+        {
+            sendMessage("CMD_CFG:OK");
+        }
+        return;
+    }
+
+    if (strncmp(_buffer, "CMD_CFG:INVERT,", 15) == 0)
+    {
+        char *slotText = _buffer + 15;
+        char *invertText = strchr(slotText, ',');
+        long slot;
+        long invert;
+        if (invertText == nullptr)
+        {
+            sendMessage("CMD_CFG:ERR,FORMAT");
+            return;
+        }
+        *invertText++ = '\0';
+        if (!parseInteger(slotText, slot) || !parseInteger(invertText, invert) ||
+            slot < 1 || slot > MAX_MOTOR_PORT || invert < 0 || invert > 1 ||
+            _configHandler == nullptr ||
+            !_configHandler(_configContext, HmiConfigCommand::SET_INVERT,
+                            static_cast<uint8_t>(slot - 1), static_cast<uint8_t>(invert)))
+        {
+            sendMessage("CMD_CFG:ERR,VALUE");
+        }
+        else
+        {
+            sendMessage("CMD_CFG:OK");
+        }
+        return;
+    }
+
     if (strncmp(_buffer, "CMD_MODE:", 9) == 0)
     {
         long mode;
@@ -105,8 +227,21 @@ void HMIService::processCommand()
             sendMessage("CMD_MODE:ERR,VALUE");
             return;
         }
-        IKinematics *kinematics = _kinematicsRegistry.find(static_cast<KinematicsMode>(mode));
-        if (kinematics != nullptr && _robot.setKinematics(*kinematics))
+        bool applied = false;
+        if (_configHandler != nullptr)
+        {
+            applied = _configHandler(_configContext,
+                                     HmiConfigCommand::SET_MODE,
+                                     static_cast<uint8_t>(mode),
+                                     0) &&
+                      _configHandler(_configContext, HmiConfigCommand::APPLY, 0, 0);
+        }
+        else
+        {
+            IKinematics *kinematics = _kinematicsRegistry.find(static_cast<KinematicsMode>(mode));
+            applied = kinematics != nullptr && _robot.setKinematics(*kinematics);
+        }
+        if (applied)
         {
             sendMessage("CMD_MODE:OK");
         }
@@ -130,7 +265,7 @@ void HMIService::processCommand()
 
         long slotIndex;
         MotorRole roleId;
-        if (!parseInteger(slotText, slotIndex) || slotIndex < 0 || slotIndex >= MAX_MOTOR_PORT)
+        if (!parseInteger(slotText, slotIndex) || slotIndex < 1 || slotIndex > MAX_MOTOR_PORT)
         {
             sendMessage("CMD_MAP:ERR,SLOT");
             return;
@@ -146,7 +281,7 @@ void HMIService::processCommand()
             return;
         }
 
-        _motorBindHandler(_motorBindContext, static_cast<uint8_t>(slotIndex), roleId);
+        _motorBindHandler(_motorBindContext, static_cast<uint8_t>(slotIndex - 1), roleId);
         sendMessage("CMD_MAP:OK");
         return;
     }
@@ -396,4 +531,22 @@ bool HMIService::parseMotion(const char *text, int8_t &throttle, int8_t &strafe,
     strafe = static_cast<int8_t>(values[1] * 100.0f);
     rotation = static_cast<int8_t>(values[2] * 100.0f);
     return true;
+}
+
+void HMIService::sendCapabilities()
+{
+    _serial.print("CAP:KIN,");
+    for (uint8_t mode = 0; mode <= static_cast<uint8_t>(KinematicsMode::MODE_CUSTOM); ++mode)
+    {
+        if (mode > 0)
+        {
+            _serial.print(',');
+        }
+        _serial.print(_capabilities.supportsKinematics(static_cast<KinematicsMode>(mode)) ? 1 : 0);
+    }
+    _serial.print(",DRV,");
+    _serial.print(_capabilities.supportsDriver(RobotDriverType::TA6586_PCA9685) ? 1 : 0);
+    _serial.write(0xFF);
+    _serial.write(0xFF);
+    _serial.write(0xFF);
 }

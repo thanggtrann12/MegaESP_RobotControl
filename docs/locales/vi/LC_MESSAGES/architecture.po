@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: ../../../source/architecture.rst:2
+msgid "System Architecture & Design Philosophy"
+msgstr "Kiến trúc hệ thống và triết lý thiết kế"
+
+#: ../../../source/architecture.rst:5
+msgid "System Overview"
+msgstr "Tổng quan hệ thống"
+
+#: ../../../source/architecture.rst:6
+msgid ""
+"The system turns an Arduino Mega 2560 into a configurable robot-control "
+"hub capable of:"
+msgstr ""
+"Hệ thống biến Arduino Mega 2560 thành một robot-control hub có thể cấu hình "
+"với các khả năng:"
+
+#: ../../../source/architecture.rst:8
+msgid "Multiple drivetrain / kinematics modes"
+msgstr "Nhiều chế độ truyền động / động học"
+
+#: ../../../source/architecture.rst:9
+msgid "Runtime kinematics mode switching"
+msgstr "Chuyển đổi chế độ động học trong thời gian chạy"
+
+#: ../../../source/architecture.rst:10
+msgid "Per-mode logical-to-physical motor mapping"
+msgstr "Ánh xạ động cơ logic-sang-vật lý theo từng chế độ"
+
+#: ../../../source/architecture.rst:11
+msgid "Manual motor testing"
+msgstr "Kiểm thử động cơ thủ công"
+
+#: ../../../source/architecture.rst:12
+msgid "Real-time I/O monitoring"
+msgstr "Giám sát I/O thời gian thực"
+
+#: ../../../source/architecture.rst:13
+msgid "HMI-based simulation and testing"
+msgstr "Mô phỏng và kiểm thử dựa trên HMI"
+
+#: ../../../source/architecture.rst:14
+msgid "ESP-NOW wireless remote control"
+msgstr "Điều khiển từ xa không dây ESP-NOW"
+
+#: ../../../source/architecture.rst:15
+msgid "Communication watchdogs"
+msgstr "Watchdog truyền thông"
+
+#: ../../../source/architecture.rst:16
+msgid "Emergency stop and motor failsafe handling"
+msgstr "Xử lý dừng khẩn cấp và failsafe động cơ"
+
+#: ../../../source/architecture.rst:17
+msgid "Persistent robot configuration"
+msgstr "Cấu hình robot lưu trữ bền vững"
+
+#: ../../../source/architecture.rst:18
+msgid "Modular OOP-based firmware architecture"
+msgstr "Kiến trúc firmware mô-đun dựa trên OOP"
+
+#: ../../../source/architecture.rst:20
+msgid ""
+"The architecture is designed so that the robot-control logic does not "
+"need to be tightly coupled to a fixed number of motors or a single "
+"drivetrain."
+msgstr ""
+"Kiến trúc được thiết kế để logic điều khiển robot không cần phụ thuộc chặt "
+"vào một số lượng động cơ cố định hay chỉ một kiểu truyền động duy nhất."
+
+#: ../../../source/architecture.rst:-1 ../../../source/architecture.rst:23
+msgid "System Architecture & Wireless Data Flow"
+msgstr "Kiến trúc hệ thống và luồng dữ liệu không dây"
+
+#: ../../../source/architecture.rst:-1 ../../../source/architecture.rst:30
+msgid "Complete Control Pipeline"
+msgstr "Pipeline điều khiển hoàn chỉnh"
+
+#: ../../../source/architecture.rst:37
+msgid "Design Philosophy"
+msgstr "Triết lý thiết kế"
+
+#: ../../../source/architecture.rst:39
+msgid ""
+"**Simple:** The architecture should be modular without becoming "
+"unnecessarily complicated. Simple enough to understand, modular enough to"
+" extend, practical enough to run on a real robot."
+msgstr ""
+"**Đơn giản:** Kiến trúc cần có tính mô-đun nhưng không trở nên phức tạp quá "
+"mức cần thiết. Đủ đơn giản để hiểu, đủ mô-đun để mở rộng, và đủ thực tiễn "
+"để chạy trên robot thật."
+
+#: ../../../source/architecture.rst:42
+msgid ""
+"**Modular:** Each component has a clear responsibility. The HMI does not "
+"directly drive motors; the kinematics engine does not know pin numbers; "
+"the motor controller does not care about drivetrain type."
+msgstr ""
+"**Mô-đun:** Mỗi thành phần có trách nhiệm rõ ràng. HMI không điều khiển động "
+"cơ trực tiếp; bộ động học không biết số chân pin; bộ điều khiển động cơ "
+"không phụ thuộc loại truyền động."
+
+#: ../../../source/architecture.rst:45
+msgid ""
+"**Configurable:** The software separates **Logical Robot Role** from "
+"**Physical Motor Channel**."
+msgstr ""
+"**Có thể cấu hình:** Phần mềm tách biệt **Vai trò logic của robot** khỏi "
+"**Kênh động cơ vật lý**."
+

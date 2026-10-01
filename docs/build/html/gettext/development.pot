@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 11:14+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/development.rst:2
+msgid "Development, Testing & Roadmap"
+msgstr ""
+
+#: ../../../source/development.rst:5
+msgid "Staged Testing Strategy"
+msgstr ""
+
+#: ../../../source/development.rst:7
+msgid "**Motor Test:** Test individual channels manually via HMI."
+msgstr ""
+
+#: ../../../source/development.rst:8
+msgid "**Kinematics Test:** Verify math using simulated inputs without physical movement."
+msgstr ""
+
+#: ../../../source/development.rst:9
+msgid "**Wireless Test:** Validate ESP-NOW packet sequence numbers and CRC checks."
+msgstr ""
+
+#: ../../../source/development.rst:10
+msgid "**Integration Test:** Execute full end-to-end testing from remote control to physical movement."
+msgstr ""
+
+#: ../../../source/development.rst:13
+msgid "Current Status & Roadmap"
+msgstr ""
+
+#: ../../../source/development.rst:15
+msgid "**Phase 1 — Core Motor System:** Arduino Mega 2560 motor control & basic abstraction."
+msgstr ""
+
+#: ../../../source/development.rst:16
+msgid "**Phase 2 — HMI:** TJC display interface, manual testing, simulation mode."
+msgstr ""
+
+#: ../../../source/development.rst:17
+msgid "**Phase 3 — Configurable Robot:** EEPROM storage, motor role mapping, inversion settings."
+msgstr ""
+
+#: ../../../source/development.rst:18
+msgid "**Phase 4 — Wireless Remote:** ESP-NOW communication link with timeout watchdog."
+msgstr ""
+
+#: ../../../source/development.rst:19
+msgid "**Phase 5 — Multi-Kinematics:** Runtime switching between Differential, Mecanum, and Omni drive models."
+msgstr ""

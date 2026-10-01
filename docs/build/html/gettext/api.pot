@@ -1,0 +1,45 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 11:22+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/api.rst:2
+msgid "Firmware API Reference"
+msgstr ""
+
+#: ../../../source/api.rst:4
+msgid "This page is generated automatically from Doxygen comments in the C++ codebase."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:1
+msgid "Doxygen XML was not found, so API content cannot be rendered yet."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:3
+msgid "To generate API docs from C++ comments:"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:5
+msgid "Install Doxygen and add it to PATH."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:6
+msgid "Run ``doxygen Doxyfile`` at repository root."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:7
+msgid "Rebuild Sphinx docs."
+msgstr ""

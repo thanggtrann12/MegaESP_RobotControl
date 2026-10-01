@@ -1,0 +1,64 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: ../../../source/safety.rst:2
+msgid "Safety & Failsafe Mechanisms"
+msgstr "An toàn và cơ chế failsafe"
+
+#: ../../../source/safety.rst:5
+msgid "Safety State Machine"
+msgstr "State machine an toàn"
+
+#: ../../../source/safety.rst:17
+msgid "Core Safety Principle"
+msgstr "Nguyên tắc an toàn cốt lõi"
+
+#: ../../../source/safety.rst:18
+msgid ""
+"**If the controller cannot verify that movement is safe, all motor "
+"outputs remain at zero.**"
+msgstr ""
+"**Nếu bộ điều khiển không thể xác minh chuyển động là an toàn, mọi đầu ra "
+"động cơ phải giữ ở mức 0.**"
+
+#: ../../../source/safety.rst:21
+msgid "Emergency Stop Path"
+msgstr "Luồng dừng khẩn cấp"
+
+#: ../../../source/safety.rst:23
+msgid ""
+"Emergency Stop triggered (Hardware Button, HMI request, or ESP-NOW "
+"timeout)."
+msgstr ""
+"Dừng khẩn cấp được kích hoạt (nút phần cứng, yêu cầu từ HMI hoặc timeout "
+"ESP-NOW)."
+
+#: ../../../source/safety.rst:24
+msgid "``SafetyManager`` intercepts state."
+msgstr "``SafetyManager`` chặn và tiếp quản trạng thái."
+
+#: ../../../source/safety.rst:25
+msgid "Call ``MotorController.stopAll()``."
+msgstr "Gọi ``MotorController.stopAll()``."
+
+#: ../../../source/safety.rst:26
+msgid "All PWM outputs driven to 0 immediately."
+msgstr "Toàn bộ đầu ra PWM được đưa về 0 ngay lập tức."
+

@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 11:14+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/safety.rst:2
+msgid "Safety & Failsafe Mechanisms"
+msgstr ""
+
+#: ../../../source/safety.rst:5
+msgid "Safety State Machine"
+msgstr ""
+
+#: ../../../source/safety.rst:17
+msgid "Core Safety Principle"
+msgstr ""
+
+#: ../../../source/safety.rst:18
+msgid "**If the controller cannot verify that movement is safe, all motor outputs remain at zero.**"
+msgstr ""
+
+#: ../../../source/safety.rst:21
+msgid "Emergency Stop Path"
+msgstr ""
+
+#: ../../../source/safety.rst:23
+msgid "Emergency Stop triggered (Hardware Button, HMI request, or ESP-NOW timeout)."
+msgstr ""
+
+#: ../../../source/safety.rst:24
+msgid "``SafetyManager`` intercepts state."
+msgstr ""
+
+#: ../../../source/safety.rst:25
+msgid "Call ``MotorController.stopAll()``."
+msgstr ""
+
+#: ../../../source/safety.rst:26
+msgid "All PWM outputs driven to 0 immediately."
+msgstr ""

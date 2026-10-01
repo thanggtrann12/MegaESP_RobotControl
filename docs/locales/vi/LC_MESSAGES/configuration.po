@@ -1,0 +1,68 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: ../../../source/configuration.rst:2
+msgid "Dynamic Motor Mapping & Configuration"
+msgstr "Ánh xạ động cơ động và cấu hình"
+
+#: ../../../source/configuration.rst:5
+msgid "Separation of Logical Role and Physical Channel"
+msgstr "Tách biệt vai trò logic và kênh vật lý"
+
+#: ../../../source/configuration.rst:7
+msgid ""
+"A key feature of this controller is separating logical motor roles from "
+"physical output channels."
+msgstr ""
+"Một tính năng quan trọng của bộ điều khiển này là tách vai trò động cơ logic "
+"khỏi các kênh đầu ra vật lý."
+
+#: ../../../source/configuration.rst:10
+msgid "Mecanum Profile Example"
+msgstr "Ví dụ profile Mecanum"
+
+#: ../../../source/configuration.rst:20
+msgid "Differential Profile Example"
+msgstr "Ví dụ profile Differential"
+
+#: ../../../source/configuration.rst:28
+msgid "Configuration Validation Rules"
+msgstr "Quy tắc kiểm tra hợp lệ cấu hình"
+
+#: ../../../source/configuration.rst:30
+msgid "Before saving changes to EEPROM, ``ConfigManager`` validates:"
+msgstr "Trước khi lưu thay đổi vào EEPROM, ``ConfigManager`` sẽ kiểm tra:"
+
+#: ../../../source/configuration.rst:32
+msgid "Physical channel exists ($0 \\rightarrow 5$)."
+msgstr "Kênh vật lý phải tồn tại ($0 \\rightarrow 5$)."
+
+#: ../../../source/configuration.rst:33
+msgid "Assigned role is valid for the current kinematics mode."
+msgstr "Vai trò được gán phải hợp lệ với chế độ động học hiện tại."
+
+#: ../../../source/configuration.rst:34
+msgid "No duplicate channel conflicts exist."
+msgstr "Không được tồn tại xung đột trùng kênh."
+
+#: ../../../source/configuration.rst:35
+msgid "Maximum power limits fall within valid bounds ($0 \\rightarrow 255$)."
+msgstr "Giới hạn công suất tối đa phải nằm trong khoảng hợp lệ ($0 \\rightarrow 255$)."
+

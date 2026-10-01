@@ -1,0 +1,28 @@
+<div style="padding: 10px 16px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85em; display: flex; align-items: center; justify-content: space-between;">
+  <span style="font-weight: bold; opacity: 0.8;">🌐 Language:</span>
+  <div>
+    <a href="#" id="link-en" onclick="switchLang('en'); return false;" style="margin-right: 8px; text-decoration: none; font-weight: bold; color: #58a6ff;">EN</a>
+    <span style="opacity: 0.4;">|</span>
+    <a href="#" id="link-vi" onclick="switchLang('vi'); return false;" style="margin-left: 8px; text-decoration: none; font-weight: bold; color: #00f2fe;">VI</a>
+  </div>
+</div>
+
+<script>
+function buildLangUrl(lang) {
+  const currentPath = window.location.pathname.replace(/\\/g, '/');
+  if (currentPath.includes('/en/')) {
+    return currentPath.replace('/en/', '/' + lang + '/');
+  }
+  if (currentPath.includes('/vi/')) {
+    return currentPath.replace('/vi/', '/' + lang + '/');
+  }
+  return currentPath.replace(/\/[^/]*$/, '/' + lang + '/index.html');
+}
+
+function switchLang(lang) {
+  window.location.href = buildLangUrl(lang);
+}
+
+document.getElementById('link-en').setAttribute('href', buildLangUrl('en'));
+document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
+</script>

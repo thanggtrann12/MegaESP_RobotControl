@@ -1,0 +1,15 @@
+PROJECT_NAME           = "Universal Robot Hub"
+OUTPUT_DIRECTORY       = docs/_build/doxygen
+INPUT                  = src/ include/
+RECURSIVE              = YES
+FILE_PATTERNS          = *.cpp *.h *.hpp
+GENERATE_LATEX         = NO
+GENERATE_HTML          = NO
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+OPTIMIZE_OUTPUT_FOR_C  = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+JAVADOC_AUTOBRIEF      = YES
+SORT_MEMBER_DOCS       = YES

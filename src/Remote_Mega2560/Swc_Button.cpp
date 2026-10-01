@@ -1,3 +1,8 @@
+/**
+ * @file Swc_Button.cpp
+ * @brief Button debounce and bitmask input implementation.
+ */
+
 #include "Swc_Button.h"
 #include "Remote_Pin_Cfg.h"
 

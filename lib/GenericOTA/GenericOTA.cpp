@@ -1,3 +1,8 @@
+/**
+ * @file GenericOTA.cpp
+ * @brief WiFi reconnect and ArduinoOTA runtime implementation.
+ */
+
 #include "GenericOTA.h"
 #include <GenericLogger.h>
 

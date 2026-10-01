@@ -1,3 +1,8 @@
+/**
+ * @file Remote_ESP8266_Bridge.cpp
+ * @brief ESP8266 bridge between Mega UART frames and ESP-NOW transport.
+ */
+
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <GenericLogger.h>

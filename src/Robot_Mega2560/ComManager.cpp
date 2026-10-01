@@ -1,3 +1,8 @@
+/**
+ * @file ComManager.cpp
+ * @brief UART communication implementation for the robot Mega2560 side.
+ */
+
 #include <ComManager.h>
 
 ComManager::ComManager(HardwareSerial &port) : _serial(&port) {}

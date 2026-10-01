@@ -1,3 +1,8 @@
+/**
+ * @file Motor_TA6586.cpp
+ * @brief PCA9685-backed TA6586 motor driver implementation.
+ */
+
 #include "Motor_TA6586.h"
 
 namespace

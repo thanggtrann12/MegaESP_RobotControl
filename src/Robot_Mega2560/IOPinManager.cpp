@@ -1,3 +1,8 @@
+/**
+ * @file IOPinManager.cpp
+ * @brief Pin monitoring and simulation logic implementation.
+ */
+
 #include "IOPinManager.h"
 
 IOPinManager::IOPinManager()

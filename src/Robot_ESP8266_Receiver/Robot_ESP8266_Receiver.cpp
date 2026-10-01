@@ -1,3 +1,8 @@
+/**
+ * @file Robot_ESP8266_Receiver.cpp
+ * @brief ESP8266 receiver firmware bridging ESP-NOW packets to UART frames.
+ */
+
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <GenericOTA.h>

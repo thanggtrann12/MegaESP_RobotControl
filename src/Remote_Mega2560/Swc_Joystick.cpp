@@ -1,3 +1,8 @@
+/**
+ * @file Swc_Joystick.cpp
+ * @brief Joystick filtering and deadzone processing implementation.
+ */
+
 #include "Swc_Joystick.h"
 
 Swc_Joystick::Swc_Joystick(uint8 j1x, uint8 j1y, uint8 j2x)

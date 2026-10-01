@@ -1,3 +1,8 @@
+/**
+ * @file MecanumKinematics.cpp
+ * @brief Mecanum kinematics implementation.
+ */
+
 #include "MecanumKinematics.h"
 
 KinematicsMode MecanumKinematics::getMode() const

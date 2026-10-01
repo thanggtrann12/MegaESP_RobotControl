@@ -3,12 +3,19 @@
 
 #include <Arduino.h>
 
+/**
+ * @file Std_Types.h
+ * @brief Shared basic types, packets, enums, and helpers for control messaging.
+ */
+
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef int16_t int16;
 
-// Gói tin chuẩn gửi qua UART & ESP-NOW
+/**
+ * @brief Standard control packet transmitted over UART and ESP-NOW.
+ */
 struct __attribute__((__packed__)) ControlPacket
 {
     uint8_t msgType;
@@ -28,6 +35,9 @@ enum ControlMessageType : uint8_t
     HEARTBEAT_MESSAGE = 0x02
 };
 
+/**
+ * @brief Supported kinematics modes for the drive controller.
+ */
 enum class KinematicsMode : uint8_t
 {
     MODE_2WD_DIFF = 0,
@@ -37,12 +47,20 @@ enum class KinematicsMode : uint8_t
     MODE_CUSTOM = 4
 };
 
+/**
+ * @brief Active command source used by the robot controller.
+ */
 enum class ControlSource : uint8_t
 {
     REMOTE = 0,
     HMI_MANUAL = 1
 };
 
+/**
+ * @brief Calculates CRC-8 for a control packet (excluding the crc8 field).
+ * @param packet Packet to evaluate.
+ * @return CRC-8 value.
+ */
 inline uint8_t CalculateControlPacketCrc(const ControlPacket &packet)
 {
     const uint8_t *bytes = reinterpret_cast<const uint8_t *>(&packet);
@@ -61,17 +79,29 @@ inline uint8_t CalculateControlPacketCrc(const ControlPacket &packet)
     return crc;
 }
 
+/**
+ * @brief Updates @p packet.crc8 with a newly calculated CRC value.
+ * @param packet Packet to update.
+ */
 inline void UpdateControlPacketCrc(ControlPacket &packet)
 {
     packet.crc8 = CalculateControlPacketCrc(packet);
 }
 
+/**
+ * @brief Verifies whether the packet CRC matches packet payload data.
+ * @param packet Packet to validate.
+ * @return true if packet CRC is valid.
+ * @return false otherwise.
+ */
 inline bool IsControlPacketValid(const ControlPacket &packet)
 {
     return packet.crc8 == CalculateControlPacketCrc(packet);
 }
 
-// Gói tin Ghép nối (Pairing)
+/**
+ * @brief Simple pairing packet used during link setup.
+ */
 struct __attribute__((__packed__)) PairPacket
 {
     uint8 cmd;        // 0xA1: REQ, 0xA2: RESP

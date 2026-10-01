@@ -1,3 +1,8 @@
+/**
+ * @file MotorArrayOutput.cpp
+ * @brief Generic motor array output implementation.
+ */
+
 #include "MotorArrayOutput.h"
 
 MotorArrayOutput::MotorArrayOutput(IMotor *const *motors, uint8_t motorCount)

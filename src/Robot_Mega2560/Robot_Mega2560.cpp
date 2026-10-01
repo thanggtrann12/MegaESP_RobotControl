@@ -1,3 +1,8 @@
+/**
+ * @file Robot_Mega2560.cpp
+ * @brief Main firmware entry for robot-side Mega2560 controller.
+ */
+
 #include <Arduino.h>
 #include <ComManager.h>
 #include <GenericRobotController.h>

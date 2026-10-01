@@ -1,3 +1,8 @@
+/**
+ * @file HMIService.cpp
+ * @brief HMI command parsing and command dispatch implementation.
+ */
+
 #include "HMIService.h"
 #include <stdlib.h>
 #include <string.h>

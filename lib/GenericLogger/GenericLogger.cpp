@@ -1,3 +1,8 @@
+/**
+ * @file GenericLogger.cpp
+ * @brief Generic colored logger implementation.
+ */
+
 #include "GenericLogger.h"
 
 namespace {

@@ -1,3 +1,8 @@
+/**
+ * @file Remote_Mega2560.cpp
+ * @brief Main firmware entry for remote-side Mega2560 controller.
+ */
+
 #include <Std_Types.h>
 #include <ComManager.h>
 #include <GenericLogger.h>

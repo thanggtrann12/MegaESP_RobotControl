@@ -3,6 +3,11 @@
 
 #include <Arduino.h>
 
+/**
+ * @file Remote_Pin_Cfg.h
+ * @brief Pin and serial configuration for the remote Mega2560 controller.
+ */
+
 // =========================================================================
 // 1. Cấu hình Chân Analog cho Joysticks (A0 - A3)
 // =========================================================================

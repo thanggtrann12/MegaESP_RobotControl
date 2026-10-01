@@ -1,3 +1,8 @@
+/**
+ * @file GenericRobotController.cpp
+ * @brief Core robot controller implementation.
+ */
+
 #include "GenericRobotController.h"
 #include <GenericLogger.h>
 

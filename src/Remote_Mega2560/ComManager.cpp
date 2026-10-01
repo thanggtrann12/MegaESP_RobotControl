@@ -1,3 +1,8 @@
+/**
+ * @file ComManager.cpp
+ * @brief UART communication implementation for the remote Mega2560 side.
+ */
+
 #include "ComManager.h"
 
 namespace

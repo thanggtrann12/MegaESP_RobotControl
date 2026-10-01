@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 11:22+0700\n"
+"POT-Creation-Date: 2026-10-01 11:58+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -28,24 +28,289 @@ msgid ""
 "codebase."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:1
-msgid "Doxygen XML was not found, so API content cannot be rendered yet."
+#: ../../../source/_api_autogen.rst:2
+msgid "API Reference (Manual Fallback)"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:3
-msgid "To generate API docs from C++ comments:"
+#: ../../../source/_api_autogen.rst:4
+msgid ""
+"This page is generated because Doxygen XML is not available in this "
+"environment. It provides a practical API overview extracted from the "
+"project headers."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:5
-msgid "Install Doxygen and add it to PATH."
+#: ../../../source/_api_autogen.rst:9
+msgid "Jump to API"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:6
-msgid "Run ``doxygen Doxyfile`` at repository root."
+#: ../../../source/_api_autogen.rst:12
+msgid "Quick Links"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:7
-msgid "Rebuild Sphinx docs."
+#: ../../../source/_api_autogen.rst:14
+msgid "IMotor_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:15
+msgid "IKinematics_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:16
+msgid "IMotorOutput_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:17
+msgid "ComManager_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:18
+msgid "GenericRobotController_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:19
+msgid "MotorTA6586_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:20
+msgid "Swc_Button_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:21
+msgid "Swc_Joystick_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:22
+msgid "ControlPacket_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:23
+msgid "PairPacket_"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:26
+msgid "Core Interfaces"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:29
+msgid "IMotor"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:31
+msgid "begin(): Initialize motor hardware."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:32
+msgid "setSpeed(int16_t speed): Set signed speed command."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:33
+msgid "stop(): Stop motor output."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:36
+msgid "IKinematics"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:38
+msgid "getMode() const: Return kinematics mode id."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:39
+msgid "getWheelCount() const: Return wheel count."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:40
+msgid "computeWheelSpeeds(...): Convert motion command to wheel speeds."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:43
+msgid "IMotorOutput"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:45
+msgid "begin(): Initialize all motors."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:46
+msgid "stop(): Stop all motors."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:47
+msgid "getMotorCount() const: Return number of motors."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:48
+msgid "getMotor(uint8_t motorId): Return motor by 1-based index."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:49
+msgid "applyWheelSpeeds(...): Apply wheel speed array with output limit."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:52
+msgid "Communication"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:55
+msgid "ComManager"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:57
+msgid "Init(uint32 baudrate = 115200): Configure UART."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:58
+msgid "SendPacket(const ControlPacket&): Send framed control packet."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:59
+msgid "SendCommand(const char*): Send newline-terminated ASCII command."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:60
+msgid "ReadPacket(ControlPacket&): Parse one valid framed packet."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:61
+msgid "ReadLog(char* buffer, size_t bufferSize): Read one received log line."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:64
+msgid "Robot Control"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:67
+msgid "GenericRobotController"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:69
+msgid "begin(): Initialize motor output backend."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:70
+msgid "handlePacket(const ControlPacket&): Process incoming control packet."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:71
+msgid "update(): Run watchdog/manual/HMI control update loop."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:72
+msgid "setKinematics(IKinematics&): Switch active kinematics strategy."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:73
+msgid "setControlSource(ControlSource): Switch control source."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:74
+msgid "setHmiMotion(int8_t, int8_t, int8_t): Set manual HMI motion command."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:75
+msgid ""
+"setManualMotor(uint8_t motorId, int16_t speed): Directly command one "
+"motor."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:76
+msgid "releaseManualMotor(uint8_t motorId): Release manual motor override."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:77
+msgid "setPwmLimit(uint8_t limit): Update PWM saturation limit."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:80
+msgid "Motor and Input Implementations"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:83
+msgid "MotorTA6586"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:85
+msgid "begin(): Initialize PCA9685 and stop motor."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:86
+msgid "setSpeed(int16_t): Drive forward/reverse via channel pair."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:87
+msgid "stop(): Disable both direction channels."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:90
+msgid "Swc_Button"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:92
+msgid "Init(): Configure button input pin."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:93
+msgid "Update(): Debounce button state."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:94
+msgid "GetState() const: Return debounced bitmask."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:97
+msgid "Swc_Joystick"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:99
+msgid "Init(): Configure joystick analog pins."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:100
+msgid "Update(): Sample and low-pass filter axes."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:101
+msgid "GetProcessedValues(...): Return filtered + deadzone-adjusted values."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:104
+msgid "Shared Data Types"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:107
+msgid "ControlPacket"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:109
+msgid "msgType: CONTROL_MESSAGE or HEARTBEAT_MESSAGE."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:110
+msgid "throttle/strafe/rotation: Signed command channels."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:111
+msgid "buttons: Bitmask from remote buttons."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:112
+msgid "sequenceNum: Monotonic sequence id."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:113
+msgid "crc8: Packet CRC-8."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:116
+msgid "PairPacket"
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:118
+msgid "cmd: Pairing command id."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:119
+msgid "macAddr[6]: Device MAC address."
 msgstr ""
 
 #~ msgid "Module Responsibilities"
@@ -110,4 +375,19 @@ msgstr ""
 
 #~ msgid "Processes incoming ESP-NOW remote control frames."
 #~ msgstr "Xử lý các frame điều khiển từ xa ESP-NOW đi vào."
+
+#~ msgid "Doxygen XML was not found, so API content cannot be rendered yet."
+#~ msgstr ""
+
+#~ msgid "To generate API docs from C++ comments:"
+#~ msgstr ""
+
+#~ msgid "Install Doxygen and add it to PATH."
+#~ msgstr ""
+
+#~ msgid "Run ``doxygen Doxyfile`` at repository root."
+#~ msgstr ""
+
+#~ msgid "Rebuild Sphinx docs."
+#~ msgstr ""
 

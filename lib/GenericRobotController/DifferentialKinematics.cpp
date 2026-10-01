@@ -1,3 +1,8 @@
+/**
+ * @file DifferentialKinematics.cpp
+ * @brief Differential kinematics implementation.
+ */
+
 #include "DifferentialKinematics.h"
 
 DifferentialKinematics::DifferentialKinematics(uint8_t wheelCount, uint8_t rightSideMask)

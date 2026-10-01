@@ -4,6 +4,14 @@
 #include <Arduino.h>
 #include <stdarg.h>
 
+/**
+ * @file GenericLogger.h
+ * @brief Colored logging helpers and module log macro generator.
+ */
+
+/**
+ * @brief Log severity levels.
+ */
 enum LogLevel {
     DEBUG,
     INFO,
@@ -12,6 +20,16 @@ enum LogLevel {
     FATAL
 };
 
+/**
+ * @brief Prints a formatted log line with module metadata.
+ * @param serial Output stream.
+ * @param moduleName Module tag.
+ * @param logLevel Severity level.
+ * @param line Source line number.
+ * @param fileName Source file name.
+ * @param format printf-style format string.
+ * @param ... Format arguments.
+ */
 void printfLog(Stream& serial,
                const char* moduleName,
                LogLevel logLevel,
@@ -20,6 +38,16 @@ void printfLog(Stream& serial,
                const char* format,
                ...);
 
+/**
+ * @brief va_list variant of printfLog.
+ * @param serial Output stream.
+ * @param moduleName Module tag.
+ * @param logLevel Severity level.
+ * @param line Source line number.
+ * @param fileName Source file name.
+ * @param format printf-style format string.
+ * @param args Variable argument list.
+ */
 void vprintfLog(Stream& serial,
                 const char* moduleName,
                 LogLevel logLevel,

@@ -1,3 +1,8 @@
+/**
+ * @file KinematicsRegistry.cpp
+ * @brief Kinematics registry implementation.
+ */
+
 #include "KinematicsRegistry.h"
 
 KinematicsRegistry::KinematicsRegistry() : _count(0)

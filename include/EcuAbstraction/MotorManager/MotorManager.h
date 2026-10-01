@@ -29,19 +29,16 @@ public:
     {
         cleanup();
 
-        _slots[0].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_L1_BI, ROBOT_MOTOR_L1_FI, pwmFrequency);
-        _slots[1].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_L2_BI, ROBOT_MOTOR_L2_FI, pwmFrequency);
-        _slots[2].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_R1_BI, ROBOT_MOTOR_R1_FI, pwmFrequency);
-        _slots[3].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_R2_BI, ROBOT_MOTOR_R2_FI, pwmFrequency);
-
-        for (uint8_t index = 0; index < 4; ++index)
+        
+        for (uint8_t slot = 0; slot < MAX_MOTOR_PORT; ++slot)
         {
-            _slots[index].role = MotorRole::UNBOUND;
-            _slots[index].isBound = false;
-            _rawMotors[index] = _slots[index].ptr;
+            _slots[slot].ptr = new MotorTA6586(wire, pcaAddress, ROBOT_MOTOR_L1_BI + slot * 2, ROBOT_MOTOR_L1_FI + slot * 2, pwmFrequency);
+            _slots[slot].role = MotorRole::UNBOUND;
+            _slots[slot].isBound = false;
+            _rawMotors[slot] = _slots[slot].ptr;
         }
 
-        _motorCount = 4;
+        _motorCount = MAX_MOTOR_PORT;
         return true;
     }
 
@@ -136,7 +133,7 @@ private:
     }
 
     MotorSlot _slots[MAX_MOTOR_PORT];
-    IMotor *_rawMotors[MAX_MOTOR_PORT] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    IMotor *_rawMotors[MAX_MOTOR_PORT] = {nullptr};
     uint8_t _motorCount;
 };
 

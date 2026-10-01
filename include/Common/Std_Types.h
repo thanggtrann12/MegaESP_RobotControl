@@ -57,6 +57,37 @@ enum class ControlSource : uint8_t
 };
 
 /**
+ * @brief Logical motor role used for dynamic slot binding.
+ */
+enum class MotorRole : uint8_t
+{
+    UNBOUND = 0,
+    FRONT_LEFT,
+    REAR_LEFT,
+    FRONT_RIGHT,
+    REAR_RIGHT,
+    STEER_ACTUATOR,
+    AUXILIARY
+};
+
+/**
+ * @brief Role binding entry for one physical motor slot.
+ */
+struct MotorBinding
+{
+    MotorRole role;
+};
+
+/**
+ * @brief Persistent motor binding table with simple XOR checksum.
+ */
+struct MotorBindingConfig
+{
+    MotorBinding motor[6];
+    uint8_t crc;
+};
+
+/**
  * @brief Calculates CRC-8 for a control packet (excluding the crc8 field).
  * @param packet Packet to evaluate.
  * @return CRC-8 value.

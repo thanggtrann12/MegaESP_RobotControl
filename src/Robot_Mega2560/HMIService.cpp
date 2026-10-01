@@ -8,9 +8,23 @@
 #include <string.h>
 
 HMIService::HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry)
-    : _serial(serial), _robot(robot), _ioPins(ioPins), _kinematicsRegistry(kinematicsRegistry), _length(0), _terminatorCount(0), _lastHeartbeat(0)
+    : _serial(serial),
+      _robot(robot),
+      _ioPins(ioPins),
+      _kinematicsRegistry(kinematicsRegistry),
+      _length(0),
+      _terminatorCount(0),
+      _lastHeartbeat(0),
+      _motorBindHandler(nullptr),
+      _motorBindContext(nullptr)
 {
     _buffer[0] = '\0';
+}
+
+void HMIService::setMotorBindHandler(MotorBindHandler handler, void *context)
+{
+    _motorBindHandler = handler;
+    _motorBindContext = context;
 }
 
 void HMIService::update()
@@ -100,6 +114,40 @@ void HMIService::processCommand()
         {
             sendMessage("CMD_MODE:ERR,UNSUPPORTED");
         }
+        return;
+    }
+
+    if (strncmp(_buffer, "CMD_MAP:", 8) == 0)
+    {
+        char *slotText = _buffer + 8;
+        char *roleText = strchr(slotText, ',');
+        if (roleText == nullptr)
+        {
+            sendMessage("CMD_MAP:ERR,FORMAT");
+            return;
+        }
+        *roleText++ = '\0';
+
+        long slotIndex;
+        MotorRole roleId;
+        if (!parseInteger(slotText, slotIndex) || slotIndex < 0 || slotIndex >= MAX_MOTOR_PORT)
+        {
+            sendMessage("CMD_MAP:ERR,SLOT");
+            return;
+        }
+        if (!parseMotorRole(roleText, roleId))
+        {
+            sendMessage("CMD_MAP:ERR,ROLE");
+            return;
+        }
+        if (_motorBindHandler == nullptr)
+        {
+            sendMessage("CMD_MAP:ERR,UNSUPPORTED");
+            return;
+        }
+
+        _motorBindHandler(_motorBindContext, static_cast<uint8_t>(slotIndex), roleId);
+        sendMessage("CMD_MAP:OK");
         return;
     }
 
@@ -275,6 +323,17 @@ bool HMIService::parsePin(const char *text, uint8_t &pin) const
         return false;
     }
     pin = static_cast<uint8_t>(numericPin);
+    return true;
+}
+
+bool HMIService::parseMotorRole(const char *text, MotorRole &role) const
+{
+    long roleValue;
+    if (!parseInteger(text, roleValue) || roleValue < 0 || roleValue > static_cast<long>(MotorRole::AUXILIARY))
+    {
+        return false;
+    }
+    role = static_cast<MotorRole>(roleValue);
     return true;
 }
 

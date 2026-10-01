@@ -1,32 +1,24 @@
-/**
- * @file DifferentialKinematics.cpp
- * @brief Differential kinematics implementation.
- */
-
 #include "DifferentialKinematics.h"
 
-DifferentialKinematics::DifferentialKinematics(uint8_t wheelCount, uint8_t rightSideMask)
-    : _wheelCount(wheelCount > MAX_DRIVE_WHEELS ? MAX_DRIVE_WHEELS : wheelCount),
-      _rightSideMask(rightSideMask) {}
-
-KinematicsMode DifferentialKinematics::getMode() const
-{
+KinematicsMode DifferentialKinematics::getMode() const {
     return KinematicsMode::MODE_2WD_DIFF;
 }
 
-uint8_t DifferentialKinematics::getWheelCount() const
-{
-    return _wheelCount;
+uint8_t DifferentialKinematics::getWheelCount() const {
+    return 4;
 }
 
 void DifferentialKinematics::computeWheelSpeeds(int16_t throttle,
                                                 int16_t /*strafe*/,
                                                 int16_t rotation,
-                                                int16_t *outSpeeds) const
-{
-    for (uint8_t index = 0; index < _wheelCount; ++index)
-    {
-        bool isRightSide = (_rightSideMask & (1 << index)) != 0;
-        outSpeeds[index] = isRightSide ? (throttle - rotation) : (throttle + rotation);
-    }
+                                                int16_t *outSpeeds) const {
+    if (outSpeeds == nullptr) return;
+
+    const int16_t left = static_cast<int16_t>(throttle + rotation);
+    const int16_t right = static_cast<int16_t>(throttle - rotation);
+
+    outSpeeds[0] = left;   // Front-left
+    outSpeeds[1] = left;   // Rear-left
+    outSpeeds[2] = right;  // Front-right
+    outSpeeds[3] = right;  // Rear-right
 }

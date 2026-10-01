@@ -7,7 +7,7 @@
  * @file Robot_Pin_Cfg.h
  * @brief Pin and hardware channel configuration for the robot Mega2560.
  */
-
+#define MAX_MOTOR_PORT            6
 // =========================================================================
 // 1. Cấu hình Channel PCA9685 điều khiển TA6586
 // =========================================================================

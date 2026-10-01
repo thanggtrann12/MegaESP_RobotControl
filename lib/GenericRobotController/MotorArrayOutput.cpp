@@ -6,13 +6,22 @@
 #include "MotorArrayOutput.h"
 
 MotorArrayOutput::MotorArrayOutput(IMotor *const *motors, uint8_t motorCount)
-    : _motors(motors), _motorCount(motorCount) {}
+    : _motors(const_cast<IMotor **>(motors)), _motorCount(motorCount) {}
+
+void MotorArrayOutput::setMotors(IMotor *const *motors, uint8_t motorCount)
+{
+    _motors = const_cast<IMotor **>(motors);
+    _motorCount = motorCount;
+}
 
 void MotorArrayOutput::begin()
 {
     for (uint8_t index = 0; index < _motorCount; ++index)
     {
-        _motors[index]->begin();
+        if (_motors[index] != nullptr)
+        {
+            _motors[index]->begin();
+        }
     }
 }
 
@@ -20,7 +29,10 @@ void MotorArrayOutput::stop()
 {
     for (uint8_t index = 0; index < _motorCount; ++index)
     {
-        _motors[index]->stop();
+        if (_motors[index] != nullptr)
+        {
+            _motors[index]->stop();
+        }
     }
 }
 
@@ -55,6 +67,9 @@ void MotorArrayOutput::applyWheelSpeeds(const int16_t *speeds, uint8_t count, ui
         {
             speed = static_cast<int16_t>(speed * static_cast<int32_t>(pwmLimit) / maxMagnitude);
         }
-        _motors[index]->setSpeed(speed);
+        if (_motors[index] != nullptr)
+        {
+            _motors[index]->setSpeed(speed);
+        }
     }
 }

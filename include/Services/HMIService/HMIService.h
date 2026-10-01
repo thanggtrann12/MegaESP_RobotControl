@@ -18,6 +18,8 @@
 class HMIService
 {
 public:
+    using MotorBindHandler = void (*)(void *context, uint8_t slotIndex, MotorRole roleId);
+
     /**
      * @brief Constructs an HMI service bound to robot and IO components.
      * @param serial Stream used for HMI communication.
@@ -28,6 +30,12 @@ public:
     HMIService(Stream &serial, GenericRobotController &robot, IOPinManager &ioPins, KinematicsRegistry &kinematicsRegistry);
     /** @brief Polls stream, parses commands, and sends heartbeat responses. */
     void update();
+    /**
+     * @brief Registers callback for CMD_MAP motor binding requests.
+     * @param handler Callback function.
+     * @param context Opaque pointer passed back to callback.
+     */
+    void setMotorBindHandler(MotorBindHandler handler, void *context);
 
 private:
     /** @brief Parses and executes one complete buffered command. */
@@ -59,6 +67,14 @@ private:
      */
     bool parsePin(const char *text, uint8_t &pin) const;
     /**
+     * @brief Parses a motor role id.
+     * @param text Input C-string.
+     * @param role Parsed motor role.
+     * @return true when role id is valid.
+     * @return false otherwise.
+     */
+    bool parseMotorRole(const char *text, MotorRole &role) const;
+    /**
      * @brief Parses HMI motion tuple values.
      * @param text Input C-string containing motion values.
      * @param throttle Parsed throttle.
@@ -77,6 +93,8 @@ private:
     size_t _length;
     uint8_t _terminatorCount;
     uint32_t _lastHeartbeat;
+    MotorBindHandler _motorBindHandler;
+    void *_motorBindContext;
 };
 
 #endif

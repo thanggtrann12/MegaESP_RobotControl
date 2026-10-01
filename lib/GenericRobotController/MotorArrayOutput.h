@@ -20,6 +20,12 @@ public:
      * @param motorCount Number of elements in @p motors.
      */
     MotorArrayOutput(IMotor *const *motors, uint8_t motorCount);
+    /**
+     * @brief Replaces the underlying motor pointer array at runtime.
+     * @param motors Array of motor pointers.
+     * @param motorCount Number of motors in @p motors.
+     */
+    void setMotors(IMotor *const *motors, uint8_t motorCount);
     /** @brief Initializes all configured motors. */
     void begin() override;
     /** @brief Stops all configured motors. */
@@ -41,7 +47,7 @@ public:
     void applyWheelSpeeds(const int16_t *speeds, uint8_t count, uint8_t pwmLimit) override;
 
 private:
-    IMotor *const *_motors;
+    IMotor **_motors;
     uint8_t _motorCount;
 };
 

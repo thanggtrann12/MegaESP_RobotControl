@@ -2,7 +2,53 @@
 #include <IoPin.h>
 #include <stdlib.h>
 #include <string.h>
+#include "GenericLogger.h"
 
+namespace
+{
+    // Trang chứa c0..c5, b3..b8
+    constexpr const char *UI_PAGE = "Motor_sel";
+    constexpr long CURRENT_WHEEL_NONE = 0;
+
+    constexpr const char *MON_PAGE = "Monitor";
+    constexpr uint16_t COLOR_GREEN = 2016;
+    constexpr uint16_t COLOR_RED = 63488;
+    constexpr uint16_t COLOR_GREY = 33808;
+    constexpr const char *CHASSIS_NAMES[] = {
+        "TWO WHEEL", "TANK", "OMNI 3", "OMNI 4", "MECANUM",
+        "SIX WHEEL", "HOLONOMIC", "XDRIVE", "CUSTOM"};
+    constexpr const char *ROLE_SHORT[] = {"--", "FL", "FR", "RL", "RR", "ML", "MR"};
+
+    // Thứ tự mảng này = thứ tự mảng wheelMotor trong syncScreen
+    constexpr const char *WHEEL_VARS[6] = {
+        "FRONT_LEFT", "FRONT_RIGHT", "REAR_LEFT", "REAR_RIGHT", "MID_LEFT", "MID_RIGHT"};
+
+    uint8_t labelRoles(Chassis c, WheelRole out[4])
+    {
+        switch (c)
+        {
+        case Chassis::TWO_WHEEL:
+        case Chassis::TANK:
+            out[0] = WheelRole::FRONT_LEFT;
+            out[1] = WheelRole::FRONT_RIGHT;
+            return 2;
+        case Chassis::HOLONOMIC:
+        case Chassis::OMNI_3:
+            out[0] = WheelRole::FRONT_LEFT;
+            out[1] = WheelRole::FRONT_RIGHT;
+            out[2] = WheelRole::REAR_LEFT;
+            return 3;
+        default: // OMNI_4, MECANUM, XDRIVE
+            out[0] = WheelRole::FRONT_LEFT;
+            out[1] = WheelRole::FRONT_RIGHT;
+            out[2] = WheelRole::REAR_LEFT;
+            out[3] = WheelRole::REAR_RIGHT;
+            return 4;
+        }
+    }
+}
+
+ASSIGN_LOG_MACROS(HMI, Serial)
 namespace
 {
     constexpr uint8_t MAX_FIELDS = 6;
@@ -60,7 +106,6 @@ void Hmi::update()
             }
             continue;
         }
-
         _terminators = 0;
         if (byte == '\r' || byte == '\n')
         {
@@ -99,23 +144,56 @@ void Hmi::handle(char *line)
     RobotConfig &config = _robot.config();
     long a, b, c, d;
     bool ok = false;
-
+    LOG_D("Handling command: %s", command);
     if (is(command, "GET"))
     {
+        LOG_D("Command: GET");
         sendConfig();
         return;
     }
+    else if (is(command, "SYNC"))
+    {
+        if (n == 2 && is(f[1], "HOME"))
+        {
+            LOG_D("Command: SYNC HOME");
+            syncHome();
+        }
+        else if (n == 2 && is(f[1], "I2C"))
+        {
+            LOG_D("Command: SYNC I2C");
+            syncI2C();
+        }
+        else if (n == 3 && is(f[1], "CHASSIS") && number(f[2], 0, static_cast<long>(Chassis::COUNT) - 1, a))
+        {
+            LOG_D("Command: SYNC CHASSIS %ld", a);
+            syncChassisLabels(static_cast<Chassis>(a));
+        }
+        else
+        {
+            LOG_D("Command: SYNC SCREEN");
+            syncScreen();
+        }
+        return;
+    }
+    else if (is(command, "MON"))
+    {
+        LOG_D("Command: MON");
+        syncMonitor();
+        return;
+    }
+
     else if (is(command, "CHASSIS"))
     {
         ok = n == 2 && number(f[1], 0, static_cast<long>(Chassis::COUNT) - 1, a);
         if (ok)
         {
-            config.chassis = static_cast<Chassis>(a);
-            _robot.apply();
+            LOG_D("Handling command: %s, chassis: %ld", command, a);
+            _robot.selectChassis(static_cast<Chassis>(a));
         }
     }
     else if (is(command, "MOTOR"))
     {
+        LOG_D("Handling command: %s, motor: %s, role: %s, inverted: %s", command, f[1], wheelRoleToString(static_cast<WheelRole>(atoi(f[2]))), f[3]);
         ok = n == 4 && number(f[1], 1, MOTOR_SLOTS, a) && number(f[2], 0, WHEEL_COUNT, b) && number(f[3], 0, 1, c);
         if (ok)
         {
@@ -156,6 +234,7 @@ void Hmi::handle(char *line)
     else if (is(command, "SAVE"))
     {
         ok = true;
+        LOG_D("Handling command: %s", command);
         _robot.saveConfig();
     }
     else if (is(command, "DEFAULT"))
@@ -168,6 +247,7 @@ void Hmi::handle(char *line)
         ok = n == 2 && (is(f[1], "REMOTE") || is(f[1], "MANUAL"));
         if (ok)
         {
+            LOG_D("Handling command: %s, source: %s", command, f[1]);
             _robot.setSource(is(f[1], "MANUAL") ? Source::MANUAL : Source::REMOTE);
         }
     }
@@ -295,4 +375,309 @@ void Hmi::endMessage()
     {
         _serial.write(0xFF);
     }
+}
+
+// Biến int global trong program.s: "FRONT_LEFT=3"
+void Hmi::sendGlobal(const char *name, long value)
+{
+    _serial.print(name);
+    _serial.print('=');
+    _serial.print(value);
+    endMessage();
+}
+
+// Component number/checkbox: "Motor_sel.c0.val=1"
+void Hmi::sendComponentVal(const char *component, long value)
+{
+    _serial.print(UI_PAGE);
+    _serial.print('.');
+    _serial.print(component);
+    _serial.print(".val=");
+    _serial.print(value);
+    endMessage();
+}
+
+// Component text/button: Motor_sel.b3.txt="BOUNDED"
+void Hmi::sendComponentTxt(const char *component, const char *text)
+{
+    _serial.print(UI_PAGE);
+    _serial.print('.');
+    _serial.print(component);
+    _serial.print(".txt=\"");
+    _serial.print(text);
+    _serial.print('"');
+    endMessage();
+}
+
+void Hmi::syncScreen()
+{
+    const RobotConfig &cfg = _robot.config();
+    long wheelMotor[6];
+    computeWheelMotor(wheelMotor); // FL, FR, RL, RR, ML, MR -> slot 1..6, 0 = chưa gán
+    char name[8];
+
+    for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+    {
+        // Role hiệu lực: role không thuộc chassis hiện tại coi như chưa gán
+        const bool bound = cfg.role[s] != WheelRole::NONE &&
+                           roleUsedByChassis(cfg.chassis, cfg.role[s]);
+
+        // Checkbox đảo chiều c0..c5
+        snprintf(name, sizeof(name), "c%u", s);
+        sendComponentVal(name, (cfg.inverted >> s) & 1);
+
+        // Nút nhãn b3..b8
+        snprintf(name, sizeof(name), "b%u", s + 3);
+        sendComponentTxt(name, bound ? "BOUNDED" : "UNBOUND");
+    }
+
+    for (uint8_t i = 0; i < 6; ++i)
+    {
+        sendGlobal(WHEEL_VARS[i], wheelMotor[i]);
+    }
+
+    LOG_D("SYNC sent: FL=%ld FR=%ld RL=%ld RR=%ld ML=%ld MR=%ld",
+          wheelMotor[0], wheelMotor[1], wheelMotor[2], wheelMotor[3], wheelMotor[4], wheelMotor[5]);
+}
+
+void Hmi::computeWheelMotor(long out[6])
+{
+    const RobotConfig &cfg = _robot.config();
+    for (uint8_t i = 0; i < 6; ++i)
+    {
+        out[i] = 0;
+    }
+    for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+    {
+        if (!roleUsedByChassis(cfg.chassis, cfg.role[s]))
+        {
+            continue;
+        }
+        switch (cfg.role[s])
+        {
+        case WheelRole::FRONT_LEFT:
+            out[0] = s + 1;
+            break;
+        case WheelRole::FRONT_RIGHT:
+            out[1] = s + 1;
+            break;
+        case WheelRole::REAR_LEFT:
+            out[2] = s + 1;
+            break;
+        case WheelRole::REAR_RIGHT:
+            out[3] = s + 1;
+            break;
+        case WheelRole::MID_LEFT:
+            out[4] = s + 1;
+            break;
+        case WheelRole::MID_RIGHT:
+            out[5] = s + 1;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void Hmi::syncChassisLabels(Chassis chassis)
+{
+    RobotConfig &cfg = _robot.config();
+    cfg.storeCurrent(); // pool đang dùng đã nằm trong saved[]
+    const ChassisMap &map = cfg.saved[static_cast<uint8_t>(chassis)];
+
+    WheelRole roles[4];
+    const uint8_t count = labelRoles(chassis, roles);
+
+    for (uint8_t i = 0; i < count; ++i)
+    {
+        long slot = 0;
+        for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+        {
+            if (map.role[s] == roles[i])
+            {
+                slot = s + 1;
+                break;
+            }
+        }
+        _serial.print('t');
+        _serial.print(i);
+        _serial.print(".txt=\"");
+        if (slot == 0)
+        {
+            _serial.print("--");
+        }
+        else
+        {
+            _serial.print('M');
+            _serial.print(slot);
+        }
+        _serial.print('"');
+        endMessage();
+    }
+    LOG_D("labels page=%u running=%u count=%u", static_cast<uint8_t>(chassis), static_cast<uint8_t>(cfg.chassis), count);
+    for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+    {
+        LOG_D("  pool slot %u role=%s", s + 1, wheelRoleToString(map.role[s]));
+    }
+}
+
+void Hmi::monTxt(const char *comp, const char *text)
+{
+    _serial.print(MON_PAGE);
+    _serial.print('.');
+    _serial.print(comp);
+    _serial.print(".txt=\"");
+    _serial.print(text);
+    _serial.print('"');
+    endMessage();
+}
+
+void Hmi::monCol(const char *comp, uint16_t color)
+{
+    _serial.print(MON_PAGE);
+    _serial.print('.');
+    _serial.print(comp);
+    _serial.print(".pco=");
+    _serial.print(color);
+    endMessage();
+}
+
+void Hmi::syncMonitor()
+{
+    const RobotConfig &cfg = _robot.config();
+    const Command &cmd = _robot.command();
+    char name[8], text[24];
+
+    monTxt("tsrc", _robot.source() == Source::MANUAL ? "MANUAL" : "REMOTE");
+    const bool alive = _robot.linkAlive();
+    monTxt("tlink", alive ? "Alive" : "Lost");
+    monCol("tlink", alive ? COLOR_GREEN : COLOR_RED);
+    snprintf(text, sizeof(text), "%lu", static_cast<unsigned long>(_robot.getTimeout()));
+    monTxt("ttout", text);
+
+    snprintf(text, sizeof(text), "%d", cmd.throttle);
+    monTxt("tthr", text);
+    snprintf(text, sizeof(text), "%d", cmd.strafe);
+    monTxt("tstr", text);
+    snprintf(text, sizeof(text), "%d", cmd.rotation);
+    monTxt("trot", text);
+
+    monTxt("tchs", CHASSIS_NAMES[static_cast<uint8_t>(cfg.chassis)]);
+    snprintf(text, sizeof(text), "%u", cfg.pwmLimit);
+    monTxt("tpwm", text);
+    snprintf(text, sizeof(text), "%u", cfg.accelStep);
+    monTxt("tacc", text);
+
+    for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+    {
+        const bool used = cfg.role[s] != WheelRole::NONE &&
+                          roleUsedByChassis(cfg.chassis, cfg.role[s]);
+        const bool rev = (cfg.inverted >> s) & 1;
+
+        snprintf(name, sizeof(name), "tr%u", s);
+        monTxt(name, used ? ROLE_SHORT[static_cast<uint8_t>(cfg.role[s])] : "--");
+
+        snprintf(name, sizeof(name), "tv%u", s);
+        monTxt(name, rev ? "ON" : "OFF");
+        monCol(name, rev ? COLOR_GREEN : COLOR_GREY);
+    }
+
+    // Digital IO: 8 chân, đổi danh sách cho đúng chân bạn dùng
+    static const uint8_t DIG_PINS[8] = {22, 23, 24, 25, 26, 27, 28, 29};
+    char bits[9];
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+        bits[i] = IoPin::read(DIG_PINS[i]) ? '1' : '0';
+    }
+    bits[8] = '\0';
+    monTxt("tdio", bits);
+
+    snprintf(text, sizeof(text), "%u %u %u %u",
+             IoPin::readAnalog(0), IoPin::readAnalog(1),
+             IoPin::readAnalog(2), IoPin::readAnalog(3));
+    monTxt("tain", text);
+}
+
+void Hmi::syncHome()
+{
+    const RobotConfig &cfg = _robot.config();
+
+    WheelRole roles[4];
+    const uint8_t need = labelRoles(cfg.chassis, roles);
+    uint8_t bound = 0;
+    for (uint8_t i = 0; i < need; ++i)
+    {
+        for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+        {
+            if (cfg.role[s] == roles[i])
+            {
+                ++bound;
+                break;
+            }
+        }
+    }
+
+    char text[16];
+    _serial.print("Main.thchs.txt=\"");
+    _serial.print(CHASSIS_NAMES[static_cast<uint8_t>(cfg.chassis)]);
+    _serial.print('"');
+    endMessage();
+
+    snprintf(text, sizeof(text), "%u/%u BOUND", bound, need);
+    _serial.print("Main.thprof.txt=\"");
+    _serial.print(text);
+    _serial.print('"');
+    endMessage();
+
+    snprintf(text, sizeof(text), "OK", bound, need);
+    _serial.print("Main.tsts.txt=\"");
+    _serial.print(text);
+    _serial.print('"');
+    endMessage();
+}
+
+void Hmi::syncI2C()
+{
+    // Tốc độ clock thực tế, tính từ thanh ghi TWBR và prescaler
+    const uint8_t prescaler = 1 << (2 * (TWSR & 0x03)); // 1, 4, 16, 64
+    const uint32_t clockHz = F_CPU / (16UL + 2UL * TWBR * prescaler);
+
+    char speed[16];
+    snprintf(speed, sizeof(speed), "%lu kHz", static_cast<unsigned long>(clockHz / 1000UL));
+    _serial.print("I2c_test.tbussp.txt=\"");
+    _serial.print(speed);
+    _serial.print('"');
+    endMessage();
+
+    // Quét địa chỉ 7 bit hợp lệ: 0x08..0x77
+    char list[96];
+    uint8_t length = 0;
+    uint8_t found = 0;
+    list[0] = '\0';
+
+    for (uint8_t address = 0x08; address <= 0x77; ++address)
+    {
+        Wire.beginTransmission(address);
+        if (Wire.endTransmission() != 0)
+        {
+            continue;
+        }
+        ++found;
+        if (length + 6 < sizeof(list)) // chừa chỗ cho "0xNN " và ký tự kết thúc
+        {
+            length += snprintf(list + length, sizeof(list) - length, "0x%02X ", address);
+        }
+    }
+
+    if (found == 0)
+    {
+        snprintf(list, sizeof(list), "No device");
+    }
+
+    _serial.print("I2c_test.devlist.txt=\"");
+    _serial.print(list);
+    _serial.print('"');
+    endMessage();
+
+    LOG_D("I2C scan: %u device(s), %lu Hz", found, static_cast<unsigned long>(clockHz));
 }

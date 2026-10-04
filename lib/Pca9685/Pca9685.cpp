@@ -12,12 +12,13 @@ namespace
     constexpr uint8_t MODE2_OUTDRV = 0x04;
     constexpr uint16_t FULL_ON_OFF = 0x1000; // bit 4 of the high byte
     constexpr uint32_t OSCILLATOR_HZ = 25000000UL;
+    constexpr uint32_t I2C_SPEED = 400000UL;
 }
 
 void Pca9685::begin(uint16_t frequencyHz)
 {
     _wire->begin();
-    _wire->setClock(400000UL); // 12 motor channels are rewritten every control tick
+    _wire->setClock(I2C_SPEED); // 12 motor channels are rewritten every control tick
     write(MODE2, MODE2_OUTDRV);
     write(MODE1, MODE1_SLEEP | MODE1_AUTO_INC); // prescale can only change while asleep
     write(PRESCALE, static_cast<uint8_t>((OSCILLATOR_HZ + 2048UL * frequencyHz) / (4096UL * frequencyHz) - 1));

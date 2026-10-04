@@ -25,7 +25,7 @@ void setup()
     remote.Init(UART_BAUD);
     robot.begin();
     remote.SendCommand("ESP_RESET");
-    RobotMega2560_LogI("Setup complete");
+    LOG_I("Setup complete");
 }
 
 void loop()

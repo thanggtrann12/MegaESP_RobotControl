@@ -10,9 +10,13 @@ enum class Chassis : uint8_t
 {
     TWO_WHEEL = 0,
     TANK,
+    OMNI_3,
     OMNI_4,
     MECANUM,
     SIX_WHEEL,
+    HOLONOMIC,
+    XDRIVE,
+    INDEPENDENT,
     CUSTOM,
     COUNT
 };
@@ -23,12 +27,35 @@ enum class WheelRole : uint8_t
     NONE = 0,
     FRONT_LEFT,
     FRONT_RIGHT,
-    MID_LEFT,
-    MID_RIGHT,
     REAR_LEFT,
     REAR_RIGHT,
+    MID_LEFT,
+    MID_RIGHT,
     COUNT
 };
+
+inline const char *wheelRoleToString(WheelRole role)
+{
+    switch (role)
+    {
+    case WheelRole::NONE:
+        return "NONE";
+    case WheelRole::FRONT_LEFT:
+        return "FRONT_LEFT";
+    case WheelRole::FRONT_RIGHT:
+        return "FRONT_RIGHT";
+    case WheelRole::MID_LEFT:
+        return "MID_LEFT";
+    case WheelRole::MID_RIGHT:
+        return "MID_RIGHT";
+    case WheelRole::REAR_LEFT:
+        return "REAR_LEFT";
+    case WheelRole::REAR_RIGHT:
+        return "REAR_RIGHT";
+    default:
+        return "UNKNOWN";
+    }
+}
 
 constexpr uint8_t WHEEL_COUNT = 6;
 

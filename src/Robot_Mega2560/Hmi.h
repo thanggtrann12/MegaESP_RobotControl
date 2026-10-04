@@ -31,7 +31,20 @@ private:
     void reply(const char *command, bool ok);
     void sendConfig();
     void endMessage();
+    void syncScreen();
+    void sendComponentVal(const char *component, long value);
+    void sendComponentTxt(const char *component, const char *text);
+    void sendGlobal(const char *name, long value);
 
+    void syncChassisLabels(Chassis chassis);
+    void computeWheelMotor(long out[6]);
+
+    void syncMonitor();
+    void monTxt(const char *comp, const char *text);
+    void monCol(const char *comp, uint16_t color);
+
+    void syncHome();
+    void syncI2C();
     Stream &_serial;
     Robot &_robot;
     char _line[48];

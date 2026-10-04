@@ -67,7 +67,7 @@ void Robot::onRemote(const ControlPacket &packet)
         _command.strafe = packet.strafe;
         _command.rotation = packet.rotation;
 
-        // Robot_LogI("Received control command: throttle=%d, strafe=%d, rotation=%d", _command.throttle, _command.strafe, _command.rotation);
+        // LOGI("Received control command: throttle=%d, strafe=%d, rotation=%d", _command.throttle, _command.strafe, _command.rotation);
     }
 }
 
@@ -162,6 +162,13 @@ void Robot::setMotor(uint8_t slot, WheelRole role, bool inverted)
 void Robot::apply()
 {
     stop();
+    for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
+    {
+        if (!roleUsedByChassis(_config.chassis, _config.role[s]))
+        {
+            _config.role[s] = WheelRole::NONE;
+        }
+    }
     _drive.clearMotors();
     for (uint8_t slot = 0; slot < MOTOR_SLOTS; ++slot)
     {
@@ -179,11 +186,20 @@ void Robot::applyLimits()
 
 void Robot::saveConfig()
 {
+    _config.storeCurrent();
     _config.save(CONFIG_EEPROM_ADDRESS);
 }
 
 void Robot::resetConfig()
 {
     _config = RobotConfig::defaults();
+    apply();
+}
+
+void Robot::selectChassis(Chassis next)
+{
+    _config.storeCurrent(); // cất pool chassis cũ
+    _config.chassis = next;
+    _config.loadCurrent(); // nạp pool chassis mới
     apply();
 }

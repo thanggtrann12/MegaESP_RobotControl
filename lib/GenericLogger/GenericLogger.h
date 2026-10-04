@@ -6,13 +6,14 @@
 
 /**
  * @file GenericLogger.h
- * @brief Colored logging helpers and module log macro generator.
+ * @brief Colored logging helpers and module log macros.
  */
 
 /**
  * @brief Log severity levels.
  */
-enum LogLevel {
+enum LogLevel
+{
     DEBUG,
     INFO,
     WARN,
@@ -30,12 +31,12 @@ enum LogLevel {
  * @param format printf-style format string.
  * @param ... Format arguments.
  */
-void printfLog(Stream& serial,
-               const char* moduleName,
+void printfLog(Stream &serial,
+               const char *moduleName,
                LogLevel logLevel,
                size_t line,
-               const char* fileName,
-               const char* format,
+               const char *fileName,
+               const char *format,
                ...);
 
 /**
@@ -48,49 +49,34 @@ void printfLog(Stream& serial,
  * @param format printf-style format string.
  * @param args Variable argument list.
  */
-void vprintfLog(Stream& serial,
-                const char* moduleName,
+void vprintfLog(Stream &serial,
+                const char *moduleName,
                 LogLevel logLevel,
                 size_t line,
-                const char* fileName,
-                const char* format,
+                const char *fileName,
+                const char *format,
                 va_list args);
 
-#define ASSIGN_LOG_MACROS(prefix, serial)                              \
-    void prefix##_LogD(const char* input, ...)                         \
-    {                                                                  \
-        va_list args;                                                  \
-        va_start(args, input);                                         \
-        vprintfLog(serial, #prefix, DEBUG, __LINE__, __FILE__, input, args); \
-        va_end(args);                                                  \
-    }                                                                  \
-    void prefix##_LogI(const char* input, ...)                         \
-    {                                                                  \
-        va_list args;                                                  \
-        va_start(args, input);                                         \
-        vprintfLog(serial, #prefix, INFO, __LINE__, __FILE__, input, args);  \
-        va_end(args);                                                  \
-    }                                                                  \
-    void prefix##_LogW(const char* input, ...)                         \
-    {                                                                  \
-        va_list args;                                                  \
-        va_start(args, input);                                         \
-        vprintfLog(serial, #prefix, WARN, __LINE__, __FILE__, input, args);  \
-        va_end(args);                                                  \
-    }                                                                  \
-    void prefix##_LogE(const char* input, ...)                         \
-    {                                                                  \
-        va_list args;                                                  \
-        va_start(args, input);                                         \
-        vprintfLog(serial, #prefix, ERROR, __LINE__, __FILE__, input, args); \
-        va_end(args);                                                  \
-    }                                                                  \
-    void prefix##_LogF(const char* input, ...)                         \
-    {                                                                  \
-        va_list args;                                                  \
-        va_start(args, input);                                         \
-        vprintfLog(serial, #prefix, FATAL, __LINE__, __FILE__, input, args); \
-        va_end(args);                                                  \
-    }
+/**
+ * @brief Declares the output stream used by a module. Use once per .cpp file.
+ *
+ * Example: ASSIGN_LOG_MACROS(Robot, Serial);
+ */
+#define ASSIGN_LOG_MACROS(module, serial)                 \
+    static inline Stream &_logSerial() { return serial; } \
+    static inline const char *_logModule() { return #module; }
+
+/**
+ * @brief Log macros. __LINE__ and __FILE__ expand at the call site,
+ *        so the correct source location is printed.
+ *
+ * Example: LOG_D(Robot, "Applied configuration");
+ *          LOG_I(Robot, "throttle=%d", value);
+ */
+#define LOG_D(...) printfLog(_logSerial(), _logModule(), DEBUG, __LINE__, __FILE__, __VA_ARGS__)
+#define LOG_I(...) printfLog(_logSerial(), _logModule(), INFO, __LINE__, __FILE__, __VA_ARGS__)
+#define LOG_W(...) printfLog(_logSerial(), _logModule(), WARN, __LINE__, __FILE__, __VA_ARGS__)
+#define LOG_E(...) printfLog(_logSerial(), _logModule(), ERROR, __LINE__, __FILE__, __VA_ARGS__)
+#define LOG_F(...) printfLog(_logSerial(), _logModule(), FATAL, __LINE__, __FILE__, __VA_ARGS__)
 
 #endif

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 21:09+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -18,121 +18,358 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/configuration.rst:2
-msgid "Dynamic Motor Mapping & Configuration"
-msgstr "Ánh xạ động cơ động và cấu hình"
+#: ../../source/configuration.rst:2
+msgid "Chassis & Motor Configuration"
+msgstr "Cấu hình khung gầm và động cơ"
 
-#: ../../../source/configuration.rst:5
-msgid "Separation of Logical Role and Physical Channel"
-msgstr "Tách biệt vai trò logic và kênh vật lý"
+#: ../../source/configuration.rst:5
+msgid "Concepts"
+msgstr "Khái niệm"
 
-#: ../../../source/configuration.rst:7
+#: ../../source/configuration.rst:7
+msgid "**Motor slot:** a physical motor port, M1 to M6."
+msgstr "**Cổng động cơ:** một cổng động cơ vật lý, M1 đến M6."
+
+#: ../../source/configuration.rst:8
 msgid ""
-"A key feature of this controller is separating logical motor roles from "
-"physical output channels."
+"**Wheel role:** where a motor sits on the chassis. A slot is assigned one "
+"role, or none."
 msgstr ""
-"Một tính năng quan trọng của bộ điều khiển này là tách vai trò động cơ "
-"logic khỏi các kênh đầu ra vật lý."
+"**Vai trò bánh:** vị trí của một động cơ trên khung gầm. Mỗi cổng được gán "
+"một vai trò hoặc không có."
 
-#: ../../../source/configuration.rst:10
-msgid "Mecanum Profile Example"
-msgstr "Ví dụ profile Mecanum"
-
-#: ../../../source/configuration.rst:20
-msgid "Differential Profile Example"
-msgstr "Ví dụ profile Differential"
-
-#: ../../../source/configuration.rst:28
-msgid "Configuration Validation Rules"
-msgstr "Quy tắc kiểm tra hợp lệ cấu hình"
-
-#: ../../../source/configuration.rst:30
+#: ../../source/configuration.rst:9
 msgid ""
-"The runtime keeps one active configuration and one staged configuration. "
-"TJC updates the staged copy and only ``CMD_CFG:APPLY`` changes the "
-"running robot. ``CMD_CFG:SAVE`` persists the already-applied "
-"configuration to EEPROM."
+"**Chassis:** a mixing table that says how much of throttle, strafe and "
+"rotation each wheel receives."
+msgstr ""
+"**Khung gầm:** một bảng trộn cho biết mỗi bánh nhận bao nhiêu phần của "
+"throttle, strafe và rotation."
+
+#: ../../source/configuration.rst:11
+msgid "Changing the chassis or the mapping never needs new firmware."
+msgstr "Đổi khung gầm hoặc ánh xạ không bao giờ cần firmware mới."
+
+#: ../../source/configuration.rst:14
+msgid "Wheel Roles"
+msgstr "Vai trò bánh"
+
+#: ../../source/configuration.rst:20
+msgid "Role"
+msgstr "Vai trò"
+
+#: ../../source/configuration.rst:21
+msgid "Wheel"
+msgstr "Bánh"
+
+#: ../../source/configuration.rst:22 ../../source/configuration.rst:50
+msgid "0"
 msgstr ""
 
-#: ../../../source/configuration.rst:34
-msgid "The current configuration protocol is:"
+#: ../../source/configuration.rst:23
+msgid "Unused"
+msgstr "Không dùng"
+
+#: ../../source/configuration.rst:24 ../../source/configuration.rst:54
+msgid "1"
 msgstr ""
 
-#: ../../../source/configuration.rst:50
+#: ../../source/configuration.rst:25
+msgid "Front left"
+msgstr "Trước trái"
+
+#: ../../source/configuration.rst:26 ../../source/configuration.rst:58
+msgid "2"
+msgstr ""
+
+#: ../../source/configuration.rst:27
+msgid "Front right"
+msgstr "Trước phải"
+
+#: ../../source/configuration.rst:28 ../../source/configuration.rst:62
+msgid "3"
+msgstr ""
+
+#: ../../source/configuration.rst:29
+msgid "Middle left"
+msgstr "Giữa trái"
+
+#: ../../source/configuration.rst:30 ../../source/configuration.rst:66
+msgid "4"
+msgstr ""
+
+#: ../../source/configuration.rst:31
+msgid "Middle right"
+msgstr "Giữa phải"
+
+#: ../../source/configuration.rst:32 ../../source/configuration.rst:70
+msgid "5"
+msgstr ""
+
+#: ../../source/configuration.rst:33
+msgid "Rear left"
+msgstr "Sau trái"
+
+#: ../../source/configuration.rst:34
+msgid "6"
+msgstr ""
+
+#: ../../source/configuration.rst:35
+msgid "Rear right"
+msgstr "Sau phải"
+
+#: ../../source/configuration.rst:37
 msgid ""
-"The capability response has the form "
-"``CAP:KIN,<diff>,<mecanum>,<omni3>,<omni4>,<custom>,DRV,<ta6586-pca9685>``."
-" The HMI must use this response to hide unsupported configuration "
-"choices."
+"Assigning a role to a slot takes it away from any other slot that had it, so"
+" each wheel has exactly one motor."
+msgstr ""
+"Gán một vai trò cho một cổng sẽ lấy vai trò đó khỏi cổng khác đang giữ nó, "
+"nên mỗi bánh chỉ có đúng một động cơ."
+
+#: ../../source/configuration.rst:40
+msgid "Chassis Types"
+msgstr "Các loại khung gầm"
+
+#: ../../source/configuration.rst:46
+msgid "Id"
 msgstr ""
 
-#: ../../../source/configuration.rst:53
-#, fuzzy
-msgid "Before applying or saving changes, ``ConfigurationManager`` validates:"
-msgstr "Trước khi lưu thay đổi vào EEPROM, ``ConfigManager`` sẽ kiểm tra:"
+#: ../../source/configuration.rst:47
+msgid "Chassis"
+msgstr "Khung gầm"
 
-#: ../../../source/configuration.rst:55
+#: ../../source/configuration.rst:48
+msgid "Required roles"
+msgstr "Vai trò bắt buộc"
+
+#: ../../source/configuration.rst:49
+msgid "Mixing"
+msgstr "Trộn tốc độ"
+
+#: ../../source/configuration.rst:51
+msgid "Two-wheel"
+msgstr "2 bánh"
+
+#: ../../source/configuration.rst:52
+msgid "1, 2"
+msgstr ""
+
+#: ../../source/configuration.rst:53
+msgid "Differential: left = throttle + rotation, right = throttle - rotation."
+msgstr "Vi sai: trái = throttle + rotation, phải = throttle - rotation."
+
+#: ../../source/configuration.rst:55
+msgid "Tank"
+msgstr ""
+
+#: ../../source/configuration.rst:56 ../../source/configuration.rst:60
+#: ../../source/configuration.rst:64
+msgid "1, 2, 5, 6"
+msgstr ""
+
+#: ../../source/configuration.rst:57
+msgid "Four-wheel skid steer, same mixing as two-wheel on each side."
+msgstr "Skid steer 4 bánh, mỗi bên trộn giống khung gầm 2 bánh."
+
+#: ../../source/configuration.rst:59
+msgid "4-wheel omni"
+msgstr "Omni 4 bánh"
+
+#: ../../source/configuration.rst:61
+msgid "X layout; mixes exactly like mecanum."
+msgstr "Bố trí chữ X; trộn giống hệt mecanum."
+
+#: ../../source/configuration.rst:63
+msgid "Mecanum"
+msgstr ""
+
+#: ../../source/configuration.rst:65
+msgid "Throttle, strafe and rotation combined per wheel."
+msgstr "Throttle, strafe và rotation được kết hợp cho từng bánh."
+
+#: ../../source/configuration.rst:67
+msgid "6-wheel"
+msgstr "6 bánh"
+
+#: ../../source/configuration.rst:68
+msgid "1 to 6"
+msgstr "1 đến 6"
+
+#: ../../source/configuration.rst:69
+msgid "Six-wheel skid steer, same mixing on each side."
+msgstr "Skid steer 6 bánh, mỗi bên trộn giống nhau."
+
+#: ../../source/configuration.rst:71
+msgid "Custom"
+msgstr "Tùy chỉnh"
+
+#: ../../source/configuration.rst:72
+msgid "Every role with a non-zero mix"
+msgstr "Mọi vai trò có hệ số trộn khác 0"
+
+#: ../../source/configuration.rst:73
+msgid "Mixing table entered from the touchscreen."
+msgstr "Bảng trộn nhập từ màn hình cảm ứng."
+
+#: ../../source/configuration.rst:75
+msgid "Positive rotation turns right. A wheel at full command receives 255 PWM."
+msgstr "Rotation dương là quay phải. Một bánh ở lệnh tối đa nhận PWM 255."
+
+#: ../../source/configuration.rst:78
+msgid "Custom Chassis"
+msgstr "Khung gầm tùy chỉnh"
+
+#: ../../source/configuration.rst:80
 msgid ""
-"Protocol slot exists ($1 \\rightarrow 6$); firmware converts it to "
-"internal index $0 \\rightarrow 5$."
+"For each wheel role the table stores three percentages from -100 to 100: "
+"throttle, strafe and rotation. With the commands T, S and R also in the "
+"range -100 to 100, the wheel speed in percent of full PWM is:"
 msgstr ""
+"Với mỗi vai trò bánh, bảng lưu ba phần trăm từ -100 đến 100: throttle, "
+"strafe và rotation. Với các lệnh T, S và R cũng trong khoảng -100 đến 100, "
+"tốc độ bánh tính theo phần trăm PWM tối đa là:"
 
-#: ../../../source/configuration.rst:56
-msgid "The selected kinematics is advertised by ``CapabilityRegistry``."
-msgstr ""
-
-#: ../../../source/configuration.rst:57
+#: ../../source/configuration.rst:86
 msgid ""
-"Differential mode requires exactly one ``LEFT_MOTOR`` and one "
-"``RIGHT_MOTOR`` role."
+"A role whose three values are all zero is not used. If a command would push "
+"any wheel above the PWM limit, all wheels are scaled down together so the "
+"direction of travel is kept."
 msgstr ""
+"Vai trò có cả ba giá trị bằng 0 sẽ không được dùng. Nếu một lệnh làm bất kỳ "
+"bánh nào vượt giới hạn PWM, tất cả các bánh được giảm tỉ lệ cùng nhau để giữ"
+" nguyên hướng di chuyển."
 
-#: ../../../source/configuration.rst:58
-msgid "Mecanum mode requires the four front/rear left/right roles exactly once."
-msgstr ""
+#: ../../source/configuration.rst:89
+msgid "Calibration"
+msgstr "Hiệu chỉnh"
 
-#: ../../../source/configuration.rst:59
-msgid "Unused physical slots may remain ``UNBOUND``."
-msgstr ""
+#: ../../source/configuration.rst:91
+msgid "Select the chassis."
+msgstr "Chọn khung gầm."
 
-#: ../../../source/configuration.rst:60
-msgid "The selected driver, inversion flags and PWM limit are valid."
-msgstr ""
+#: ../../source/configuration.rst:92
+msgid "Map each motor slot to its wheel role."
+msgstr "Gán mỗi cổng động cơ với vai trò bánh của nó."
 
-#: ../../../source/configuration.rst:61
-msgid "Configuration version and CRC are valid before EEPROM load."
-msgstr ""
-
-#: ../../../source/configuration.rst:63
+#: ../../source/configuration.rst:93
 msgid ""
-"Motion profiles are currently ``0 = DIRECT`` and ``1 = "
-"LIMITED_ACCELERATION``. The latter limits per-update wheel speed changes "
-"before PWM scaling."
+"Switch to manual control and press the single-motor test for each slot. If a"
+" wheel turns the wrong way, set its reverse flag and test again. The test "
+"already applies the reverse flag."
 msgstr ""
+"Chuyển sang điều khiển thủ công và bấm kiểm tra từng động cơ cho mỗi cổng. "
+"Nếu bánh quay sai chiều, đặt cờ đảo chiều của nó rồi kiểm tra lại. Phép kiểm"
+" tra đã áp dụng sẵn cờ đảo chiều."
 
-#: ../../../source/configuration.rst:66
+#: ../../source/configuration.rst:94
+msgid "Set the PWM limit and, if wanted, the acceleration step."
+msgstr "Đặt giới hạn PWM và, nếu muốn, bước gia tốc."
+
+#: ../../source/configuration.rst:95
+msgid "Save."
+msgstr "Lưu."
+
+#: ../../source/configuration.rst:98
+msgid "Settings"
+msgstr "Các thiết lập"
+
+#: ../../source/configuration.rst:104
+msgid "Setting"
+msgstr "Thiết lập"
+
+#: ../../source/configuration.rst:105
+msgid "Meaning"
+msgstr "Ý nghĩa"
+
+#: ../../source/configuration.rst:106
+msgid "PWM limit"
+msgstr "Giới hạn PWM"
+
+#: ../../source/configuration.rst:107
+msgid "Highest PWM sent to a motor, 0 to 255."
+msgstr "PWM cao nhất gửi tới động cơ, từ 0 đến 255."
+
+#: ../../source/configuration.rst:108
+msgid "Acceleration step"
+msgstr "Bước gia tốc"
+
+#: ../../source/configuration.rst:109
 msgid ""
-"The Mega2560 firmware currently advertises Differential and Mecanum "
-"kinematics with the TA6586/PCA9685 driver. New hardware or kinematics "
-"must be implemented and registered in firmware before the HMI can select "
-"them."
+"Largest change of one wheel speed per 20 ms control tick. 0 turns the limit "
+"off."
 msgstr ""
+"Mức thay đổi tốc độ lớn nhất của một bánh trong mỗi chu kỳ điều khiển 20 ms."
+" 0 là tắt giới hạn."
 
-#~ msgid "Assigned role is valid for the current kinematics mode."
-#~ msgstr "Vai trò được gán phải hợp lệ với chế độ động học hiện tại."
+#: ../../source/configuration.rst:110
+msgid "Reverse flag"
+msgstr "Cờ đảo chiều"
 
-#~ msgid "No duplicate channel conflicts exist."
-#~ msgstr "Không được tồn tại xung đột trùng kênh."
+#: ../../source/configuration.rst:111
+msgid "Reverses one motor so a wheel turns forward when told to."
+msgstr "Đảo chiều một động cơ để bánh quay tiến khi được ra lệnh tiến."
 
-#~ msgid "The four required drive roles exist exactly once."
-#~ msgstr ""
+#: ../../source/configuration.rst:114
+msgid "Persistence"
+msgstr "Lưu trữ"
 
-#~ msgid "Maximum power limits fall within valid bounds ($0 \\rightarrow 255$)."
-#~ msgstr ""
-#~ "Giới hạn công suất tối đa phải "
-#~ "nằm trong khoảng hợp lệ ($0 "
-#~ "\\rightarrow 255$)."
+#: ../../source/configuration.rst:116
+msgid ""
+"The whole configuration is one 30-byte structure with a version byte and a "
+"CRC-8, stored in EEPROM from address ``0x10``. At start-up the firmware "
+"loads it and checks:"
+msgstr ""
+"Toàn bộ cấu hình là một cấu trúc 30 byte có byte phiên bản và CRC-8, lưu "
+"trong EEPROM từ địa chỉ ``0x10``. Khi khởi động, firmware nạp nó và kiểm "
+"tra:"
 
-#~ msgid "Physical channel exists ($0 \\rightarrow 5$)."
-#~ msgstr "Kênh vật lý phải tồn tại ($0 \\rightarrow 5$)."
+#: ../../source/configuration.rst:118
+msgid "The version matches this firmware."
+msgstr "Phiên bản khớp với firmware này."
+
+#: ../../source/configuration.rst:119
+msgid "The CRC is correct."
+msgstr "CRC đúng."
+
+#: ../../source/configuration.rst:120
+msgid "The chassis id and all roles are in range and no role is used twice."
+msgstr ""
+"Id khung gầm và mọi vai trò nằm trong phạm vi và không có vai trò nào dùng "
+"hai lần."
+
+#: ../../source/configuration.rst:121
+msgid "The custom mix values are within -100 to 100."
+msgstr "Các giá trị trộn tùy chỉnh nằm trong khoảng -100 đến 100."
+
+#: ../../source/configuration.rst:123
+msgid ""
+"If any check fails the defaults are used: mecanum, motors M1 to M4 as front "
+"left, rear left, front right and rear right, PWM limit 255, no acceleration "
+"limit."
+msgstr ""
+"Nếu có kiểm tra nào thất bại thì dùng giá trị mặc định: mecanum, động cơ M1 "
+"đến M4 lần lượt là trước trái, sau trái, trước phải và sau phải, giới hạn "
+"PWM 255, không giới hạn gia tốc."
+
+#: ../../source/configuration.rst:125
+msgid ""
+"Changes take effect immediately and are only written to EEPROM by the save "
+"command. Saving only rewrites bytes that changed."
+msgstr ""
+"Thay đổi có hiệu lực ngay và chỉ được ghi vào EEPROM bởi lệnh lưu. Việc lưu "
+"chỉ ghi lại các byte đã thay đổi."
+
+#: ../../source/configuration.rst:128
+msgid "Not Ready State"
+msgstr "Trạng thái chưa sẵn sàng"
+
+#: ../../source/configuration.rst:130
+msgid ""
+"The drive is *ready* when every wheel the chassis needs has a motor. When it"
+" is not ready the motors stay stopped. The ``GET`` command reports the ready"
+" flag so the touchscreen can show what is missing."
+msgstr ""
+"Drive *sẵn sàng* khi mọi bánh mà khung gầm cần đều có động cơ. Khi chưa sẵn "
+"sàng, động cơ đứng yên. Lệnh ``GET`` báo cờ ready để màn hình cảm ứng hiển "
+"thị phần còn thiếu."
 

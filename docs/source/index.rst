@@ -2,7 +2,7 @@
 Universal Robot Hub
 ===================
 
-A modular, OOP-based PlatformIO firmware architecture for a configurable robot control system.
+A layered PlatformIO firmware for a plug, configure, play robot controller: one firmware, many chassis, configured from a touchscreen.
 
 The system is built around an **Arduino Mega 2560 Master Hub**, integrated with a **TJC/Nextion HMI (480x320px)**, and connected to a custom handheld remote controller through **ESP8266 ESP-NOW** wireless bridges.
 

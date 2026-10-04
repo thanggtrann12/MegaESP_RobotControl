@@ -53,7 +53,7 @@
   <!-- Connections in Remote Unit -->
   <line x1="260" y1="117" x2="320" y2="117" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
   <line x1="630" y1="185" x2="630" y2="215" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
-  <text x="638" y="203" fill="#8b949e" font-size="10">UART2 ASCII</text>
+  <text x="638" y="203" fill="#8b949e" font-size="10">UART3 framed packets</text>
 
   <!-- ESP-NOW Link -->
   <line x1="630" y1="280" x2="630" y2="350" stroke="#00f2fe" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrow-cyan)"/>
@@ -68,11 +68,11 @@
   <!-- Touch UI Box -->
   <rect x="40" y="405" width="220" height="150" rx="6" fill="url(#box-fill)" stroke="#30363d" stroke-width="1.5"/>
   <text x="150" y="427" fill="#f0f6fc" font-size="13" font-weight="bold" text-anchor="middle">TJC / Nextion Touch UI</text>
-  <text x="50" y="450" fill="#8b949e" font-size="11">• Dynamic Motor Mapping</text>
-  <text x="50" y="470" fill="#8b949e" font-size="11">• Robot Configuration</text>
-  <text x="50" y="490" fill="#8b949e" font-size="11">• Real-time I/O Status</text>
+  <text x="50" y="450" fill="#8b949e" font-size="11">• Chassis Selection</text>
+  <text x="50" y="470" fill="#8b949e" font-size="11">• Motor Mapping &amp; Calibration</text>
+  <text x="50" y="490" fill="#8b949e" font-size="11">• Servo &amp; I/O Control</text>
   <text x="50" y="510" fill="#8b949e" font-size="11">• Manual Motor Testing</text>
-  <text x="50" y="530" fill="#8b949e" font-size="11">• Simulation Mode</text>
+  <text x="50" y="530" fill="#8b949e" font-size="11">• Custom Chassis Mixing</text>
 
   <!-- ESP8266 RX Box -->
   <rect x="500" y="405" width="260" height="80" rx="6" fill="url(#box-fill)" stroke="#00f2fe" stroke-width="1.5"/>
@@ -83,30 +83,28 @@
   <!-- Master Hub Central Box -->
   <rect x="40" y="590" width="720" height="120" rx="6" fill="url(#box-fill)" stroke="#ff0844" stroke-width="2"/>
   <text x="400" y="615" fill="#ff0844" font-size="15" font-weight="bold" text-anchor="middle">ARDUINO MEGA 2560 MASTER HUB</text>
-  <text x="60" y="642" fill="#f0f6fc" font-size="12">• HMIService &amp; Command Parser</text>
-  <text x="60" y="662" fill="#f0f6fc" font-size="12">• Kinematics Engine (Mecanum/Diff/Omni)</text>
-  <text x="410" y="642" fill="#f0f6fc" font-size="12">• RobotHubController (Core Logic)</text>
-  <text x="410" y="662" fill="#f0f6fc" font-size="12">• Dynamic MotorMapper &amp; Safety Manager</text>
+  <text x="60" y="642" fill="#f0f6fc" font-size="12">• Hmi (TJC command parser)</text>
+  <text x="60" y="662" fill="#f0f6fc" font-size="12">• Drive (6 chassis + custom mix)</text>
+  <text x="410" y="642" fill="#f0f6fc" font-size="12">• Robot (source, watchdog, config)</text>
+  <text x="410" y="662" fill="#f0f6fc" font-size="12">• MotorBank M1-M6, ServoOut, IoPin</text>
 
   <!-- Motor Drivers Box -->
   <rect x="260" y="750" width="280" height="50" rx="6" fill="url(#box-fill)" stroke="#30363d" stroke-width="1.5"/>
-  <text x="400" y="780" fill="#f0f6fc" font-size="13" font-weight="bold" text-anchor="middle">6x TA6586 Motor Drivers</text>
+  <text x="400" y="780" fill="#f0f6fc" font-size="13" font-weight="bold" text-anchor="middle">PCA9685 + 6x TA6586 Drivers</text>
 
   <!-- Motors Box -->
   <rect x="310" y="835" width="180" height="40" rx="20" fill="url(#accent-orange)"/>
   <text x="400" y="860" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">DC MOTORS</text>
 
   <!-- Internal Connections Chassis -->
-  <line x1="260" y1="480" x2="500" y2="480" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-blue)" marker-start="url(#arrow-blue)"/>
-  <text x="380" y="472" fill="#8b949e" font-size="10" text-anchor="middle">UART1 ASCII</text>
-
   <line x1="630" y1="485" x2="630" y2="590" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
-  <text x="638" y="540" fill="#8b949e" font-size="10">UART2 ASCII</text>
+  <text x="638" y="540" fill="#8b949e" font-size="10">UART3 framed packets</text>
 
   <line x1="150" y1="555" x2="150" y2="590" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="158" y="577" fill="#8b949e" font-size="10">UART2 ASCII</text>
 
   <line x1="400" y1="710" x2="400" y2="750" stroke="#ff0844" stroke-width="2" marker-end="url(#arrow-orange)"/>
-  <text x="408" y="733" fill="#8b949e" font-size="10">Hardware PWM (12x Pins)</text>
+  <text x="408" y="733" fill="#8b949e" font-size="10">I2C (PCA9685 PWM)</text>
 
   <line x1="400" y1="800" x2="400" y2="835" stroke="#ff0844" stroke-width="2" marker-end="url(#arrow-orange)"/>
 </svg>

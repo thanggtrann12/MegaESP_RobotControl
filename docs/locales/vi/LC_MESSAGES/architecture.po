@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,114 +16,196 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/architecture.rst:2
+#: ../../source/architecture.rst:2
 msgid "System Architecture & Design Philosophy"
 msgstr "Kiến trúc hệ thống và triết lý thiết kế"
 
-#: ../../../source/architecture.rst:5
+#: ../../source/architecture.rst:5
 msgid "System Overview"
 msgstr "Tổng quan hệ thống"
 
-#: ../../../source/architecture.rst:6
+#: ../../source/architecture.rst:6
 msgid ""
-"The system turns an Arduino Mega 2560 into a configurable robot-control "
-"hub capable of:"
+"The firmware turns an Arduino Mega 2560 into a *plug, configure, play* robot"
+" controller. One firmware drives many chassis types; the TJC touchscreen "
+"chooses the chassis, maps motors to wheels, calibrates directions and saves "
+"the result to EEPROM. No rebuild is needed to change the robot."
 msgstr ""
-"Hệ thống biến Arduino Mega 2560 thành một robot-control hub có thể cấu hình "
-"với các khả năng:"
+"Firmware biến Arduino Mega 2560 thành bộ điều khiển robot *cắm, cấu hình, "
+"chạy*. Một firmware điều khiển được nhiều loại khung gầm; màn hình cảm ứng "
+"TJC chọn khung gầm, gán động cơ cho bánh xe, hiệu chỉnh chiều quay và lưu "
+"kết quả vào EEPROM. Không cần build lại khi đổi robot."
 
-#: ../../../source/architecture.rst:8
-msgid "Multiple drivetrain / kinematics modes"
-msgstr "Nhiều chế độ truyền động / động học"
+#: ../../source/architecture.rst:8
+msgid "The Mega:"
+msgstr "Mega có thể:"
 
-#: ../../../source/architecture.rst:9
-msgid "Runtime kinematics mode switching"
-msgstr "Chuyển đổi chế độ động học trong thời gian chạy"
+#: ../../source/architecture.rst:10
+msgid "Drives two-wheel, tank, 4-wheel omni, mecanum, 6-wheel and custom chassis"
+msgstr ""
+"Điều khiển khung gầm 2 bánh, tank, omni 4 bánh, mecanum, 6 bánh và khung gầm"
+" tùy chỉnh"
 
-#: ../../../source/architecture.rst:10
-msgid "Per-mode logical-to-physical motor mapping"
-msgstr "Ánh xạ động cơ logic-sang-vật lý theo từng chế độ"
+#: ../../source/architecture.rst:11
+msgid "Runs six DC motors (M1 to M6) and up to sixteen servos through PCA9685 chips"
+msgstr "Chạy sáu động cơ DC (M1 đến M6) và tối đa mười sáu servo qua các chip PCA9685"
 
-#: ../../../source/architecture.rst:11
-msgid "Manual motor testing"
-msgstr "Kiểm thử động cơ thủ công"
+#: ../../source/architecture.rst:12
+msgid "Exposes digital and analog pins as plain inputs or outputs"
+msgstr "Dùng các chân số và analog làm ngõ vào hoặc ngõ ra đơn thuần"
 
-#: ../../../source/architecture.rst:12
-msgid "Real-time I/O monitoring"
-msgstr "Giám sát I/O thời gian thực"
-
-#: ../../../source/architecture.rst:13
-msgid "HMI-based simulation and testing"
-msgstr "Mô phỏng và kiểm thử dựa trên HMI"
-
-#: ../../../source/architecture.rst:14
-msgid "ESP-NOW wireless remote control"
-msgstr "Điều khiển từ xa không dây ESP-NOW"
-
-#: ../../../source/architecture.rst:15
-msgid "Communication watchdogs"
-msgstr "Watchdog truyền thông"
-
-#: ../../../source/architecture.rst:16
-msgid "Emergency stop and motor failsafe handling"
-msgstr "Xử lý dừng khẩn cấp và failsafe động cơ"
-
-#: ../../../source/architecture.rst:17
-msgid "Persistent robot configuration"
-msgstr "Cấu hình robot lưu trữ bền vững"
-
-#: ../../../source/architecture.rst:18
-msgid "Modular OOP-based firmware architecture"
-msgstr "Kiến trúc firmware mô-đun dựa trên OOP"
-
-#: ../../../source/architecture.rst:20
+#: ../../source/architecture.rst:13
 msgid ""
-"The architecture is designed so that the robot-control logic does not "
-"need to be tightly coupled to a fixed number of motors or a single "
-"drivetrain."
+"Takes commands from the TJC touchscreen or from the ESP-NOW remote, both "
+"over UART"
+msgstr "Nhận lệnh từ màn hình cảm ứng TJC hoặc từ remote ESP-NOW, cả hai đều qua UART"
+
+#: ../../source/architecture.rst:14
+msgid "Stops all motors when the command link is lost"
+msgstr "Dừng mọi động cơ khi mất đường truyền lệnh"
+
+#: ../../source/architecture.rst:15
+msgid "Stores the robot configuration in EEPROM"
+msgstr "Lưu cấu hình robot vào EEPROM"
+
+#: ../../source/architecture.rst:18
+msgid "Layers"
+msgstr "Các tầng"
+
+#: ../../source/architecture.rst:36
+msgid ""
+"Each layer only knows the layer directly below it. The motor layer does not "
+"know what a wheel is, and ``Drive`` does not know which chip moves a motor."
 msgstr ""
-"Kiến trúc được thiết kế để logic điều khiển robot không cần phụ thuộc chặt "
-"vào một số lượng động cơ cố định hay chỉ một kiểu truyền động duy nhất."
+"Mỗi tầng chỉ biết tầng ngay bên dưới nó. Tầng động cơ không biết bánh xe là "
+"gì, còn ``Drive`` không biết chip nào làm quay động cơ."
 
-#: ../../../source/architecture.rst:-1 ../../../source/architecture.rst:23
-msgid "System Architecture & Wireless Data Flow"
-msgstr "Kiến trúc hệ thống và luồng dữ liệu không dây"
+#: ../../source/architecture.rst:39
+msgid "Where the code lives"
+msgstr "Mã nguồn nằm ở đâu"
 
-#: ../../../source/architecture.rst:-1 ../../../source/architecture.rst:30
+#: ../../source/architecture.rst:45
+msgid "Folder"
+msgstr "Thư mục"
+
+#: ../../source/architecture.rst:46
+msgid "Responsibility"
+msgstr "Trách nhiệm"
+
+#: ../../source/architecture.rst:47
+msgid "``lib/Pca9685``"
+msgstr ""
+
+#: ../../source/architecture.rst:48
+msgid "I2C PWM chip: set one channel duty cycle."
+msgstr "Chip PWM I2C: đặt chu kỳ nhiệm vụ cho một kênh."
+
+#: ../../source/architecture.rst:49
+msgid "``lib/Motor``"
+msgstr ""
+
+#: ../../source/architecture.rst:50
+msgid ""
+"``IMotor`` (run, brake, stop), the TA6586 driver and ``MotorBank`` with six "
+"motors."
+msgstr ""
+"``IMotor`` (run, brake, stop), driver TA6586 và ``MotorBank`` gồm sáu động "
+"cơ."
+
+#: ../../source/architecture.rst:51
+msgid "``lib/ServoOut``"
+msgstr ""
+
+#: ../../source/architecture.rst:52
+msgid "Servo angle on a PCA9685 channel."
+msgstr "Góc servo trên một kênh PCA9685."
+
+#: ../../source/architecture.rst:53
+msgid "``lib/IoPin``"
+msgstr ""
+
+#: ../../source/architecture.rst:54
+msgid "Configure a pin as input or output, read and write it."
+msgstr "Cấu hình một chân làm ngõ vào hoặc ngõ ra, đọc và ghi chân đó."
+
+#: ../../source/architecture.rst:55
+msgid "``lib/Drive``"
+msgstr ""
+
+#: ../../source/architecture.rst:56
+msgid "The six chassis presets, wheel mixing, PWM limit and acceleration limit."
+msgstr "Sáu khung gầm có sẵn, trộn tốc độ bánh, giới hạn PWM và giới hạn gia tốc."
+
+#: ../../source/architecture.rst:57
+msgid "``lib/RobotConfig``"
+msgstr ""
+
+#: ../../source/architecture.rst:58
+msgid ""
+"One configuration structure with defaults, validation and EEPROM load and "
+"save."
+msgstr ""
+"Một cấu trúc cấu hình duy nhất với giá trị mặc định, kiểm tra hợp lệ và "
+"nạp/lưu EEPROM."
+
+#: ../../source/architecture.rst:59
+msgid "``src/Robot_Mega2560``"
+msgstr ""
+
+#: ../../source/architecture.rst:60
+msgid "``Robot`` (glue), ``Hmi`` (TJC protocol) and ``setup()`` / ``loop()``."
+msgstr ""
+"``Robot`` (phần kết nối), ``Hmi`` (giao thức TJC) và ``setup()`` / "
+"``loop()``."
+
+#: ../../source/architecture.rst:63
+msgid "Control Pipeline"
+msgstr "Pipeline điều khiển"
+
+#: ../../source/architecture.rst:65
 msgid "Complete Control Pipeline"
 msgstr "Pipeline điều khiển hoàn chỉnh"
 
-#: ../../../source/architecture.rst:37
+#: ../../source/architecture.rst:70 ../../source/architecture.rst:72
+msgid "System Architecture & Wireless Data Flow"
+msgstr "Kiến trúc hệ thống và luồng dữ liệu không dây"
+
+#: ../../source/architecture.rst:77
 msgid "Design Philosophy"
 msgstr "Triết lý thiết kế"
 
-#: ../../../source/architecture.rst:39
+#: ../../source/architecture.rst:79
 msgid ""
-"**Simple:** The architecture should be modular without becoming "
-"unnecessarily complicated. Simple enough to understand, modular enough to"
-" extend, practical enough to run on a real robot."
+"**Simple:** A newcomer should be able to read ``Robot_Mega2560.cpp`` and "
+"follow the whole system in a few minutes."
 msgstr ""
-"**Đơn giản:** Kiến trúc cần có tính mô-đun nhưng không trở nên phức tạp quá "
-"mức cần thiết. Đủ đơn giản để hiểu, đủ mô-đun để mở rộng, và đủ thực tiễn "
-"để chạy trên robot thật."
+"**Đơn giản:** Người mới chỉ cần đọc ``Robot_Mega2560.cpp`` là theo dõi được "
+"toàn bộ hệ thống trong vài phút."
 
-#: ../../../source/architecture.rst:42
+#: ../../source/architecture.rst:82
 msgid ""
-"**Modular:** Each component has a clear responsibility. The HMI does not "
-"directly drive motors; the kinematics engine does not know pin numbers; "
-"the motor controller does not care about drivetrain type."
+"**Layered:** Motors only run, brake or stop. Servos only move to an angle. "
+"Pins are only inputs or outputs. Everything else is built on top."
 msgstr ""
-"**Mô-đun:** Mỗi thành phần có trách nhiệm rõ ràng. HMI không điều khiển động "
-"cơ trực tiếp; bộ động học không biết số chân pin; bộ điều khiển động cơ "
-"không phụ thuộc loại truyền động."
+"**Phân tầng:** Động cơ chỉ chạy, hãm hoặc dừng. Servo chỉ quay đến một góc. "
+"Chân I/O chỉ là ngõ vào hoặc ngõ ra. Mọi thứ khác được xây trên các tầng "
+"này."
 
-#: ../../../source/architecture.rst:45
+#: ../../source/architecture.rst:85
 msgid ""
-"**Configurable:** The software separates **Logical Robot Role** from "
-"**Physical Motor Channel**."
+"**Configurable:** The touchscreen decides the chassis, the motor mapping and"
+" the limits. These are data in EEPROM, not code."
 msgstr ""
-"**Có thể cấu hình:** Phần mềm tách biệt **Vai trò logic của robot** khỏi "
-"**Kênh động cơ vật lý**."
+"**Cấu hình được:** Màn hình cảm ứng quyết định khung gầm, ánh xạ động cơ và "
+"các giới hạn. Đây là dữ liệu trong EEPROM, không phải mã."
+
+#: ../../source/architecture.rst:88
+msgid ""
+"**Safe by default:** If the chassis is not fully mapped, or the command link"
+" is silent, the motors stay stopped."
+msgstr ""
+"**An toàn mặc định:** Nếu khung gầm chưa được gán đủ động cơ hoặc đường "
+"truyền lệnh im lặng, động cơ sẽ đứng yên."
 

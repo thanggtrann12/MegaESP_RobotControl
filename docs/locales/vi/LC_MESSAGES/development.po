@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 20:00+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -18,123 +18,202 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/development.rst:2
+#: ../../source/development.rst:2
 msgid "Development, Testing & Roadmap"
 msgstr "Phát triển, kiểm thử và lộ trình"
 
-#: ../../../source/development.rst:5
+#: ../../source/development.rst:5
+msgid "Reading the Code"
+msgstr "Đọc mã nguồn"
+
+#: ../../source/development.rst:7
+msgid ""
+"Start at ``src/Robot_Mega2560/Robot_Mega2560.cpp``. ``setup()`` and "
+"``loop()`` connect three objects:"
+msgstr ""
+"Bắt đầu từ ``src/Robot_Mega2560/Robot_Mega2560.cpp``. ``setup()`` và "
+"``loop()`` kết nối ba đối tượng:"
+
+#: ../../source/development.rst:9
+msgid "``Hmi`` reads the touchscreen and calls ``Robot``."
+msgstr "``Hmi`` đọc màn hình cảm ứng và gọi ``Robot``."
+
+#: ../../source/development.rst:10
+msgid "``ComManager`` reads the remote and calls ``Robot::onRemote()``."
+msgstr "``ComManager`` đọc remote và gọi ``Robot::onRemote()``."
+
+#: ../../source/development.rst:11
+msgid ""
+"``Robot::update()`` runs every loop, applies the current command to "
+"``Drive`` every 20 ms and enforces the 500 ms watchdog."
+msgstr ""
+"``Robot::update()`` chạy mỗi vòng lặp, áp dụng lệnh hiện tại cho ``Drive`` "
+"mỗi 20 ms và thực thi watchdog 500 ms."
+
+#: ../../source/development.rst:13
+msgid ""
+"Everything below ``Robot`` is in ``lib/`` and can be read one folder at a "
+"time."
+msgstr "Mọi thứ bên dưới ``Robot`` nằm trong ``lib/`` và có thể đọc từng thư mục một."
+
+#: ../../source/development.rst:16
 msgid "Staged Testing Strategy"
 msgstr "Chiến lược kiểm thử theo giai đoạn"
 
-#: ../../../source/development.rst:7
-msgid "**Motor Test:** Test individual channels manually via HMI."
-msgstr "**Kiểm thử động cơ:** Kiểm thử thủ công từng kênh qua HMI."
-
-#: ../../../source/development.rst:8
+#: ../../source/development.rst:18
 msgid ""
-"**Kinematics Test:** Verify math using simulated inputs without physical "
-"movement."
+"**Motor Test:** run each motor with ``RUN`` from the touchscreen and set its"
+" reverse flag."
 msgstr ""
-"**Kiểm thử động học:** Xác minh phép tính bằng đầu vào mô phỏng mà không "
-"cần chuyển động vật lý."
+"**Kiểm tra động cơ:** chạy từng động cơ bằng ``RUN`` từ màn hình cảm ứng và "
+"đặt cờ đảo chiều."
 
-#: ../../../source/development.rst:9
+#: ../../source/development.rst:19
 msgid ""
-"**Wireless Test:** Validate ESP-NOW packet sequence numbers and CRC "
-"checks."
-msgstr "**Kiểm thử không dây:** Xác thực số thứ tự gói ESP-NOW và kiểm tra CRC."
-
-#: ../../../source/development.rst:10
-msgid ""
-"**Integration Test:** Execute full end-to-end testing from remote control"
-" to physical movement."
+"**Chassis Test:** use ``JOY`` in manual mode with the wheels lifted and "
+"check every wheel direction."
 msgstr ""
-"**Kiểm thử tích hợp:** Thực hiện kiểm thử end-to-end đầy đủ từ điều khiển"
-" từ xa đến chuyển động thực tế."
+"**Kiểm tra khung gầm:** dùng ``JOY`` ở chế độ thủ công khi nhấc bánh khỏi "
+"mặt đất và kiểm tra chiều quay từng bánh."
 
-#: ../../../source/development.rst:13
+#: ../../source/development.rst:20
+msgid "**Wireless Test:** validate ESP-NOW packet sequence numbers and CRC checks."
+msgstr "**Kiểm tra không dây:** kiểm tra số thứ tự gói ESP-NOW và CRC."
+
+#: ../../source/development.rst:21
+msgid "**Integration Test:** full test from the remote to physical movement."
+msgstr "**Kiểm tra tích hợp:** kiểm tra toàn bộ từ remote đến chuyển động vật lý."
+
+#: ../../source/development.rst:24
+msgid "Extending the Firmware"
+msgstr "Mở rộng firmware"
+
+#: ../../source/development.rst:26
+msgid "**New motor driver**"
+msgstr "**Driver động cơ mới**"
+
+#: ../../source/development.rst:27
+msgid ""
+"Implement ``IMotor`` (``run``, ``brake``, ``stop``) in ``lib/Motor``, then "
+"create the motors in ``MotorBank`` or in a new bank."
+msgstr ""
+"Hiện thực ``IMotor`` (``run``, ``brake``, ``stop``) trong ``lib/Motor``, rồi"
+" tạo các động cơ trong ``MotorBank`` hoặc trong một bank mới."
+
+#: ../../source/development.rst:29
+msgid "**New chassis**"
+msgstr "**Khung gầm mới**"
+
+#: ../../source/development.rst:30
+msgid ""
+"Add a value to ``Chassis`` and a row of six ``Mix`` entries to the preset "
+"table in ``lib/Drive/Drive.cpp``. Existing chassis keep working, and the "
+"custom chassis needs no code."
+msgstr ""
+"Thêm một giá trị vào ``Chassis`` và một hàng sáu phần tử ``Mix`` vào bảng "
+"preset trong ``lib/Drive/Drive.cpp``. Các khung gầm hiện có vẫn hoạt động, "
+"còn khung gầm tùy chỉnh không cần mã."
+
+#: ../../source/development.rst:32
+msgid "**New TJC command**"
+msgstr "**Lệnh TJC mới**"
+
+#: ../../source/development.rst:33
+msgid ""
+"Add one ``else if`` branch to ``Hmi::handle()`` and one line to the table in"
+" :doc:`communication`."
+msgstr ""
+"Thêm một nhánh ``else if`` vào ``Hmi::handle()`` và một dòng vào bảng trong "
+":doc:`communication`."
+
+#: ../../source/development.rst:35
+msgid "**New configuration field**"
+msgstr "**Trường cấu hình mới**"
+
+#: ../../source/development.rst:36
+msgid ""
+"Add it to ``RobotConfig``, check it in ``isValid()``, and increase "
+"``ROBOT_CONFIG_VERSION`` so old EEPROM data is replaced by defaults."
+msgstr ""
+"Thêm nó vào ``RobotConfig``, kiểm tra trong ``isValid()`` và tăng "
+"``ROBOT_CONFIG_VERSION`` để dữ liệu EEPROM cũ được thay bằng giá trị mặc "
+"định."
+
+#: ../../source/development.rst:39
 msgid "Current Status & Roadmap"
 msgstr "Trạng thái hiện tại và lộ trình"
 
-#: ../../../source/development.rst:15
+#: ../../source/development.rst:41
 msgid ""
-"**Phase 1 — Core Motor System:** Arduino Mega 2560 motor control & basic "
-"abstraction."
+"**Done:** layered firmware (PCA9685, motor, drive, config, HMI), six chassis"
+" types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW "
+"remote, link watchdog, servos and I/O from the touchscreen."
 msgstr ""
-"**Giai đoạn 1 — Hệ động cơ cốt lõi:** Điều khiển động cơ trên Arduino "
-"Mega 2560 và lớp trừu tượng cơ bản."
+"**Đã xong:** firmware phân tầng (PCA9685, motor, drive, config, HMI), sáu "
+"loại khung gầm, ánh xạ động cơ và cờ đảo chiều, cấu hình EEPROM, remote ESP-"
+"NOW, watchdog đường truyền, servo và I/O từ màn hình cảm ứng."
 
-#: ../../../source/development.rst:16
-msgid "**Phase 2 — HMI:** TJC display interface, manual testing, simulation mode."
-msgstr ""
-"**Giai đoạn 2 — HMI:** Giao diện hiển thị TJC, kiểm thử thủ công, chế độ "
-"mô phỏng."
-
-#: ../../../source/development.rst:17
+#: ../../source/development.rst:42
 msgid ""
-"**Phase 3 — Configurable Robot:** EEPROM storage, motor role mapping, "
-"inversion settings."
+"**Next:** update the TJC project to the command set in :doc:`communication`,"
+" telemetry from the Mega to the screen, and a hardware emergency stop."
 msgstr ""
-"**Giai đoạn 3 — Robot có thể cấu hình:** Lưu trữ EEPROM, ánh xạ vai trò "
-"động cơ, cài đặt đảo chiều."
+"**Tiếp theo:** cập nhật dự án TJC theo bộ lệnh trong :doc:`communication`, "
+"telemetry từ Mega lên màn hình và nút dừng khẩn cấp phần cứng."
 
-#: ../../../source/development.rst:18
-msgid ""
-"**Phase 4 — Wireless Remote:** ESP-NOW communication link with timeout "
-"watchdog."
-msgstr ""
-"**Giai đoạn 4 — Điều khiển từ xa không dây:** Liên kết truyền thông ESP-"
-"NOW kèm watchdog timeout."
-
-#: ../../../source/development.rst:19
-msgid ""
-"**Phase 5 — Multi-Kinematics:** Runtime switching between Differential, "
-"Mecanum, and Omni drive models."
-msgstr ""
-"**Giai đoạn 5 — Đa động học:** Chuyển đổi thời gian chạy giữa các mô hình"
-" truyền động Differential, Mecanum và Omni."
-
-#: ../../../source/development.rst:22
+#: ../../source/development.rst:45
 msgid "PlatformIO Environment Layout"
-msgstr ""
+msgstr "Bố cục môi trường PlatformIO"
 
-#: ../../../source/development.rst:24
+#: ../../source/development.rst:47
 msgid ""
-"Each environment selects exactly one application folder under ``src/`` "
-"with ``build_src_filter``:"
+"Each environment selects exactly one application folder under ``src/`` with "
+"``build_src_filter``:"
 msgstr ""
+"Mỗi môi trường chọn đúng một thư mục ứng dụng trong ``src/`` bằng "
+"``build_src_filter``:"
 
-#: ../../../source/development.rst:27
-msgid "``src/Remote_Mega2560`` — handheld Mega application."
-msgstr ""
+#: ../../source/development.rst:49
+msgid "``src/Remote_Mega2560``: handheld Mega application."
+msgstr "``src/Remote_Mega2560``: ứng dụng Mega của tay cầm."
 
-#: ../../../source/development.rst:28
-msgid "``src/Remote_ESP8266_Bridge`` — handheld ESP-NOW bridge."
-msgstr ""
+#: ../../source/development.rst:50
+msgid "``src/Remote_ESP8266_Bridge``: handheld ESP-NOW bridge."
+msgstr "``src/Remote_ESP8266_Bridge``: cầu nối ESP-NOW của tay cầm."
 
-#: ../../../source/development.rst:29
-msgid "``src/Robot_ESP8266_Receiver`` — robot-side ESP-NOW receiver."
-msgstr ""
+#: ../../source/development.rst:51
+msgid "``src/Robot_ESP8266_Receiver``: robot-side ESP-NOW receiver."
+msgstr "``src/Robot_ESP8266_Receiver``: bộ thu ESP-NOW phía robot."
 
-#: ../../../source/development.rst:30
-msgid "``src/Robot_Mega2560`` — Universal Robot Hub runtime."
-msgstr ""
+#: ../../source/development.rst:52
+msgid "``src/Robot_Mega2560``: robot controller."
+msgstr "``src/Robot_Mega2560``: bộ điều khiển robot."
 
-#: ../../../source/development.rst:32
+#: ../../source/development.rst:54
 msgid ""
-"Reusable components stay under ``lib/``. The robot Mega environment "
-"explicitly owns the ``GenericRobotController`` and ``GenericLogger`` "
-"source files because these internal libraries are compiled as part of "
-"that firmware. They are excluded from automatic library discovery there "
-"to avoid duplicate objects. Other environments consume only the libraries"
-" they reference."
-msgstr ""
-
-#: ../../../source/development.rst:38
-msgid ""
-"Do not use a per-environment ``src_dir`` in this project: the installed "
-"PlatformIO version ignores that option. Add a new firmware target by "
-"creating one application directory under ``src/`` and adding one matching"
+"Reusable components live in ``lib/``. PlatformIO finds them from the "
+"``#include`` lines, so an environment only compiles the libraries it uses. "
+"Do not add per-environment ``src_dir``: the installed PlatformIO ignores it."
+" To add a firmware target, create one folder under ``src/`` and one matching"
 " ``build_src_filter`` block in ``platformio.ini``."
 msgstr ""
+"Các thành phần dùng lại nằm trong ``lib/``. PlatformIO tìm chúng từ các dòng"
+" ``#include``, nên mỗi môi trường chỉ biên dịch các thư viện nó dùng. Không "
+"thêm ``src_dir`` riêng cho từng môi trường: PlatformIO đang cài đặt bỏ qua "
+"tùy chọn này. Để thêm một firmware mới, tạo một thư mục trong ``src/`` và "
+"một khối ``build_src_filter`` tương ứng trong ``platformio.ini``."
+
+#: ../../source/development.rst:57
+msgid "Building the Documentation"
+msgstr "Build tài liệu"
+
+#: ../../source/development.rst:63
+msgid ""
+"To refresh the Vietnamese translation after editing the English pages, run "
+"``sphinx-build -b gettext docs/source docs/_build/gettext`` and then "
+"``sphinx-intl update -p docs/_build/gettext -l vi -d docs/locales``."
+msgstr ""
+"Để cập nhật bản dịch tiếng Việt sau khi sửa các trang tiếng Anh, chạy "
+"``sphinx-build -b gettext docs/source docs/_build/gettext`` rồi ``sphinx-"
+"intl update -p docs/_build/gettext -l vi -d docs/locales``."
 

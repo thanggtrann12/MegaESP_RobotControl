@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 10:39+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,49 +16,142 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/safety.rst:2
+#: ../../source/safety.rst:2
 msgid "Safety & Failsafe Mechanisms"
 msgstr "An toàn và cơ chế failsafe"
 
-#: ../../../source/safety.rst:5
-msgid "Safety State Machine"
-msgstr "State machine an toàn"
-
-#: ../../../source/safety.rst:17
+#: ../../source/safety.rst:5
 msgid "Core Safety Principle"
 msgstr "Nguyên tắc an toàn cốt lõi"
 
-#: ../../../source/safety.rst:18
+#: ../../source/safety.rst:6
 msgid ""
-"**If the controller cannot verify that movement is safe, all motor "
-"outputs remain at zero.**"
+"**If the controller cannot verify that movement is safe, all motor outputs "
+"stay at zero.**"
 msgstr ""
-"**Nếu bộ điều khiển không thể xác minh chuyển động là an toàn, mọi đầu ra "
-"động cơ phải giữ ở mức 0.**"
+"**Nếu bộ điều khiển không thể xác nhận chuyển động là an toàn, mọi ngõ ra "
+"động cơ giữ ở mức 0.**"
 
-#: ../../../source/safety.rst:21
-msgid "Emergency Stop Path"
-msgstr "Luồng dừng khẩn cấp"
+#: ../../source/safety.rst:9
+msgid "What Stops the Motors"
+msgstr "Điều gì làm động cơ dừng"
 
-#: ../../../source/safety.rst:23
+#: ../../source/safety.rst:15
+msgid "Situation"
+msgstr "Tình huống"
+
+#: ../../source/safety.rst:16
+msgid "Behaviour"
+msgstr "Hành vi"
+
+#: ../../source/safety.rst:17
+msgid "No command for 500 ms"
+msgstr "Không có lệnh trong 500 ms"
+
+#: ../../source/safety.rst:18
 msgid ""
-"Emergency Stop triggered (Hardware Button, HMI request, or ESP-NOW "
-"timeout)."
+"The drive stops and the pending command is cleared. This covers a lost "
+"remote and a silent touchscreen."
 msgstr ""
-"Dừng khẩn cấp được kích hoạt (nút phần cứng, yêu cầu từ HMI hoặc timeout "
-"ESP-NOW)."
+"Drive dừng và lệnh đang chờ bị xóa. Điều này bao gồm trường hợp mất remote "
+"và màn hình cảm ứng im lặng."
 
-#: ../../../source/safety.rst:24
-msgid "``SafetyManager`` intercepts state."
-msgstr "``SafetyManager`` chặn và tiếp quản trạng thái."
+#: ../../source/safety.rst:19
+msgid "Drive not ready"
+msgstr "Drive chưa sẵn sàng"
 
-#: ../../../source/safety.rst:25
-msgid "Call ``MotorController.stopAll()``."
-msgstr "Gọi ``MotorController.stopAll()``."
+#: ../../source/safety.rst:20
+msgid "Some wheel the chassis needs has no motor. The motors never move."
+msgstr "Có bánh mà khung gầm cần nhưng chưa có động cơ. Động cơ không bao giờ chạy."
 
-#: ../../../source/safety.rst:26
-msgid "All PWM outputs driven to 0 immediately."
-msgstr "Toàn bộ đầu ra PWM được đưa về 0 ngay lập tức."
+#: ../../source/safety.rst:21
+msgid "Chassis, mapping or custom mix changed"
+msgstr "Đổi khung gầm, ánh xạ hoặc bảng trộn tùy chỉnh"
+
+#: ../../source/safety.rst:22
+msgid "All motors stop before the change applies."
+msgstr "Mọi động cơ dừng trước khi thay đổi được áp dụng."
+
+#: ../../source/safety.rst:23
+msgid "Control source changed"
+msgstr "Đổi nguồn điều khiển"
+
+#: ../../source/safety.rst:24
+msgid "All motors stop and the pending command is cleared."
+msgstr "Mọi động cơ dừng và lệnh đang chờ bị xóa."
+
+#: ../../source/safety.rst:25
+msgid "``STOP`` command"
+msgstr "Lệnh ``STOP``"
+
+#: ../../source/safety.rst:26
+msgid "All motors stop."
+msgstr "Mọi động cơ dừng."
+
+#: ../../source/safety.rst:27
+msgid "Single-motor test"
+msgstr "Kiểm tra một động cơ"
+
+#: ../../source/safety.rst:28
+msgid "The motor stops 500 ms after the last ``RUN`` command."
+msgstr "Động cơ dừng sau 500 ms kể từ lệnh ``RUN`` cuối cùng."
+
+#: ../../source/safety.rst:29
+msgid "Remote restarted"
+msgstr "Remote khởi động lại"
+
+#: ../../source/safety.rst:30
+msgid ""
+"After a link loss the sequence check restarts, so a remote that begins again"
+" at sequence 0 is accepted."
+msgstr ""
+"Sau khi mất đường truyền, việc kiểm tra số thứ tự được đặt lại, nên remote "
+"bắt đầu lại từ số thứ tự 0 vẫn được chấp nhận."
+
+#: ../../source/safety.rst:33
+msgid "Limits"
+msgstr "Giới hạn"
+
+#: ../../source/safety.rst:35
+msgid "The PWM limit caps every motor output, including the single-motor test."
+msgstr "Giới hạn PWM chặn mọi ngõ ra động cơ, kể cả khi kiểm tra một động cơ."
+
+#: ../../source/safety.rst:36
+msgid "The acceleration step limits how fast a wheel can change speed."
+msgstr "Bước gia tốc giới hạn tốc độ một bánh có thể thay đổi nhanh đến mức nào."
+
+#: ../../source/safety.rst:37
+msgid ""
+"If a command would push a wheel past the limit, all wheels are scaled down "
+"together so the direction of travel is kept."
+msgstr ""
+"Nếu một lệnh làm một bánh vượt giới hạn, tất cả các bánh được giảm tỉ lệ "
+"cùng nhau để giữ nguyên hướng di chuyển."
+
+#: ../../source/safety.rst:40
+msgid "Control Source"
+msgstr "Nguồn điều khiển"
+
+#: ../../source/safety.rst:42
+msgid ""
+"Only one source drives the robot at a time. Remote packets are ignored in "
+"``MANUAL`` and joystick commands from the touchscreen are refused in "
+"``REMOTE``."
+msgstr ""
+"Mỗi lúc chỉ một nguồn điều khiển robot. Gói từ remote bị bỏ qua ở ``MANUAL``"
+" và lệnh joystick từ màn hình cảm ứng bị từ chối ở ``REMOTE``."
+
+#: ../../source/safety.rst:45
+msgid "Not Implemented"
+msgstr "Chưa hiện thực"
+
+#: ../../source/safety.rst:47
+msgid ""
+"The robot firmware has no emergency stop input. Power the motors through a "
+"switch you can reach."
+msgstr ""
+"Firmware robot không có ngõ vào dừng khẩn cấp. Hãy cấp nguồn động cơ qua một"
+" công tắc mà bạn với tới được."
 

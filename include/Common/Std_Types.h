@@ -36,55 +36,6 @@ enum ControlMessageType : uint8_t
 };
 
 /**
- * @brief Supported kinematics modes for the drive controller.
- */
-enum class KinematicsMode : uint8_t
-{
-    MODE_2WD_DIFF = 0,
-    MODE_4WD_MECANUM = 1,
-    MODE_OMNI_3WD = 2,
-    MODE_OMNI_4WD = 3,
-    MODE_CUSTOM = 4
-};
-
-/**
- * @brief Active command source used by the robot controller.
- */
-enum class ControlSource : uint8_t
-{
-    REMOTE = 0,
-    HMI_MANUAL = 1
-};
-
-enum class RobotDriverType : uint8_t
-{
-    TA6586_PCA9685 = 0
-};
-
-enum class MotionProfile : uint8_t
-{
-    DIRECT = 0,
-    LIMITED_ACCELERATION = 1
-};
-
-/**
- * @brief Logical motor role used for dynamic slot binding.
- */
-enum class MotorRole : uint8_t
-{
-    UNBOUND = 0,
-    FRONT_LEFT,
-    REAR_LEFT,
-    FRONT_RIGHT,
-    REAR_RIGHT,
-    LEFT_MOTOR,
-    RIGHT_MOTOR,
-    STEER_ACTUATOR,
-    AUXILIARY,
-    INVALID
-};
-
-/**
  * @brief Calculates CRC-8 for a control packet (excluding the crc8 field).
  * @param packet Packet to evaluate.
  * @return CRC-8 value.

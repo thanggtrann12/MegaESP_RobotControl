@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 21:37+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -18,575 +18,335 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/communication.rst:2
+#: ../../source/communication.rst:2
 msgid "Communication Protocols & ESP-NOW"
 msgstr "Giao thức truyền thông và ESP-NOW"
 
-#: ../../../source/communication.rst:5
-msgid "Serial Protocol (ASCII Line-Based)"
-msgstr "Giao thức Serial (ASCII theo từng dòng)"
-
-#: ../../../source/communication.rst:7
+#: ../../source/communication.rst:4
 msgid ""
-"Communication between TJC Screen / Remote Bridge and Arduino Mega uses "
-"structured ASCII strings."
+"The Mega has two UART links. Both carry commands that end up in the same "
+"``Robot`` object."
 msgstr ""
-"Giao tiếp giữa màn hình TJC / cầu nối Remote và Arduino Mega sử dụng "
-"chuỗi ASCII có cấu trúc."
+"Mega có hai đường UART. Cả hai đều mang lệnh đến cùng một đối tượng "
+"``Robot``."
 
-#: ../../../source/communication.rst:10
-#, fuzzy
-msgid "TJC <-> Robot Mega Command Table"
-msgstr "TJC/Remote -> Robot Mega"
+#: ../../source/communication.rst:6
+msgid "**Serial2:** TJC touchscreen, ASCII text commands."
+msgstr "**Serial2:** Màn hình cảm ứng TJC, lệnh văn bản ASCII."
 
-#: ../../../source/communication.rst:12
+#: ../../source/communication.rst:7
+msgid "**Serial3:** ESP8266 receiver, framed binary packets from the ESP-NOW remote."
+msgstr "**Serial3:** Bộ thu ESP8266, gói nhị phân có khung từ remote ESP-NOW."
+
+#: ../../source/communication.rst:10
+msgid "TJC Protocol (Serial2)"
+msgstr "Giao thức TJC (Serial2)"
+
+#: ../../source/communication.rst:12
 msgid ""
-"Commands are ASCII strings terminated by three ``0xFF`` bytes. The Mega "
-"answers with an ASCII response using the same terminator unless stated "
-"otherwise."
+"A command is ASCII text with comma separated fields. It ends with three "
+"``0xFF`` bytes (what the TJC sends) or with a newline. Every reply ends with"
+" three ``0xFF`` bytes."
 msgstr ""
+"Một lệnh là văn bản ASCII, các trường cách nhau bằng dấu phẩy. Lệnh kết thúc"
+" bằng ba byte ``0xFF`` (do TJC gửi) hoặc ký tự xuống dòng. Mọi phản hồi đều "
+"kết thúc bằng ba byte ``0xFF``."
 
-#: ../../../source/communication.rst:20
-msgid "Direction"
-msgstr ""
+#: ../../source/communication.rst:14
+msgid "Motor slots are numbered from 1 (M1 to M6)."
+msgstr "Cổng động cơ được đánh số từ 1 (M1 đến M6)."
 
-#: ../../../source/communication.rst:21
-msgid "TJC command"
-msgstr ""
+#: ../../source/communication.rst:15
+msgid "Wheel roles are numbered 0 to 6; see :doc:`configuration`."
+msgstr "Vai trò bánh được đánh số từ 0 đến 6; xem :doc:`configuration`."
 
-#: ../../../source/communication.rst:22
-msgid "Mega response"
-msgstr ""
-
-#: ../../../source/communication.rst:23
-msgid "Meaning and conditions"
-msgstr ""
-
-#: ../../../source/communication.rst:24 ../../../source/communication.rst:28
-#: ../../../source/communication.rst:32 ../../../source/communication.rst:36
-#: ../../../source/communication.rst:40 ../../../source/communication.rst:44
-#: ../../../source/communication.rst:48 ../../../source/communication.rst:52
-#: ../../../source/communication.rst:56 ../../../source/communication.rst:60
-#: ../../../source/communication.rst:64 ../../../source/communication.rst:68
-#: ../../../source/communication.rst:72 ../../../source/communication.rst:76
-#: ../../../source/communication.rst:80 ../../../source/communication.rst:84
-#: ../../../source/communication.rst:88
-msgid "TJC -> Mega"
-msgstr ""
-
-#: ../../../source/communication.rst:25
-msgid "``CMD_CAP:GET``"
-msgstr ""
-
-#: ../../../source/communication.rst:26
-msgid "``CAP:KIN,<5 flags>,DRV,<flag>``"
-msgstr ""
-
-#: ../../../source/communication.rst:27
-msgid "Returns compiled kinematics and driver capabilities."
-msgstr ""
-
-#: ../../../source/communication.rst:29
-msgid "``CMD_CTRL:MANUAL``"
-msgstr ""
-
-#: ../../../source/communication.rst:30
-msgid "``CMD_CTRL:OK,MANUAL``"
-msgstr ""
-
-#: ../../../source/communication.rst:31
-msgid "Selects HMI manual control source."
-msgstr ""
-
-#: ../../../source/communication.rst:33
-msgid "``CMD_CTRL:REMOTE``"
-msgstr ""
-
-#: ../../../source/communication.rst:34
-msgid "``CMD_CTRL:OK,REMOTE``"
-msgstr ""
-
-#: ../../../source/communication.rst:35
-msgid "Selects ESP-NOW remote control source."
-msgstr ""
-
-#: ../../../source/communication.rst:37
-msgid "``CMD_CFG:BEGIN``"
-msgstr ""
-
-#: ../../../source/communication.rst:38 ../../../source/communication.rst:62
-msgid "``CMD_CFG:OK``"
-msgstr ""
-
-#: ../../../source/communication.rst:39
-msgid "Copies active config to staged config."
-msgstr ""
-
-#: ../../../source/communication.rst:41
-msgid "``CMD_CFG:MODE,<0-4>``"
-msgstr ""
-
-#: ../../../source/communication.rst:42 ../../../source/communication.rst:46
-#: ../../../source/communication.rst:50
-msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``"
-msgstr ""
-
-#: ../../../source/communication.rst:43
-msgid "Stages kinematics mode; it does not change runtime until ``APPLY``."
-msgstr ""
-
-#: ../../../source/communication.rst:45
-msgid "``CMD_CFG:PWM,<0-255>``"
-msgstr ""
-
-#: ../../../source/communication.rst:47
-msgid "Stages the PWM limit."
-msgstr ""
-
-#: ../../../source/communication.rst:49
-msgid "``CMD_CFG:PROFILE,<0|1>``"
-msgstr ""
-
-#: ../../../source/communication.rst:51
-msgid "Stages ``DIRECT`` or ``LIMITED_ACCELERATION``."
-msgstr ""
-
-#: ../../../source/communication.rst:53
-msgid "``CMD_CFG:VALIDATE``"
-msgstr ""
-
-#: ../../../source/communication.rst:54 ../../../source/communication.rst:58
-#: ../../../source/communication.rst:66
-msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR``"
-msgstr ""
-
-#: ../../../source/communication.rst:55
-msgid "Validates capability, topology, roles, version and CRC."
-msgstr ""
-
-#: ../../../source/communication.rst:57
-msgid "``CMD_CFG:APPLY``"
-msgstr ""
-
-#: ../../../source/communication.rst:59
-msgid "Safely applies the staged configuration and stops motors during switch."
-msgstr ""
-
-#: ../../../source/communication.rst:61
-msgid "``CMD_CFG:ABORT``"
-msgstr ""
-
-#: ../../../source/communication.rst:63
-msgid "Discards staged changes."
-msgstr ""
-
-#: ../../../source/communication.rst:65
-msgid "``CMD_CFG:SAVE``"
-msgstr ""
-
-#: ../../../source/communication.rst:67
+#: ../../source/communication.rst:16
 msgid ""
-"Saves the active config to EEPROM when it changed and the write budget "
-"allows it."
+"A command is answered with ``OK,<NAME>`` or ``ERR,<NAME>``, except where "
+"noted."
 msgstr ""
+"Một lệnh được phản hồi bằng ``OK,<NAME>`` hoặc ``ERR,<NAME>``, trừ khi có "
+"ghi chú khác."
 
-#: ../../../source/communication.rst:69
-msgid "``CMD_MODE:<0-4>``"
-msgstr ""
+#: ../../source/communication.rst:19
+msgid "Configuration"
+msgstr "Cấu hình"
 
-#: ../../../source/communication.rst:70
-msgid "``CMD_MODE:OK`` or ``CMD_MODE:ERR,UNSUPPORTED``"
-msgstr ""
-
-#: ../../../source/communication.rst:71
-msgid "Legacy compatibility command; internally stages and applies the mode."
-msgstr ""
-
-#: ../../../source/communication.rst:73
-msgid "``CMD_JOY:<throttle>,<strafe>,<rotation>``"
-msgstr ""
-
-#: ../../../source/communication.rst:74
-msgid "Error response only on failure."
-msgstr ""
-
-#: ../../../source/communication.rst:75
-msgid "HMI motion in ``[-100,100]``; requires manual control source."
-msgstr ""
-
-#: ../../../source/communication.rst:77
-msgid "``CMD_M:<id>,<FWD|REV|STOP>,<pwm>``"
-msgstr ""
-
-#: ../../../source/communication.rst:78
-msgid "``CMD_M:OK,...`` or ``CMD_M:ERR,...``"
-msgstr ""
-
-#: ../../../source/communication.rst:79
-msgid "Manual motor test; requires manual control source."
-msgstr ""
-
-#: ../../../source/communication.rst:81
-msgid "``CMD_LIMIT:PWM,<0-255>``"
-msgstr ""
-
-#: ../../../source/communication.rst:82
-msgid "``CMD_LIMIT:OK`` or ``CMD_LIMIT:ERR,VALUE``"
-msgstr ""
-
-#: ../../../source/communication.rst:83
-msgid "Changes active controller PWM limit for the current runtime."
-msgstr ""
-
-#: ../../../source/communication.rst:85
-msgid "``CMD_SIM:TOGGLE_IO,<pin>``"
-msgstr ""
-
-#: ../../../source/communication.rst:86 ../../../source/communication.rst:90
-msgid "``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``"
-msgstr ""
-
-#: ../../../source/communication.rst:87
-msgid "Toggles simulation state for a configured I/O pin."
-msgstr ""
-
-#: ../../../source/communication.rst:89
-msgid "``CMD_SIM:RESET_IO,<pin>``"
-msgstr ""
-
-#: ../../../source/communication.rst:91
-msgid "Restores a configured I/O pin to real state."
-msgstr ""
-
-#: ../../../source/communication.rst:92 ../../../source/communication.rst:96
-msgid "Mega -> TJC"
-msgstr ""
-
-#: ../../../source/communication.rst:93
-msgid "Periodic heartbeat"
-msgstr ""
-
-#: ../../../source/communication.rst:94
-msgid "``CMD_SYS:OK``"
-msgstr ""
-
-#: ../../../source/communication.rst:95
-msgid "Sent every 500 ms while HMI service is running."
-msgstr ""
-
-#: ../../../source/communication.rst:97
-msgid "Invalid command"
-msgstr ""
-
-#: ../../../source/communication.rst:98
-msgid "``CMD_ERR:UNKNOWN_COMMAND``"
-msgstr ""
-
-#: ../../../source/communication.rst:99
-msgid "Command was not recognized."
-msgstr ""
-
-#: ../../../source/communication.rst:102
-msgid "Slot-based configuration commands"
-msgstr ""
-
-#: ../../../source/communication.rst:104
-msgid ""
-"The protocol uses 1-based slots. Firmware converts them to internal "
-"indexes 0 through 5."
-msgstr ""
-
-#: ../../../source/communication.rst:1
+#: ../../source/communication.rst:25 ../../source/communication.rst:51
+#: ../../source/communication.rst:71
 msgid "Command"
+msgstr "Lệnh"
+
+#: ../../source/communication.rst:26 ../../source/communication.rst:52
+#: ../../source/communication.rst:72 ../../source/communication.rst:92
+msgid "Description"
+msgstr "Mô tả"
+
+#: ../../source/communication.rst:27
+msgid "``GET``"
 msgstr ""
 
-#: ../../../source/communication.rst:1
-msgid "Response"
+#: ../../source/communication.rst:28
+msgid "Reports the configuration (see below). No ``OK`` reply."
+msgstr "Báo cáo cấu hình (xem bên dưới). Không có phản hồi ``OK``."
+
+#: ../../source/communication.rst:29
+msgid "``CHASSIS,<0-5>``"
 msgstr ""
 
-#: ../../../source/communication.rst:1
-msgid "Meaning"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "``CMD_CFG:MOTOR,<slot 1-6>,<role>``"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "``CMD_CFG:OK`` / ``ERR``"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "Stage physical slot role mapping."
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "``CMD_CFG:INVERT,<slot 1-6>,<0|1>``"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "Stage motor direction inversion."
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "``CMD_MAP:<slot 1-6>,<role>``"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "``CMD_MAP:OK`` / ``ERR``"
-msgstr ""
-
-#: ../../../source/communication.rst:1
-msgid "Legacy mapping command."
-msgstr ""
-
-#: ../../../source/communication.rst:116
-msgid "ESP-NOW Wireless Bridge"
-msgstr "Cầu nối không dây ESP-NOW"
-
-#: ../../../source/communication.rst:118
+#: ../../source/communication.rst:30
 msgid ""
-"The wireless link operates over 2.4 GHz ESP-NOW with an observed latency "
-"of approximately **~2.5 ms**."
+"Selects two-wheel, tank, omni-4, mecanum, six-wheel or custom. Stops the "
+"motors."
+msgstr "Chọn 2 bánh, tank, omni-4, mecanum, 6 bánh hoặc tùy chỉnh. Dừng động cơ."
+
+#: ../../source/communication.rst:31
+msgid "``MOTOR,<slot 1-6>,<role 0-6>,<0|1>``"
 msgstr ""
-"Liên kết không dây hoạt động trên ESP-NOW 2.4 GHz với độ trễ quan sát "
-"được xấp xỉ **~2.5 ms**."
 
-#: ../../../source/communication.rst:120
-msgid "Packets include:"
-msgstr "Gói dữ liệu bao gồm:"
-
-#: ../../../source/communication.rst:122
-msgid "Protocol Version"
-msgstr "Phiên bản giao thức"
-
-#: ../../../source/communication.rst:123
-msgid "Sequence Number (detects duplicate, out-of-order, or dropped frames)"
-msgstr "Số thứ tự (phát hiện khung trùng lặp, sai thứ tự hoặc bị rơi)"
-
-#: ../../../source/communication.rst:124
-msgid "Payload Data (Velocity Vectors, Buttons, Mode Flags)"
-msgstr "Dữ liệu payload (vector vận tốc, nút bấm, cờ chế độ)"
-
-#: ../../../source/communication.rst:125
-msgid "CRC Verification"
-msgstr "Kiểm tra CRC"
-
-#~ msgid "Command Format"
-#~ msgstr "Định dạng lệnh"
-
-#~ msgid "Action Description"
-#~ msgstr "Mô tả hành động"
-
-#~ msgid "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
-#~ msgstr "``CMD_JOY:<Vx>,<Vy>,<Wz>``"
-
-#~ msgid "Passes velocity vector inputs normalized within $[-1.0, 1.0]$."
-#~ msgstr ""
-#~ "Truyền vector vận tốc đầu vào đã"
-#~ " được chuẩn hóa trong khoảng $[-1.0,"
-#~ " 1.0]$."
-
-#~ msgid ""
-#~ "Maps physical motor channel ``<ID>`` to"
-#~ " a logical role (e.g., ``CMD_MAP:0,FL``)."
-#~ msgstr ""
-#~ "Ánh xạ kênh động cơ vật lý "
-#~ "``<ID>`` sang một vai trò logic "
-#~ "(ví dụ: ``CMD_MAP:0,FL``)."
-
-#~ msgid "Triggers an immediate emergency stop."
-#~ msgstr "Kích hoạt dừng khẩn cấp ngay lập tức."
-
-#~ msgid "Manual press-to-run motor test command."
-#~ msgstr "Lệnh kiểm thử động cơ thủ công theo kiểu nhấn để chạy."
-
-#~ msgid "Direction"
-#~ msgstr ""
-
-#~ msgid "TJC command"
-#~ msgstr ""
-
-#~ msgid "Mega response"
-#~ msgstr ""
-
-#~ msgid "Meaning and conditions"
-#~ msgstr ""
-
-#~ msgid "TJC -> Mega"
-#~ msgstr "TJC/Remote -> Robot Mega"
-
-#~ msgid "``CMD_CAP:GET``"
-#~ msgstr "``CMD_ESTOP:1``"
-
-#~ msgid "``CAP:KIN,<5 flags>,DRV,<flag>``"
-#~ msgstr ""
-
-#~ msgid "Returns compiled kinematics and driver capabilities."
-#~ msgstr ""
-
-#~ msgid "``CMD_CTRL:MANUAL``"
-#~ msgstr ""
-
-#~ msgid "``CMD_CTRL:OK,MANUAL``"
-#~ msgstr ""
-
-#~ msgid "Selects HMI manual control source."
-#~ msgstr ""
-
-#~ msgid "``CMD_CTRL:REMOTE``"
-#~ msgstr ""
-
-#~ msgid "``CMD_CTRL:OK,REMOTE``"
-#~ msgstr ""
-
-#~ msgid "Selects ESP-NOW remote control source."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:BEGIN``"
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:OK``"
-#~ msgstr "``CMD_ESTOP:1``"
-
-#~ msgid "Copies active config to staged config."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:MODE,<0-4>``"
-#~ msgstr "``CMD_MODE:<0-4>``"
-
-#~ msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``"
-#~ msgstr ""
-
-#~ msgid "Stages kinematics mode; it does not change runtime until ``APPLY``."
-#~ msgstr "Chuyển profile chế độ động học trong thời gian chạy."
-
-#~ msgid "``CMD_CFG:PWM,<0-255>``"
-#~ msgstr "``CMD_MODE:<0-4>``"
-
-#~ msgid "Stages the PWM limit."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:PROFILE,<0|1>``"
-#~ msgstr "``CMD_MODE:<0-4>``"
-
-#~ msgid "Stages ``DIRECT`` or ``LIMITED_ACCELERATION``."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:MOTOR,<slot>,<role>``"
-#~ msgstr "``CMD_MAP:<ID>,<ROLE>``"
-
-#~ msgid "Stages a physical slot to logical role mapping."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:VALIDATE``"
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:OK`` or ``CMD_CFG:ERR``"
-#~ msgstr ""
-
-#~ msgid "Validates capability, topology, roles, version and CRC."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:APPLY``"
-#~ msgstr ""
-
-#~ msgid "Safely applies the staged configuration and stops motors during switch."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:ABORT``"
-#~ msgstr ""
-
-#~ msgid "Discards staged changes."
-#~ msgstr ""
-
-#~ msgid "``CMD_CFG:SAVE``"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Saves the active config to EEPROM "
-#~ "when it changed and the write "
-#~ "budget allows it."
-#~ msgstr ""
-
-#~ msgid "``CMD_MODE:<0-4>``"
-#~ msgstr "``CMD_MODE:<0-4>``"
-
-#~ msgid "``CMD_MODE:OK`` or ``CMD_MODE:ERR,UNSUPPORTED``"
-#~ msgstr ""
-
-#~ msgid "Legacy compatibility command; internally stages and applies the mode."
-#~ msgstr ""
-
-#~ msgid "``CMD_MAP:<slot>,<role>``"
-#~ msgstr "``CMD_MAP:<ID>,<ROLE>``"
-
-#~ msgid "``CMD_MAP:OK`` or ``CMD_MAP:ERR,...``"
-#~ msgstr ""
-
-#~ msgid "Legacy compatibility command; internally stages and applies mapping."
-#~ msgstr ""
-
-#~ msgid "``CMD_JOY:<throttle>,<strafe>,<rotation>``"
-#~ msgstr ""
-
-#~ msgid "Error response only on failure."
-#~ msgstr ""
-
-#~ msgid "HMI motion in ``[-100,100]``; requires manual control source."
-#~ msgstr ""
-
-#~ msgid "``CMD_M:<id>,<FWD|REV|STOP>,<pwm>``"
-#~ msgstr "``CMD_M:<ID>,<DIR>,<PWM>``"
-
-#~ msgid "``CMD_M:OK,...`` or ``CMD_M:ERR,...``"
-#~ msgstr ""
-
-#~ msgid "Manual motor test; requires manual control source."
-#~ msgstr ""
-
-#~ msgid "``CMD_LIMIT:PWM,<0-255>``"
-#~ msgstr "``CMD_MODE:<0-4>``"
-
-#~ msgid "``CMD_LIMIT:OK`` or ``CMD_LIMIT:ERR,VALUE``"
-#~ msgstr ""
-
-#~ msgid "Changes active controller PWM limit for the current runtime."
-#~ msgstr ""
-
-#~ msgid "``CMD_SIM:TOGGLE_IO,<pin>``"
-#~ msgstr ""
-
-#~ msgid "``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``"
-#~ msgstr ""
-
-#~ msgid "Toggles simulation state for a configured I/O pin."
-#~ msgstr ""
-
-#~ msgid "``CMD_SIM:RESET_IO,<pin>``"
-#~ msgstr "``CMD_ESTOP:1``"
-
-#~ msgid "Restores a configured I/O pin to real state."
-#~ msgstr ""
-
-#~ msgid "Mega -> TJC"
-#~ msgstr ""
-
-#~ msgid "Periodic heartbeat"
-#~ msgstr ""
-
-#~ msgid "``CMD_SYS:OK``"
-#~ msgstr "``CMD_ESTOP:1``"
-
-#~ msgid "Sent every 500 ms while HMI service is running."
-#~ msgstr ""
-
-#~ msgid "Invalid command"
-#~ msgstr ""
-
-#~ msgid "``CMD_ERR:UNKNOWN_COMMAND``"
-#~ msgstr ""
-
-#~ msgid "Command was not recognized."
-#~ msgstr ""
+#: ../../source/communication.rst:32
+msgid ""
+"Assigns a wheel role to a motor slot and sets its reverse flag. Role 0 frees"
+" the slot. Stops the motors."
+msgstr ""
+"Gán một vai trò bánh cho một cổng động cơ và đặt cờ đảo chiều. Vai trò 0 "
+"giải phóng cổng. Dừng động cơ."
+
+#: ../../source/communication.rst:33
+msgid "``MIX,<role 1-6>,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../source/communication.rst:34
+msgid ""
+"Sets the custom chassis mix of one wheel, each value from -100 to 100. Stops"
+" the motors."
+msgstr ""
+"Đặt bảng trộn của khung gầm tùy chỉnh cho một bánh, mỗi giá trị từ -100 đến "
+"100. Dừng động cơ."
+
+#: ../../source/communication.rst:35
+msgid "``PWM,<0-255>``"
+msgstr ""
+
+#: ../../source/communication.rst:36
+msgid "Sets the output limit. Applies immediately without stopping."
+msgstr "Đặt giới hạn ngõ ra. Có hiệu lực ngay, không dừng động cơ."
+
+#: ../../source/communication.rst:37
+msgid "``ACCEL,<0-255>``"
+msgstr ""
+
+#: ../../source/communication.rst:38
+msgid "Sets the largest speed change per 20 ms. 0 turns it off."
+msgstr "Đặt mức thay đổi tốc độ lớn nhất mỗi 20 ms. 0 là tắt."
+
+#: ../../source/communication.rst:39
+msgid "``SAVE``"
+msgstr ""
+
+#: ../../source/communication.rst:40
+msgid "Writes the configuration to EEPROM."
+msgstr "Ghi cấu hình vào EEPROM."
+
+#: ../../source/communication.rst:41
+msgid "``DEFAULT``"
+msgstr ""
+
+#: ../../source/communication.rst:42
+msgid "Restores the factory configuration in RAM. Use ``SAVE`` to keep it."
+msgstr "Khôi phục cấu hình gốc trong RAM. Dùng ``SAVE`` để giữ lại."
+
+#: ../../source/communication.rst:45
+msgid "Control"
+msgstr "Điều khiển"
+
+#: ../../source/communication.rst:53
+msgid "``CTRL,<REMOTE|MANUAL>``"
+msgstr ""
+
+#: ../../source/communication.rst:54
+msgid "Chooses who drives the robot. Stops the motors."
+msgstr "Chọn nguồn điều khiển robot. Dừng động cơ."
+
+#: ../../source/communication.rst:55
+msgid "``JOY,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../source/communication.rst:56
+msgid ""
+"Manual drive, each value from -100 to 100. Needs ``MANUAL``. Send it "
+"repeatedly; no reply when it succeeds, ``ERR,JOY`` otherwise."
+msgstr ""
+"Lái thủ công, mỗi giá trị từ -100 đến 100. Cần ``MANUAL``. Gửi liên tục; "
+"thành công thì không có phản hồi, ngược lại trả ``ERR,JOY``."
+
+#: ../../source/communication.rst:57
+msgid "``RUN,<slot 1-6>,<pwm>``"
+msgstr ""
+
+#: ../../source/communication.rst:58
+msgid ""
+"Runs one motor from -255 to 255, limited by the PWM limit and using its "
+"reverse flag. Needs ``MANUAL``. The motor stops 500 ms after the last "
+"``RUN``."
+msgstr ""
+"Chạy một động cơ từ -255 đến 255, bị giới hạn bởi giới hạn PWM và áp dụng cờ"
+" đảo chiều. Cần ``MANUAL``. Động cơ dừng sau 500 ms kể từ lệnh ``RUN`` cuối "
+"cùng."
+
+#: ../../source/communication.rst:59
+msgid "``BRAKE,<slot 1-6>``"
+msgstr ""
+
+#: ../../source/communication.rst:60
+msgid "Brakes one motor. Needs ``MANUAL``."
+msgstr "Hãm một động cơ. Cần ``MANUAL``."
+
+#: ../../source/communication.rst:61
+msgid "``STOP``"
+msgstr ""
+
+#: ../../source/communication.rst:62
+msgid "Stops every motor."
+msgstr "Dừng mọi động cơ."
+
+#: ../../source/communication.rst:65
+msgid "Servos and I/O"
+msgstr "Servo và I/O"
+
+#: ../../source/communication.rst:73
+msgid "``SERVO,<channel 0-15>,<angle 0-180>``"
+msgstr ""
+
+#: ../../source/communication.rst:74
+msgid "Moves a servo on the second PCA9685."
+msgstr "Quay một servo trên PCA9685 thứ hai."
+
+#: ../../source/communication.rst:75
+msgid "``IO,<pin>,<IN|OUT|PULLUP>``"
+msgstr ""
+
+#: ../../source/communication.rst:76
+msgid "Configures a pin. Allowed pins: 2 to 13 and 22 to 69."
+msgstr "Cấu hình một chân. Chân được phép: 2 đến 13 và 22 đến 69."
+
+#: ../../source/communication.rst:77
+msgid "``IO,<pin>,W,<0|1>``"
+msgstr ""
+
+#: ../../source/communication.rst:78
+msgid "Writes a digital output."
+msgstr "Ghi một ngõ ra số."
+
+#: ../../source/communication.rst:79
+msgid "``IO,<pin>,R``"
+msgstr ""
+
+#: ../../source/communication.rst:80
+msgid "Reads a digital pin. Reply: ``IO,<pin>,<0|1>``."
+msgstr "Đọc một chân số. Phản hồi: ``IO,<pin>,<0|1>``."
+
+#: ../../source/communication.rst:81
+msgid "``AIN,<channel 0-15>``"
+msgstr ""
+
+#: ../../source/communication.rst:82
+msgid "Reads an analog input. Reply: ``AIN,<channel>,<value>``."
+msgstr "Đọc một ngõ vào analog. Phản hồi: ``AIN,<channel>,<value>``."
+
+#: ../../source/communication.rst:85
+msgid "Messages from the Mega"
+msgstr "Thông điệp từ Mega"
+
+#: ../../source/communication.rst:91
+msgid "Message"
+msgstr "Thông điệp"
+
+#: ../../source/communication.rst:93
+msgid "``SYS,OK``"
+msgstr ""
+
+#: ../../source/communication.rst:94
+msgid "Heartbeat, sent every 500 ms."
+msgstr "Heartbeat, gửi mỗi 500 ms."
+
+#: ../../source/communication.rst:95
+msgid "``CFG,<chassis>,<pwm>,<accel>,<ready>,<source>``"
+msgstr ""
+
+#: ../../source/communication.rst:96
+msgid ""
+"First line of the ``GET`` reply. ``ready`` is 1 when every wheel the chassis"
+" needs has a motor. ``source`` is ``REMOTE`` or ``MANUAL``."
+msgstr ""
+"Dòng đầu tiên của phản hồi ``GET``. ``ready`` bằng 1 khi mọi bánh mà khung "
+"gầm cần đều có động cơ. ``source`` là ``REMOTE`` hoặc ``MANUAL``."
+
+#: ../../source/communication.rst:97
+msgid "``MAP,<slot>,<role>,<reverse>``"
+msgstr ""
+
+#: ../../source/communication.rst:98
+msgid "One line per motor slot in the ``GET`` reply."
+msgstr "Một dòng cho mỗi cổng động cơ trong phản hồi ``GET``."
+
+#: ../../source/communication.rst:99
+msgid "``MIX,<role>,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../source/communication.rst:100
+msgid "One line per wheel role in the ``GET`` reply."
+msgstr "Một dòng cho mỗi vai trò bánh trong phản hồi ``GET``."
+
+#: ../../source/communication.rst:102
+msgid "Example: configure a two-wheel robot with the motors on M1 and M2."
+msgstr "Ví dụ: cấu hình robot hai bánh với động cơ ở M1 và M2."
+
+#: ../../source/communication.rst:112
+msgid "ESP-NOW Remote (Serial3)"
+msgstr "Remote ESP-NOW (Serial3)"
+
+#: ../../source/communication.rst:114
+msgid ""
+"The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency"
+" of approximately **~2.5 ms**. The ESP8266 receiver forwards each packet to "
+"the Mega in a frame:"
+msgstr ""
+"Remote gửi giá trị cần gạt qua ESP-NOW ở 2.4 GHz với độ trễ quan sát được "
+"khoảng **~2.5 ms**. Bộ thu ESP8266 chuyển tiếp mỗi gói đến Mega trong một "
+"khung:"
+
+#: ../../source/communication.rst:120
+msgid "``ControlPacket`` carries:"
+msgstr "``ControlPacket`` gồm:"
+
+#: ../../source/communication.rst:122
+msgid "Message type: control (0x01) or heartbeat (0x02)"
+msgstr "Loại thông điệp: điều khiển (0x01) hoặc heartbeat (0x02)"
+
+#: ../../source/communication.rst:123
+msgid "Throttle, strafe and rotation, each from -100 to 100"
+msgstr "Throttle, strafe và rotation, mỗi giá trị từ -100 đến 100"
+
+#: ../../source/communication.rst:124
+msgid "Button bitmask"
+msgstr "Bitmask các nút bấm"
+
+#: ../../source/communication.rst:125
+msgid "Sequence number (rejects duplicate and out-of-order packets)"
+msgstr "Số thứ tự (loại bỏ gói trùng lặp và sai thứ tự)"
+
+#: ../../source/communication.rst:126
+msgid "CRC-8"
+msgstr ""
+
+#: ../../source/communication.rst:128
+msgid ""
+"The Mega accepts remote packets only while the source is ``REMOTE``. A "
+"heartbeat keeps the link alive and the last command running. At start-up the"
+" Mega sends ``ESP_RESET`` to the receiver."
+msgstr ""
+"Mega chỉ nhận gói từ remote khi nguồn là ``REMOTE``. Một heartbeat giữ đường"
+" truyền sống và giữ lệnh cuối cùng tiếp tục chạy. Khi khởi động, Mega gửi "
+"``ESP_RESET`` đến bộ thu."
 

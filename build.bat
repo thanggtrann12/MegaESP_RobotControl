@@ -65,31 +65,39 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 3. Tự động dịch các file PO
+:: 3. Auto-translate PO files
 echo [+] Step 3/4: Auto-translating PO files to Vietnamese...
-@REM  set "POTRANSLATOR_LOG=%OUTPUT_DIR%\potranslator_error.log"
-@REM  if exist "%POTRANSLATOR_LOG%" del /q "%POTRANSLATOR_LOG%"
 
-@REM  if /I "%POTRANSLATOR_NO_PROXY%"=="1" (
-@REM      cmd /c "set HTTP_PROXY= ^& set HTTPS_PROXY= ^& set ALL_PROXY= ^& set http_proxy= ^& set https_proxy= ^& set all_proxy= ^& potranslator update -p \"%OUTPUT_DIR%/gettext\" -l vi" 1>NUL 2>"%POTRANSLATOR_LOG%"
-@REM  ) else (
-@REM      potranslator update -p "%OUTPUT_DIR%/gettext" -l vi 1>NUL 2>"%POTRANSLATOR_LOG%"
-@REM  )
+set "POTRANSLATOR_LOG=%OUTPUT_DIR%\potranslator_error.log"
 
-@REM  if errorlevel 1 (
-@REM      if "%TRANSLATION_STRICT%"=="1" (
-@REM          echo [ERROR] potranslator failed and POTRANSLATOR_REQUIRED=1.
-@REM          echo [ERROR] See details: %POTRANSLATOR_LOG%
-@REM          pause
-@REM          exit /b 1
-@REM      ) else (
-@REM          echo [WARN] potranslator failed. Continuing with existing translation files.
-@REM          echo [WARN] Tip: set POTRANSLATOR_NO_PROXY=1 if your current proxy is unreachable.
-@REM          echo [WARN] Error details saved to: %POTRANSLATOR_LOG%
-@REM      )
-@REM   ) else (
-@REM      echo [OK] potranslator completed.
-@REM  )
+if exist "%POTRANSLATOR_LOG%" del /q "%POTRANSLATOR_LOG%"
+
+if /I "%POTRANSLATOR_NO_PROXY%"=="1" (
+    set "HTTP_PROXY="
+    set "HTTPS_PROXY="
+    set "ALL_PROXY="
+    set "http_proxy="
+    set "https_proxy="
+    set "all_proxy="
+)
+
+potranslator update -p "%OUTPUT_DIR%\gettext" -l vi -d "%DOCS_DIR%\locales" > "%POTRANSLATOR_LOG%" 2>&1
+
+if errorlevel 1 (
+    if "%TRANSLATION_STRICT%"=="1" (
+        echo [ERROR] potranslator failed.
+        echo [ERROR] See: %POTRANSLATOR_LOG%
+        pause
+        exit /b 1
+    ) else (
+        echo [WARN] potranslator failed.
+        echo [WARN] See: %POTRANSLATOR_LOG%
+    )
+) else (
+    echo [OK] potranslator completed.
+)
+
+
 
 :: 4. Build ra 2 giao diện HTML
 echo [+] Step 4/4: Building HTML outputs...
@@ -126,6 +134,4 @@ echo ===================================================
 echo.
 
 start "" "%OUTPUT_DIR%\en\index.html"
-
-pause
 exit /b 0

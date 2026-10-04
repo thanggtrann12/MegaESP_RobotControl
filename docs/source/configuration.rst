@@ -1,68 +1,130 @@
-Dynamic Motor Mapping & Configuration
-=====================================
+Chassis & Motor Configuration
+=============================
 
-Separation of Logical Role and Physical Channel
------------------------------------------------
+Concepts
+--------
 
-A key feature of this controller is separating logical motor roles from physical output channels.
+* **Motor slot:** a physical motor port, M1 to M6.
+* **Wheel role:** where a motor sits on the chassis. A slot is assigned one role, or none.
+* **Chassis:** a mixing table that says how much of throttle, strafe and rotation each wheel receives.
 
-Mecanum Profile Example
-~~~~~~~~~~~~~~~~~~~~~~~
+Changing the chassis or the mapping never needs new firmware.
+
+Wheel Roles
+-----------
+
+.. list-table::
+   :widths: 15 85
+   :header-rows: 1
+
+   * - Role
+     - Wheel
+   * - 0
+     - Unused
+   * - 1
+     - Front left
+   * - 2
+     - Front right
+   * - 3
+     - Middle left
+   * - 4
+     - Middle right
+   * - 5
+     - Rear left
+   * - 6
+     - Rear right
+
+Assigning a role to a slot takes it away from any other slot that had it, so each wheel has exactly one motor.
+
+Chassis Types
+-------------
+
+.. list-table::
+   :widths: 10 25 25 40
+   :header-rows: 1
+
+   * - Id
+     - Chassis
+     - Required roles
+     - Mixing
+   * - 0
+     - Two-wheel
+     - 1, 2
+     - Differential: left = throttle + rotation, right = throttle - rotation.
+   * - 1
+     - Tank
+     - 1, 2, 5, 6
+     - Four-wheel skid steer, same mixing as two-wheel on each side.
+   * - 2
+     - 4-wheel omni
+     - 1, 2, 5, 6
+     - X layout; mixes exactly like mecanum.
+   * - 3
+     - Mecanum
+     - 1, 2, 5, 6
+     - Throttle, strafe and rotation combined per wheel.
+   * - 4
+     - 6-wheel
+     - 1 to 6
+     - Six-wheel skid steer, same mixing on each side.
+   * - 5
+     - Custom
+     - Every role with a non-zero mix
+     - Mixing table entered from the touchscreen.
+
+Positive rotation turns right. A wheel at full command receives 255 PWM.
+
+Custom Chassis
+--------------
+
+For each wheel role the table stores three percentages from -100 to 100: throttle, strafe and rotation. With the commands T, S and R also in the range -100 to 100, the wheel speed in percent of full PWM is:
 
 .. code-block:: text
 
-   FRONT_LEFT  -> CH0
-   FRONT_RIGHT -> CH1
-   REAR_LEFT   -> CH2
-   REAR_RIGHT  -> CH3
+   speed = (throttle * T + strafe * S + rotation * R) / 100
 
-Differential Profile Example
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A role whose three values are all zero is not used. If a command would push any wheel above the PWM limit, all wheels are scaled down together so the direction of travel is kept.
 
-.. code-block:: text
+Calibration
+-----------
 
-   LEFT_MOTOR  -> CH0
-   RIGHT_MOTOR -> CH1
+1. Select the chassis.
+2. Map each motor slot to its wheel role.
+3. Switch to manual control and press the single-motor test for each slot. If a wheel turns the wrong way, set its reverse flag and test again. The test already applies the reverse flag.
+4. Set the PWM limit and, if wanted, the acceleration step.
+5. Save.
 
-Configuration Validation Rules
-------------------------------
+Settings
+--------
 
-The runtime keeps one active configuration and one staged configuration. TJC
-updates the staged copy and only ``CMD_CFG:APPLY`` changes the running robot.
-``CMD_CFG:SAVE`` persists the already-applied configuration to EEPROM.
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
 
-The current configuration protocol is:
+   * - Setting
+     - Meaning
+   * - PWM limit
+     - Highest PWM sent to a motor, 0 to 255.
+   * - Acceleration step
+     - Largest change of one wheel speed per 20 ms control tick. 0 turns the limit off.
+   * - Reverse flag
+     - Reverses one motor so a wheel turns forward when told to.
 
-.. code-block:: text
+Persistence
+-----------
 
-   CMD_CFG:BEGIN
-   CMD_CFG:MODE,<kinematics-mode>
-   CMD_CFG:PWM,<0-255>
-   CMD_CFG:PROFILE,<0|1>
-   CMD_CFG:MOTOR,<slot 1-6>,<motor-role>
-   CMD_CFG:INVERT,<slot 1-6>,<0|1>
-   CMD_CFG:VALIDATE
-   CMD_CFG:APPLY
-   CMD_CFG:ABORT
-   CMD_CFG:SAVE
-   CMD_CAP:GET
+The whole configuration is one 30-byte structure with a version byte and a CRC-8, stored in EEPROM from address ``0x10``. At start-up the firmware loads it and checks:
 
-The capability response has the form ``CAP:KIN,<diff>,<mecanum>,<omni3>,<omni4>,<custom>,DRV,<ta6586-pca9685>``.
-The HMI must use this response to hide unsupported configuration choices.
+1. The version matches this firmware.
+2. The CRC is correct.
+3. The chassis id and all roles are in range and no role is used twice.
+4. The custom mix values are within -100 to 100.
 
-Before applying or saving changes, ``ConfigurationManager`` validates:
+If any check fails the defaults are used: mecanum, motors M1 to M4 as front left, rear left, front right and rear right, PWM limit 255, no acceleration limit.
 
-1. Protocol slot exists ($1 \rightarrow 6$); firmware converts it to internal index $0 \rightarrow 5$.
-2. The selected kinematics is advertised by ``CapabilityRegistry``.
-3. Differential mode requires exactly one ``LEFT_MOTOR`` and one ``RIGHT_MOTOR`` role.
-4. Mecanum mode requires the four front/rear left/right roles exactly once.
-5. Unused physical slots may remain ``UNBOUND``.
-6. The selected driver, inversion flags and PWM limit are valid.
-7. Configuration version and CRC are valid before EEPROM load.
+Changes take effect immediately and are only written to EEPROM by the save command. Saving only rewrites bytes that changed.
 
-Motion profiles are currently ``0 = DIRECT`` and ``1 = LIMITED_ACCELERATION``.
-The latter limits per-update wheel speed changes before PWM scaling.
+Not Ready State
+---------------
 
-The Mega2560 firmware currently advertises Differential and Mecanum
-kinematics with the TA6586/PCA9685 driver. New hardware or kinematics must be
-implemented and registered in firmware before the HMI can select them.
+The drive is *ready* when every wheel the chassis needs has a motor. When it is not ready the motors stay stopped. The ``GET`` command reports the ready flag so the touchscreen can show what is missing.

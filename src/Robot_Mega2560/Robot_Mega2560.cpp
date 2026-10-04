@@ -1,22 +1,42 @@
 /**
  * @file Robot_Mega2560.cpp
- * @brief Main firmware entry for robot-side Mega2560 controller.
+ * @brief Robot controller: remote and HMI come in over UART, motors and servos go out over PCA9685.
  */
 
 #include <Arduino.h>
-#include <RobotSystemBuilder.h>
-#include "Robot_Pin_Cfg.h"
+#include <ComManager.h>
+#include "Hmi.h"
+#include "Robot.h"
+#include "RobotPins.h"
+#include "GenericLogger.h"
 
-static RobotSystemBuilder robotSystem;
+static Pca9685 motorPca(Wire, MOTOR_PCA_ADDRESS);
+static Pca9685 servoPca(Wire, SERVO_PCA_ADDRESS);
+static Robot robot(motorPca, servoPca);
+static Hmi hmi(HMI_UART, robot);
+static ComManager remote(REMOTE_UART);
+
+ASSIGN_LOG_MACROS(RobotMega2560, Serial);
 
 void setup()
 {
-	Serial.begin(115200);
-	robotSystem.build(KinematicsMode::MODE_4WD_MECANUM);
-	robotSystem.begin();
+    Serial.begin(UART_BAUD);
+    HMI_UART.begin(UART_BAUD);
+    remote.Init(UART_BAUD);
+    robot.begin();
+    remote.SendCommand("ESP_RESET");
+    RobotMega2560_LogI("Setup complete");
 }
 
 void loop()
 {
-	robotSystem.update();
+    hmi.update();
+
+    ControlPacket packet;
+    if (remote.ReadPacket(packet))
+    {
+        robot.onRemote(packet);
+    }
+
+    robot.update();
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 11:02+0700\n"
+"POT-Creation-Date: 2026-10-03 19:39+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -16,164 +16,270 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.13.1\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../../source/hardware.rst:2
+#: ../../source/hardware.rst:2
 msgid "Hardware Layer & Pinouts"
 msgstr "Tầng phần cứng và sơ đồ chân"
 
-#: ../../../source/hardware.rst:5
+#: ../../source/hardware.rst:5
 msgid "Hardware Overview"
 msgstr "Tổng quan phần cứng"
 
-#: ../../../source/hardware.rst:6
+#: ../../source/hardware.rst:6
 msgid ""
-"The Master Hub hardware setup consists of an **Arduino Mega 2560** "
-"connected to **6x TA6586 dual-H-bridge motor drivers** controlling DC "
-"brushed motors."
+"The robot controller is an **Arduino Mega 2560** that talks to its outputs "
+"over I2C. Two **PCA9685** PWM chips generate all motor and servo signals; "
+"the Mega itself only provides the I2C bus, two UARTs and plain I/O pins."
 msgstr ""
-"Cấu hình phần cứng Master Hub gồm một **Arduino Mega 2560** kết nối với "
-"**6 driver động cơ TA6586 cầu H kép**, điều khiển các động cơ DC chổi "
-"than."
+"Bộ điều khiển robot là một **Arduino Mega 2560** giao tiếp với các ngõ ra "
+"qua I2C. Hai chip PWM **PCA9685** tạo mọi tín hiệu cho động cơ và servo; bản"
+" thân Mega chỉ cung cấp bus I2C, hai UART và các chân I/O thông thường."
 
-#: ../../../source/hardware.rst:9
-msgid "TA6586 Driver Motor Mapping (Arduino Mega 2560)"
-msgstr "Ánh xạ động cơ driver TA6586 (Arduino Mega 2560)"
+#: ../../source/hardware.rst:8
+msgid "**PCA9685 at 0x40:** drives six **TA6586** motor drivers at 1 kHz."
+msgstr "**PCA9685 tại 0x40:** điều khiển sáu driver động cơ **TA6586** ở 1 kHz."
 
-#: ../../../source/hardware.rst:15
-msgid "Channel"
-msgstr "Kênh"
+#: ../../source/hardware.rst:9
+msgid "**PCA9685 at 0x41:** drives servos at 50 Hz."
+msgstr "**PCA9685 tại 0x41:** điều khiển servo ở 50 Hz."
 
-#: ../../../source/hardware.rst:16
-msgid "Hardware Timer"
-msgstr "Bộ định thời phần cứng"
+#: ../../source/hardware.rst:11
+msgid ""
+"One PCA9685 has a single PWM frequency, so motors and servos need separate "
+"chips."
+msgstr ""
+"Một chip PCA9685 chỉ có một tần số PWM, nên động cơ và servo cần các chip "
+"riêng."
 
-#: ../../../source/hardware.rst:17
-msgid "TA6586 IN1 (PWM 1)"
-msgstr "TA6586 IN1 (PWM 1)"
+#: ../../source/hardware.rst:14
+msgid "Motor Slots"
+msgstr "Cổng động cơ"
 
-#: ../../../source/hardware.rst:18
-msgid "TA6586 IN2 (PWM 2)"
-msgstr "TA6586 IN2 (PWM 2)"
+#: ../../source/hardware.rst:16
+msgid ""
+"Each motor slot uses two adjacent PCA9685 channels connected to the two "
+"inputs of one TA6586."
+msgstr ""
+"Mỗi cổng động cơ dùng hai kênh PCA9685 liền kề, nối với hai ngõ vào của một "
+"TA6586."
 
-#: ../../../source/hardware.rst:19
-msgid "Motor 0 (CH0)"
-msgstr "Động cơ 0 (CH0)"
+#: ../../source/hardware.rst:22
+msgid "Slot"
+msgstr "Cổng"
 
-#: ../../../source/hardware.rst:20
-msgid "Timer 3"
-msgstr "Timer 3"
+#: ../../source/hardware.rst:23
+msgid "Name in firmware"
+msgstr "Tên trong firmware"
 
-#: ../../../source/hardware.rst:21
-msgid "Pin 2"
-msgstr "Pin 2"
+#: ../../source/hardware.rst:24
+msgid "Reverse input (BI)"
+msgstr "Ngõ vào lùi (BI)"
 
-#: ../../../source/hardware.rst:22
-msgid "Pin 3"
-msgstr "Pin 3"
+#: ../../source/hardware.rst:25
+msgid "Forward input (FI)"
+msgstr "Ngõ vào tiến (FI)"
 
-#: ../../../source/hardware.rst:23
-msgid "Motor 1 (CH1)"
-msgstr "Động cơ 1 (CH1)"
+#: ../../source/hardware.rst:26
+msgid "M1"
+msgstr ""
 
-#: ../../../source/hardware.rst:24
-msgid "Timer 0 / 3"
-msgstr "Timer 0 / 3"
+#: ../../source/hardware.rst:27
+msgid "slot 0"
+msgstr "cổng 0"
 
-#: ../../../source/hardware.rst:25
-msgid "Pin 4"
-msgstr "Pin 4"
+#: ../../source/hardware.rst:28
+msgid "Channel 0"
+msgstr "Kênh 0"
 
-#: ../../../source/hardware.rst:26
-msgid "Pin 5"
-msgstr "Pin 5"
+#: ../../source/hardware.rst:29
+msgid "Channel 1"
+msgstr "Kênh 1"
 
-#: ../../../source/hardware.rst:27
-msgid "Motor 2 (CH2)"
-msgstr "Động cơ 2 (CH2)"
+#: ../../source/hardware.rst:30
+msgid "M2"
+msgstr ""
 
-#: ../../../source/hardware.rst:28
-msgid "Timer 4"
-msgstr "Timer 4"
+#: ../../source/hardware.rst:31
+msgid "slot 1"
+msgstr "cổng 1"
 
-#: ../../../source/hardware.rst:29
-msgid "Pin 6"
-msgstr "Pin 6"
+#: ../../source/hardware.rst:32
+msgid "Channel 2"
+msgstr "Kênh 2"
 
-#: ../../../source/hardware.rst:30
-msgid "Pin 7"
-msgstr "Pin 7"
+#: ../../source/hardware.rst:33
+msgid "Channel 3"
+msgstr "Kênh 3"
 
-#: ../../../source/hardware.rst:31
-msgid "Motor 3 (CH3)"
-msgstr "Động cơ 3 (CH3)"
+#: ../../source/hardware.rst:34
+msgid "M3"
+msgstr ""
 
-#: ../../../source/hardware.rst:32
-msgid "Timer 2 / 4"
-msgstr "Timer 2 / 4"
+#: ../../source/hardware.rst:35
+msgid "slot 2"
+msgstr "cổng 2"
 
-#: ../../../source/hardware.rst:33
-msgid "Pin 8"
-msgstr "Pin 8"
+#: ../../source/hardware.rst:36
+msgid "Channel 4"
+msgstr "Kênh 4"
 
-#: ../../../source/hardware.rst:34
-msgid "Pin 9"
-msgstr "Pin 9"
+#: ../../source/hardware.rst:37
+msgid "Channel 5"
+msgstr "Kênh 5"
 
-#: ../../../source/hardware.rst:35
-msgid "Motor 4 (CH4)"
-msgstr "Động cơ 4 (CH4)"
+#: ../../source/hardware.rst:38
+msgid "M4"
+msgstr ""
 
-#: ../../../source/hardware.rst:36
-msgid "Timer 2"
-msgstr "Timer 2"
+#: ../../source/hardware.rst:39
+msgid "slot 3"
+msgstr "cổng 3"
 
-#: ../../../source/hardware.rst:37
-msgid "Pin 10"
-msgstr "Pin 10"
+#: ../../source/hardware.rst:40
+msgid "Channel 6"
+msgstr "Kênh 6"
 
-#: ../../../source/hardware.rst:38
-msgid "Pin 11"
-msgstr "Pin 11"
+#: ../../source/hardware.rst:41
+msgid "Channel 7"
+msgstr "Kênh 7"
 
-#: ../../../source/hardware.rst:39
-msgid "Motor 5 (CH5)"
-msgstr "Động cơ 5 (CH5)"
+#: ../../source/hardware.rst:42
+msgid "M5"
+msgstr ""
 
-#: ../../../source/hardware.rst:40
-msgid "Timer 1"
-msgstr "Timer 1"
+#: ../../source/hardware.rst:43
+msgid "slot 4"
+msgstr "cổng 4"
 
-#: ../../../source/hardware.rst:41
-msgid "Pin 12"
-msgstr "Pin 12"
+#: ../../source/hardware.rst:44
+msgid "Channel 8"
+msgstr "Kênh 8"
 
-#: ../../../source/hardware.rst:42
-msgid "Pin 13"
-msgstr "Pin 13"
+#: ../../source/hardware.rst:45
+msgid "Channel 9"
+msgstr "Kênh 9"
 
-#: ../../../source/hardware.rst:45
+#: ../../source/hardware.rst:46
+msgid "M6"
+msgstr ""
+
+#: ../../source/hardware.rst:47
+msgid "slot 5"
+msgstr "cổng 5"
+
+#: ../../source/hardware.rst:48
+msgid "Channel 10"
+msgstr "Kênh 10"
+
+#: ../../source/hardware.rst:49
+msgid "Channel 11"
+msgstr "Kênh 11"
+
+#: ../../source/hardware.rst:51
+msgid ""
+"The touchscreen and the protocol number motors from 1 (M1 to M6). Which "
+"wheel a motor drives is configured, not wired; see :doc:`configuration`."
+msgstr ""
+"Màn hình cảm ứng và giao thức đánh số động cơ từ 1 (M1 đến M6). Động cơ điều"
+" khiển bánh nào là do cấu hình, không phải do đấu dây; xem "
+":doc:`configuration`."
+
+#: ../../source/hardware.rst:54
+msgid "Servos"
+msgstr "Servo"
+
+#: ../../source/hardware.rst:56
+msgid ""
+"Servos use channels 0 to 15 of the PCA9685 at address 0x41. A pulse of 0.5 "
+"ms to 2.5 ms maps to 0 to 180 degrees."
+msgstr ""
+"Servo dùng kênh 0 đến 15 của PCA9685 tại địa chỉ 0x41. Xung từ 0.5 ms đến "
+"2.5 ms tương ứng 0 đến 180 độ."
+
+#: ../../source/hardware.rst:59
+msgid "Mega 2560 Connections"
+msgstr "Kết nối Mega 2560"
+
+#: ../../source/hardware.rst:65
+msgid "Function"
+msgstr "Chức năng"
+
+#: ../../source/hardware.rst:66
+msgid "Pins"
+msgstr "Chân"
+
+#: ../../source/hardware.rst:67
+msgid "Notes"
+msgstr "Ghi chú"
+
+#: ../../source/hardware.rst:68
+msgid "I2C (PCA9685 chips)"
+msgstr "I2C (các chip PCA9685)"
+
+#: ../../source/hardware.rst:69
+msgid "20 (SDA), 21 (SCL)"
+msgstr ""
+
+#: ../../source/hardware.rst:70
+msgid "Bus runs at 400 kHz."
+msgstr "Bus chạy ở 400 kHz."
+
+#: ../../source/hardware.rst:71
+msgid "TJC touchscreen"
+msgstr "Màn hình cảm ứng TJC"
+
+#: ../../source/hardware.rst:72
+msgid "Serial2: 16 (TX2), 17 (RX2)"
+msgstr ""
+
+#: ../../source/hardware.rst:73 ../../source/hardware.rst:76
+msgid "115200 baud."
+msgstr ""
+
+#: ../../source/hardware.rst:74
+msgid "ESP8266 receiver"
+msgstr "Bộ thu ESP8266"
+
+#: ../../source/hardware.rst:75
+msgid "Serial3: 14 (TX3), 15 (RX3)"
+msgstr ""
+
+#: ../../source/hardware.rst:77
+msgid "General I/O"
+msgstr "I/O thông thường"
+
+#: ../../source/hardware.rst:78
+msgid "2 to 13 and 22 to 69"
+msgstr ""
+
+#: ../../source/hardware.rst:79
+msgid ""
+"Configured as input or output from the touchscreen. Pins 0 to 1 (USB) and 14"
+" to 21 (UARTs and I2C) are refused."
+msgstr ""
+"Được cấu hình làm ngõ vào hoặc ngõ ra từ màn hình cảm ứng. Các chân 0 đến 1 "
+"(USB) và 14 đến 21 (UART và I2C) bị từ chối."
+
+#: ../../source/hardware.rst:82
 msgid "Handheld Remote Pinout"
 msgstr "Sơ đồ chân remote cầm tay"
 
-#: ../../../source/hardware.rst:47
+#: ../../source/hardware.rst:84
 msgid "**Left Joystick (X/Y):** ``A0`` / ``A1`` ($V_x$ Lateral / $V_y$ Forward)"
 msgstr "**Joystick trái (X/Y):** ``A0`` / ``A1`` ($V_x$ ngang / $V_y$ tiến)"
 
-#: ../../../source/hardware.rst:48
+#: ../../source/hardware.rst:85
 msgid ""
 "**Right Joystick (X/Y):** ``A2`` / ``A3`` ($\\Omega_z$ Yaw Rotation / "
 "Auxiliary)"
 msgstr "**Joystick phải (X/Y):** ``A2`` / ``A3`` ($\\Omega_z$ quay yaw / phụ trợ)"
 
-#: ../../../source/hardware.rst:49
+#: ../../source/hardware.rst:86
 msgid "**Emergency Stop Switch:** Pin 21 (External Interrupt 0)"
 msgstr "**Công tắc dừng khẩn:** Pin 21 (ngắt ngoài 0)"
 
-#: ../../../source/hardware.rst:50
+#: ../../source/hardware.rst:87
 msgid "**Mode Selector Switches:** Pins 22, 23, 24"
 msgstr "**Công tắc chọn chế độ:** Pin 22, 23, 24"
-
-#~ msgid ":widths: 20 20 30 30  :header-rows: 1"
-#~ msgstr ""
 

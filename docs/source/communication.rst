@@ -1,125 +1,128 @@
 Communication Protocols & ESP-NOW
 =================================
 
-Serial Protocol (ASCII Line-Based)
-----------------------------------
+The Mega has two UART links. Both carry commands that end up in the same ``Robot`` object.
 
-Communication between TJC Screen / Remote Bridge and Arduino Mega uses structured ASCII strings.
+* **Serial2:** TJC touchscreen, ASCII text commands.
+* **Serial3:** ESP8266 receiver, framed binary packets from the ESP-NOW remote.
 
-TJC <-> Robot Mega Command Table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TJC Protocol (Serial2)
+----------------------
 
-Commands are ASCII strings terminated by three ``0xFF`` bytes. The Mega
-answers with an ASCII response using the same terminator unless stated
-otherwise.
+A command is ASCII text with comma separated fields. It ends with three ``0xFF`` bytes (what the TJC sends) or with a newline. Every reply ends with three ``0xFF`` bytes.
+
+* Motor slots are numbered from 1 (M1 to M6).
+* Wheel roles are numbered 0 to 6; see :doc:`configuration`.
+* A command is answered with ``OK,<NAME>`` or ``ERR,<NAME>``, except where noted.
+
+Configuration
+~~~~~~~~~~~~~
 
 .. list-table::
-   :widths: 24 32 28 36
+   :widths: 34 66
    :header-rows: 1
 
-   * - Direction
-     - TJC command
-     - Mega response
-     - Meaning and conditions
-   * - TJC -> Mega
-     - ``CMD_CAP:GET``
-     - ``CAP:KIN,<5 flags>,DRV,<flag>``
-     - Returns compiled kinematics and driver capabilities.
-   * - TJC -> Mega
-     - ``CMD_CTRL:MANUAL``
-     - ``CMD_CTRL:OK,MANUAL``
-     - Selects HMI manual control source.
-   * - TJC -> Mega
-     - ``CMD_CTRL:REMOTE``
-     - ``CMD_CTRL:OK,REMOTE``
-     - Selects ESP-NOW remote control source.
-   * - TJC -> Mega
-     - ``CMD_CFG:BEGIN``
-     - ``CMD_CFG:OK``
-     - Copies active config to staged config.
-   * - TJC -> Mega
-     - ``CMD_CFG:MODE,<0-4>``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``
-     - Stages kinematics mode; it does not change runtime until ``APPLY``.
-   * - TJC -> Mega
-     - ``CMD_CFG:PWM,<0-255>``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``
-     - Stages the PWM limit.
-   * - TJC -> Mega
-     - ``CMD_CFG:PROFILE,<0|1>``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR,VALUE``
-     - Stages ``DIRECT`` or ``LIMITED_ACCELERATION``.
-   * - TJC -> Mega
-     - ``CMD_CFG:VALIDATE``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR``
-     - Validates capability, topology, roles, version and CRC.
-   * - TJC -> Mega
-     - ``CMD_CFG:APPLY``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR``
-     - Safely applies the staged configuration and stops motors during switch.
-   * - TJC -> Mega
-     - ``CMD_CFG:ABORT``
-     - ``CMD_CFG:OK``
-     - Discards staged changes.
-   * - TJC -> Mega
-     - ``CMD_CFG:SAVE``
-     - ``CMD_CFG:OK`` or ``CMD_CFG:ERR``
-     - Saves the active config to EEPROM when it changed and the write budget allows it.
-   * - TJC -> Mega
-     - ``CMD_MODE:<0-4>``
-     - ``CMD_MODE:OK`` or ``CMD_MODE:ERR,UNSUPPORTED``
-     - Legacy compatibility command; internally stages and applies the mode.
-   * - TJC -> Mega
-     - ``CMD_JOY:<throttle>,<strafe>,<rotation>``
-     - Error response only on failure.
-     - HMI motion in ``[-100,100]``; requires manual control source.
-   * - TJC -> Mega
-     - ``CMD_M:<id>,<FWD|REV|STOP>,<pwm>``
-     - ``CMD_M:OK,...`` or ``CMD_M:ERR,...``
-     - Manual motor test; requires manual control source.
-   * - TJC -> Mega
-     - ``CMD_LIMIT:PWM,<0-255>``
-     - ``CMD_LIMIT:OK`` or ``CMD_LIMIT:ERR,VALUE``
-     - Changes active controller PWM limit for the current runtime.
-   * - TJC -> Mega
-     - ``CMD_SIM:TOGGLE_IO,<pin>``
-     - ``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``
-     - Toggles simulation state for a configured I/O pin.
-   * - TJC -> Mega
-     - ``CMD_SIM:RESET_IO,<pin>``
-     - ``IO_STATUS:<pin>,...`` or ``CMD_SIM:ERR,...``
-     - Restores a configured I/O pin to real state.
-   * - Mega -> TJC
-     - Periodic heartbeat
-     - ``CMD_SYS:OK``
-     - Sent every 500 ms while HMI service is running.
-   * - Mega -> TJC
-     - Invalid command
-     - ``CMD_ERR:UNKNOWN_COMMAND``
-     - Command was not recognized.
+   * - Command
+     - Description
+   * - ``GET``
+     - Reports the configuration (see below). No ``OK`` reply.
+   * - ``CHASSIS,<0-5>``
+     - Selects two-wheel, tank, omni-4, mecanum, six-wheel or custom. Stops the motors.
+   * - ``MOTOR,<slot 1-6>,<role 0-6>,<0|1>``
+     - Assigns a wheel role to a motor slot and sets its reverse flag. Role 0 frees the slot. Stops the motors.
+   * - ``MIX,<role 1-6>,<t>,<s>,<r>``
+     - Sets the custom chassis mix of one wheel, each value from -100 to 100. Stops the motors.
+   * - ``PWM,<0-255>``
+     - Sets the output limit. Applies immediately without stopping.
+   * - ``ACCEL,<0-255>``
+     - Sets the largest speed change per 20 ms. 0 turns it off.
+   * - ``SAVE``
+     - Writes the configuration to EEPROM.
+   * - ``DEFAULT``
+     - Restores the factory configuration in RAM. Use ``SAVE`` to keep it.
 
-Slot-based configuration commands
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Control
+~~~~~~~
 
-The protocol uses 1-based slots. Firmware converts them to internal indexes
-0 through 5.
+.. list-table::
+   :widths: 34 66
+   :header-rows: 1
 
-.. csv-table::
-  :header: "Command", "Response", "Meaning"
-  :widths: 40, 25, 35
+   * - Command
+     - Description
+   * - ``CTRL,<REMOTE|MANUAL>``
+     - Chooses who drives the robot. Stops the motors.
+   * - ``JOY,<t>,<s>,<r>``
+     - Manual drive, each value from -100 to 100. Needs ``MANUAL``. Send it repeatedly; no reply when it succeeds, ``ERR,JOY`` otherwise.
+   * - ``RUN,<slot 1-6>,<pwm>``
+     - Runs one motor from -255 to 255, limited by the PWM limit and using its reverse flag. Needs ``MANUAL``. The motor stops 500 ms after the last ``RUN``.
+   * - ``BRAKE,<slot 1-6>``
+     - Brakes one motor. Needs ``MANUAL``.
+   * - ``STOP``
+     - Stops every motor.
 
-  "``CMD_CFG:MOTOR,<slot 1-6>,<role>``", "``CMD_CFG:OK`` / ``ERR``", "Stage physical slot role mapping."
-  "``CMD_CFG:INVERT,<slot 1-6>,<0|1>``", "``CMD_CFG:OK`` / ``ERR``", "Stage motor direction inversion."
-  "``CMD_MAP:<slot 1-6>,<role>``", "``CMD_MAP:OK`` / ``ERR``", "Legacy mapping command."
+Servos and I/O
+~~~~~~~~~~~~~~
 
-ESP-NOW Wireless Bridge
------------------------
+.. list-table::
+   :widths: 34 66
+   :header-rows: 1
 
-The wireless link operates over 2.4 GHz ESP-NOW with an observed latency of approximately **~2.5 ms**.
+   * - Command
+     - Description
+   * - ``SERVO,<channel 0-15>,<angle 0-180>``
+     - Moves a servo on the second PCA9685.
+   * - ``IO,<pin>,<IN|OUT|PULLUP>``
+     - Configures a pin. Allowed pins: 2 to 13 and 22 to 69.
+   * - ``IO,<pin>,W,<0|1>``
+     - Writes a digital output.
+   * - ``IO,<pin>,R``
+     - Reads a digital pin. Reply: ``IO,<pin>,<0|1>``.
+   * - ``AIN,<channel 0-15>``
+     - Reads an analog input. Reply: ``AIN,<channel>,<value>``.
 
-Packets include:
+Messages from the Mega
+~~~~~~~~~~~~~~~~~~~~~~
 
-* Protocol Version
-* Sequence Number (detects duplicate, out-of-order, or dropped frames)
-* Payload Data (Velocity Vectors, Buttons, Mode Flags)
-* CRC Verification
+.. list-table::
+   :widths: 34 66
+   :header-rows: 1
+
+   * - Message
+     - Description
+   * - ``SYS,OK``
+     - Heartbeat, sent every 500 ms.
+   * - ``CFG,<chassis>,<pwm>,<accel>,<ready>,<source>``
+     - First line of the ``GET`` reply. ``ready`` is 1 when every wheel the chassis needs has a motor. ``source`` is ``REMOTE`` or ``MANUAL``.
+   * - ``MAP,<slot>,<role>,<reverse>``
+     - One line per motor slot in the ``GET`` reply.
+   * - ``MIX,<role>,<t>,<s>,<r>``
+     - One line per wheel role in the ``GET`` reply.
+
+Example: configure a two-wheel robot with the motors on M1 and M2.
+
+.. code-block:: text
+
+   CHASSIS,0
+   MOTOR,1,1,0
+   MOTOR,2,2,1
+   SAVE
+
+ESP-NOW Remote (Serial3)
+------------------------
+
+The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately **~2.5 ms**. The ESP8266 receiver forwards each packet to the Mega in a frame:
+
+.. code-block:: text
+
+   0xAA 0xFF | ControlPacket (8 bytes) | XOR checksum | 0x55
+
+``ControlPacket`` carries:
+
+* Message type: control (0x01) or heartbeat (0x02)
+* Throttle, strafe and rotation, each from -100 to 100
+* Button bitmask
+* Sequence number (rejects duplicate and out-of-order packets)
+* CRC-8
+
+The Mega accepts remote packets only while the source is ``REMOTE``. A heartbeat keeps the link alive and the last command running. At start-up the Mega sends ``ESP_RESET`` to the receiver.

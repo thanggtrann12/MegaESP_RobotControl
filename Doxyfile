@@ -1,6 +1,6 @@
 PROJECT_NAME           = "Universal Robot Hub"
 OUTPUT_DIRECTORY       = docs/_build/doxygen
-INPUT                  = src/ include/
+INPUT                  = src/ include/ lib/
 RECURSIVE              = YES
 FILE_PATTERNS          = *.cpp *.h *.hpp
 GENERATE_LATEX         = NO

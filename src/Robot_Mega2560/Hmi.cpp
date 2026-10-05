@@ -144,7 +144,12 @@ void Hmi::handle(char *line)
     RobotConfig &config = _robot.config();
     long a, b, c, d;
     bool ok = false;
-    LOG_D("Handling command: %s", command);
+    if (!is(command, "ADC") &&
+        !is(command, "MON") &&
+        !is(command, "JOY"))
+    {
+        LOG_D("Handling command: %s", command);
+    }
     if (is(command, "GET"))
     {
         LOG_D("Command: GET");
@@ -177,8 +182,12 @@ void Hmi::handle(char *line)
     }
     else if (is(command, "MON"))
     {
-        LOG_D("Command: MON");
         syncMonitor();
+        return;
+    }
+    else if (is(command, "ADC"))
+    {
+        syncADC();
         return;
     }
 
@@ -596,6 +605,30 @@ void Hmi::syncMonitor()
              IoPin::readAnalog(0), IoPin::readAnalog(1),
              IoPin::readAnalog(2), IoPin::readAnalog(3));
     monTxt("tain", text);
+}
+
+void Hmi::syncADC()
+{
+
+    for (uint8_t i = 0; i < 6; ++i)
+    {
+        _serial.print("Analog_test.h");
+        _serial.print(i);
+        _serial.print(".val=\"");
+        _serial.print(String(IoPin::readAnalog(i)));
+        _serial.print('"');
+        endMessage();
+    }
+
+    for (uint8_t i = 0; i < 6; ++i)
+    {
+        _serial.print("Analog_test.ta");
+        _serial.print(i);
+        _serial.print(".txt=\"");
+        _serial.print(String(IoPin::readAnalog(i)));
+        _serial.print('"');
+        endMessage();
+    }
 }
 
 void Hmi::syncHome()

@@ -45,6 +45,7 @@ private:
 
     void syncHome();
     void syncI2C();
+    void syncADC();
     Stream &_serial;
     Robot &_robot;
     char _line[48];

@@ -15,7 +15,9 @@
 //   PWM,<0-255>  ACCEL,<0-255>       output limit, max speed change per 20 ms (0 = off)
 //   SAVE  DEFAULT                    store to EEPROM, restore factory setup
 //   CTRL,<REMOTE|MANUAL>             who drives the robot
-//   JOY,<t>,<s>,<r>                  manual drive, -100..100 (no reply, never logged)
+//   JOY,<t>,<s>,<r>                  manual drive, -100..100 (no reply, never logged).
+//                                    Watchdog: the robot stops if no JOY arrives for JOY_TIMEOUT_MS
+//                                    while a non-zero JOY is active, so keep streaming while held.
 //   RUN,<1-6>,<-255..255>  BRAKE,<1-6>  STOP     single-motor test
 //   SERVO,<0-15>,<0-180>
 //   IO,<pin>,<IN|OUT|PULLUP>  IO,<pin>,W,<0|1>   OK / ERR
@@ -59,7 +61,8 @@ private:
     static const uint8_t CMD_TABLE_SIZE;
 
     static constexpr uint8_t LINE_MAX = 48;
-    static constexpr uint8_t MON_FIELDS = 24; // number of monitor fields cached for change detection
+    static constexpr uint8_t MON_FIELDS = 24;    // number of monitor fields cached for change detection
+    static constexpr uint8_t I2C_LIST_MAX = 96;  // text buffer for the I2C scan result
 
     static Result toResult(bool ok) { return ok ? Result::OK : Result::ERR; }
 
@@ -95,10 +98,17 @@ private:
     void syncChassisLabels(Chassis chassis);
     void computeWheelMotor(long out[6]);
     void syncMonitor();
-    void monField(const char *comp, const char *text, int32_t color = -1);
+    void monField(uint8_t slot, const char *comp, const char *text, int32_t color = -1);
     void syncHome();
-    void syncI2C();
     void syncADC();
+
+    // I2C scan, spread over several update() calls so the control loop is never blocked for long
+    void startI2CScan();
+    void stepI2CScan();
+
+    // Drive watchdog: stops the robot if a streamed drive command stops arriving
+    void armDrive(uint32_t timeoutMs); // 0 = disarm
+    void checkWatchdog(uint32_t now);
 
     Stream &_serial;
     Robot &_robot;
@@ -108,8 +118,17 @@ private:
     bool _overflow = false; // current line exceeded _line: drop it at the terminator
     uint32_t _lastHeartbeat = 0;
 
-    uint16_t _monHash[MON_FIELDS] = {}; // hash of the last text/colour sent for each monitor field
-    uint8_t _monSlot = 0;               // field index while syncMonitor() runs
+    uint32_t _monHash[MON_FIELDS] = {}; // 32-bit hash of the last text/colour sent for each monitor field (0 = never sent)
+
+    bool _driveArmed = false;
+    uint32_t _driveDeadline = 0;
+
+    bool _i2cScanning = false;
+    uint8_t _i2cNext = 0;
+    uint8_t _i2cFound = 0;
+    uint8_t _i2cShown = 0;
+    uint8_t _i2cLength = 0;
+    char _i2cList[I2C_LIST_MAX];
 };
 
 #endif

@@ -57,6 +57,35 @@ inline const char *wheelRoleToString(WheelRole role)
     }
 }
 
+inline const char* chassisToString(Chassis chassis)
+{
+    switch (chassis)
+    {
+    case Chassis::TWO_WHEEL:
+        return "TWO_WHEEL";
+    case Chassis::TANK:
+        return "TANK";
+    case Chassis::OMNI_3:
+        return "OMNI_3";
+    case Chassis::OMNI_4:
+        return "OMNI_4";
+    case Chassis::MECANUM:
+        return "MECANUM";
+    case Chassis::SIX_WHEEL:
+        return "SIX_WHEEL";
+    case Chassis::HOLONOMIC:
+        return "HOLONOMIC";
+    case Chassis::XDRIVE:
+        return "XDRIVE";
+    case Chassis::INDEPENDENT:
+        return "INDEPENDENT";
+    case Chassis::CUSTOM:
+        return "CUSTOM";
+    default:
+        return "UNKNOWN";
+    }
+}
+
 constexpr uint8_t WHEEL_COUNT = 6;
 
 // Share of each command a wheel receives, in percent. All zero means the chassis does not use that wheel.

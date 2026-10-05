@@ -6,21 +6,15 @@ echo   AUTOMATIC MULTILINGUAL SPHINX BUILD (EN / VI)
 echo ===================================================
 
 :: Optional strict mode for translation step:
-:: set POTRANSLATOR_REQUIRED=1 to stop build when potranslator fails.
-:: set POTRANSLATOR_NO_PROXY=1 to run potranslator without HTTP(S)_PROXY variables.
 if /I "%POTRANSLATOR_REQUIRED%"=="1" (
     set "TRANSLATION_STRICT=1"
 ) else (
     set "TRANSLATION_STRICT=0"
 )
 
-:: 1. Xác định thư mục nguồn
+:: 1. Sac dinh thu muc nguon
 if exist "docs\source\conf.py" (
     set "SOURCE_DIR=docs\source"
-    set "OUTPUT_DIR=docs\build\html"
-    set "DOCS_DIR=docs"
-) else if exist "docs\conf.py" (
-    set "SOURCE_DIR=docs"
     set "OUTPUT_DIR=docs\_build\html"
     set "DOCS_DIR=docs"
 ) else (
@@ -46,7 +40,8 @@ if exist "%DOXYGEN_XML%" (
 ) else (
     echo [WARN] Missing Doxygen XML: %DOXYGEN_XML%
 )
-:: 2. Trích xuất văn bản & cập nhật file translation
+
+:: 2. Trich xuat van ban & cap nhat file translation
 echo [+] Step 1/4: Extracting translatable strings...
 sphinx-build -b gettext "%SOURCE_DIR%" "%OUTPUT_DIR%/gettext"
 
@@ -97,9 +92,7 @@ if errorlevel 1 (
     echo [OK] potranslator completed.
 )
 
-
-
-:: 4. Build ra 2 giao diện HTML
+:: 4. Build ra 2 giao dien HTML
 echo [+] Step 4/4: Building HTML outputs...
 
 echo     - Building English version...
@@ -120,7 +113,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Tạo index.html điều hướng mặc định
+:: Tao index.html dieu huong mac dinh
 (
 echo ^<html^>^<head^>^<meta http-equiv="refresh" content="0; url=en/index.html"^>^</head^>^</html^>
 ) > "%OUTPUT_DIR%/index.html"

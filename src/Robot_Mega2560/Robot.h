@@ -9,43 +9,35 @@
 #include <ServoOut.h>
 #include <Std_Types.h>
 
-namespace
+// Helper functions in headers should be inline rather than in anonymous namespaces
+inline bool roleUsedByChassis(Chassis chassis, WheelRole role)
 {
-    struct Command
+    switch (chassis)
     {
-        int8_t throttle = 0;
-        int8_t strafe = 0;
-        int8_t rotation = 0;
-    };
+    case Chassis::TWO_WHEEL:
+    case Chassis::TANK:
+        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT;
 
-    inline bool roleUsedByChassis(Chassis chassis, WheelRole role)
-    {
-        switch (chassis)
-        {
-        case Chassis::TWO_WHEEL:
-        case Chassis::TANK:
-            return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT;
+    case Chassis::OMNI_3:
+        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
+               role == WheelRole::REAR_LEFT;
 
-        case Chassis::OMNI_3:
-            return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
-                   role == WheelRole::REAR_LEFT;
+    case Chassis::OMNI_4:
+    case Chassis::MECANUM:
+    case Chassis::HOLONOMIC:
+    case Chassis::XDRIVE:
+        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
+               role == WheelRole::REAR_LEFT || role == WheelRole::REAR_RIGHT;
 
-        case Chassis::OMNI_4:
-        case Chassis::MECANUM:
-        case Chassis::HOLONOMIC:
-        case Chassis::XDRIVE:
-            return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
-                   role == WheelRole::REAR_LEFT || role == WheelRole::REAR_RIGHT;
+    case Chassis::SIX_WHEEL:
+    case Chassis::CUSTOM:
+        return role != WheelRole::NONE;
 
-        case Chassis::SIX_WHEEL:
-        case Chassis::CUSTOM:
-            return role != WheelRole::NONE;
-
-        default:
-            return false;
-        }
+    default:
+        return false;
     }
 }
+
 enum class Source : uint8_t
 {
     REMOTE = 0, // ESP-NOW remote through UART
@@ -56,6 +48,13 @@ enum class Source : uint8_t
 class Robot
 {
 public:
+    struct Command
+    {
+        int8_t throttle = 0;
+        int8_t strafe = 0;
+        int8_t rotation = 0;
+    };
+
     Robot(Pca9685 &motorPca, Pca9685 &servoPca) : _motors(motorPca), _servos(servoPca) {}
 
     void begin();

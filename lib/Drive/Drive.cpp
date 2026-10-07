@@ -1,7 +1,5 @@
 #include "Drive.h"
-
-static_assert(static_cast<uint8_t>(WheelRole::COUNT) == WHEEL_COUNT + 1, "WHEEL_COUNT must match WheelRole");
-
+#include "RobotConfig.h"
 namespace
 {
     // Positive rotation turns right.
@@ -13,8 +11,8 @@ namespace
     constexpr Mix MEC_RR = {100, 100, -100};
     constexpr Mix OFF = {0, 0, 0};
 
-    // Columns: FRONT_LEFT, FRONT_RIGHT, MID_LEFT, MID_RIGHT, REAR_LEFT, REAR_RIGHT.
-    constexpr Mix PRESETS[static_cast<uint8_t>(Chassis::CUSTOM)][WHEEL_COUNT] = {
+    // Columns: DRIVE_FL, DRIVE_FR, DRIVE_ML, DRIVE_MR, DRIVE_RL, DRIVE_RR.
+    constexpr Mix PRESETS[static_cast<uint8_t>(Chassis::CUSTOM)][MAX_PORT_COUNT] = {
         {LEFT, RIGHT, OFF, OFF, OFF, OFF},          // TWO_WHEEL
         {LEFT, RIGHT, OFF, OFF, LEFT, RIGHT},       // TANK
         {MEC_FL, MEC_FR, OFF, OFF, MEC_RL, MEC_RR}, // OMNI_4
@@ -28,9 +26,9 @@ namespace
     }
 }
 
-void Drive::assign(WheelRole role, IMotor *motor, bool inverted)
+void Drive::assign(PortRole role, IMotor *motor, bool inverted)
 {
-    if (role == WheelRole::NONE || role >= WheelRole::COUNT)
+    if (role == PortRole::NONE || role >= PortRole::COUNT)
     {
         return;
     }
@@ -38,6 +36,7 @@ void Drive::assign(WheelRole role, IMotor *motor, bool inverted)
     wheel.motor = motor;
     wheel.inverted = inverted;
     wheel.last = 0;
+    _wheelCount += 1;
 }
 
 void Drive::clearMotors()
@@ -46,19 +45,21 @@ void Drive::clearMotors()
     {
         wheel = Wheel();
     }
+    _wheelCount = 0;
 }
 
 void Drive::setChassis(Chassis chassis, const Mix *custom)
 {
-    for (uint8_t i = 0; i < WHEEL_COUNT; ++i)
+    _chassis = chassis;
+    for (uint8_t i = 0; i < MAX_PORT_COUNT; ++i)
     {
-        if (chassis == Chassis::CUSTOM)
+        if (_chassis == Chassis::CUSTOM)
         {
             _mix[i] = custom[i];
         }
-        else if (chassis < Chassis::CUSTOM)
+        else if (_chassis < Chassis::CUSTOM)
         {
-            _mix[i] = PRESETS[static_cast<uint8_t>(chassis)][i];
+            _mix[i] = PRESETS[static_cast<uint8_t>(_chassis)][i];
         }
         else
         {
@@ -70,7 +71,7 @@ void Drive::setChassis(Chassis chassis, const Mix *custom)
 bool Drive::ready() const
 {
     bool any = false;
-    for (uint8_t i = 0; i < WHEEL_COUNT; ++i)
+    for (uint8_t i = 0; i < _wheelCount; ++i)
     {
         if (used(_mix[i]))
         {
@@ -96,16 +97,16 @@ void Drive::move(int8_t throttle, int8_t strafe, int8_t rotation)
     const int32_t s = constrain(strafe, -100, 100);
     const int32_t r = constrain(rotation, -100, 100);
 
-    int16_t speed[WHEEL_COUNT];
+    int16_t speed[MAX_PORT_COUNT];
     int16_t peak = 0;
-    for (uint8_t i = 0; i < WHEEL_COUNT; ++i)
+    for (uint8_t i = 0; i < _wheelCount; ++i)
     {
         const Mix &mix = _mix[i];
         speed[i] = static_cast<int16_t>((mix.throttle * t + mix.strafe * s + mix.rotation * r) * 255L / 10000L);
         peak = max(peak, static_cast<int16_t>(abs(speed[i])));
     }
 
-    for (uint8_t i = 0; i < WHEEL_COUNT; ++i)
+    for (uint8_t i = 0; i < _wheelCount; ++i)
     {
         Wheel &wheel = _wheels[i];
         if (!used(_mix[i]))

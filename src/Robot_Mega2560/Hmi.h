@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Robot.h"
+#include "DigitalIo.h"
 
 // TJC touchscreen protocol over UART: "NAME,arg,arg" ending in 0xFF 0xFF 0xFF (or a newline).
 // Slots (motors M1..M6) are 1-based. Commands are answered with "OK,NAME" or "ERR,NAME",
@@ -18,7 +19,8 @@
 //   JOY,<t>,<s>,<r>                  manual drive, -100..100 (no reply, never logged).
 //                                    Watchdog: the robot stops if no JOY arrives for JOY_TIMEOUT_MS
 //                                    while a non-zero JOY is active, so keep streaming while held.
-//   RUN,<1-6>,<-255..255>  BRAKE,<1-6>  STOP     single-motor test
+//   RUN,<1-6>, <0, 1>, <0-255>  BRAKE,<1-6>  STOP     single-motor test
+//   EMERGENCY_STOP                  immediately stops all motors
 //   SERVO,<0-15>,<0-180>
 //   IO,<pin>,<IN|OUT|PULLUP>  IO,<pin>,W,<0|1>   OK / ERR
 //   IO,<pin>,R   AIN,<0-15>          reply with the value instead of OK (no OK/ERR)
@@ -30,9 +32,10 @@
 class Hmi
 {
 public:
-    Hmi(Stream &serial, Robot &robot) : _serial(serial), _robot(robot) {}
+    Hmi(Stream &serial, Robot &robot, DigitalIo &io) : _serial(serial), _robot(robot), _io(io) {}
 
     void update();
+    void init();
 
 private:
     // OK / ERR are answered by handle(); NONE means the handler already answered (or must stay silent).
@@ -61,8 +64,9 @@ private:
     static const uint8_t CMD_TABLE_SIZE;
 
     static constexpr uint8_t LINE_MAX = 48;
-    static constexpr uint8_t MON_FIELDS = 24;    // number of monitor fields cached for change detection
-    static constexpr uint8_t I2C_LIST_MAX = 96;  // text buffer for the I2C scan result
+    static constexpr uint8_t MON_FIELDS = 24;                   // number of monitor fields cached for change detection
+    static constexpr uint8_t DIO_FIELDS = 2 * DigitalIo::COUNT; // mode + status của từng chân
+    static constexpr uint8_t I2C_LIST_MAX = 96;                 // text buffer for the I2C scan result
 
     static Result toResult(bool ok) { return ok ? Result::OK : Result::ERR; }
 
@@ -92,7 +96,11 @@ private:
     Result handleServo(char **f, uint8_t n);
     Result handleIo(char **f, uint8_t n);
     Result handleAin(char **f, uint8_t n);
-
+    Result handleDio(char **f, uint8_t n);
+    Result handleDioSel(char **f, uint8_t n);
+    Result handleDioSet(char **f, uint8_t n);
+    Result handleDioRst(char **f, uint8_t n);
+    Result handleSys(char **, uint8_t);
     // Screen sync
     void syncScreen();
     void syncChassisLabels(Chassis chassis);
@@ -101,6 +109,9 @@ private:
     void monField(uint8_t slot, const char *comp, const char *text, int32_t color = -1);
     void syncHome();
     void syncADC();
+    void syncDio();
+    void syncDioDetail(uint8_t i);
+    void dioField(uint8_t slot, const char *comp, const char *text, int32_t color = -1);
 
     // I2C scan, spread over several update() calls so the control loop is never blocked for long
     void startI2CScan();
@@ -112,12 +123,14 @@ private:
 
     Stream &_serial;
     Robot &_robot;
+    DigitalIo &_io;
     char _line[LINE_MAX];
     uint8_t _length = 0;
     uint8_t _terminators = 0;
     bool _overflow = false; // current line exceeded _line: drop it at the terminator
     uint32_t _lastHeartbeat = 0;
 
+    uint32_t _dioHash[DIO_FIELDS] = {}; // cache hiển thị trang Digital_test (0 = chưa gửi)
     uint32_t _monHash[MON_FIELDS] = {}; // 32-bit hash of the last text/colour sent for each monitor field (0 = never sent)
 
     bool _driveArmed = false;

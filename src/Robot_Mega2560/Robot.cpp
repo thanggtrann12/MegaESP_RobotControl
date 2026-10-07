@@ -95,6 +95,7 @@ bool Robot::runMotor(uint8_t slot, int16_t pwm)
 {
     if (_source != Source::MANUAL || slot >= MOTOR_SLOTS)
     {
+        LOG_E("Failed to run motor: slot=%d, pwm=%d", slot, pwm);
         return false;
     }
     if (_testSlot != slot)
@@ -130,20 +131,20 @@ void Robot::stop()
     _testSlot = NO_TEST;
 }
 
-void Robot::setMotor(uint8_t slot, WheelRole role, bool inverted)
+void Robot::setMotor(uint8_t slot, PortRole role, bool inverted)
 {
     if (slot >= MOTOR_SLOTS)
     {
         return;
     }
 
-    if (role != WheelRole::NONE)
+    if (role != PortRole::NONE)
     {
         for (uint8_t i = 0; i < MOTOR_SLOTS; ++i)
         {
             if (i != slot && _config.role[i] == role)
             {
-                _config.role[i] = WheelRole::NONE; // one motor per wheel
+                _config.role[i] = PortRole::NONE; // one motor per wheel
             }
         }
     }
@@ -166,7 +167,7 @@ void Robot::apply()
     {
         if (!roleUsedByChassis(_config.chassis, _config.role[s]))
         {
-            _config.role[s] = WheelRole::NONE;
+            _config.role[s] = PortRole::NONE;
         }
     }
     _drive.clearMotors();

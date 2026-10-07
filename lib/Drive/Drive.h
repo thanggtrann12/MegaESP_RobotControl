@@ -6,6 +6,8 @@
 
 // Order matches the TJC chassis list.
 // TANK is four-wheel skid steer; OMNI_4 is the X layout, which mixes exactly like mecanum.
+constexpr uint8_t MAX_PORT_COUNT = 6;
+
 enum class Chassis : uint8_t
 {
     TWO_WHEEL = 0,
@@ -22,42 +24,46 @@ enum class Chassis : uint8_t
 };
 
 // Where a motor sits on the chassis.
-enum class WheelRole : uint8_t
+enum class PortRole : uint8_t
 {
     NONE = 0,
-    FRONT_LEFT,
-    FRONT_RIGHT,
-    REAR_LEFT,
-    REAR_RIGHT,
-    MID_LEFT,
-    MID_RIGHT,
+    DRIVE_FL,
+    DRIVE_FR,
+    DRIVE_RL,
+    DRIVE_RR,
+    DRIVE_ML,
+    DRIVE_MR,
+
+    AUXILITARY,
     COUNT
 };
 
-inline const char *wheelRoleToString(WheelRole role)
+inline const char *PortRoleToString(PortRole role)
 {
     switch (role)
     {
-    case WheelRole::NONE:
+    case PortRole::NONE:
         return "NONE";
-    case WheelRole::FRONT_LEFT:
-        return "FRONT_LEFT";
-    case WheelRole::FRONT_RIGHT:
-        return "FRONT_RIGHT";
-    case WheelRole::MID_LEFT:
-        return "MID_LEFT";
-    case WheelRole::MID_RIGHT:
-        return "MID_RIGHT";
-    case WheelRole::REAR_LEFT:
-        return "REAR_LEFT";
-    case WheelRole::REAR_RIGHT:
-        return "REAR_RIGHT";
+    case PortRole::DRIVE_FL:
+        return "DRIVE_FL";
+    case PortRole::DRIVE_FR:
+        return "DRIVE_FR";
+    case PortRole::DRIVE_ML:
+        return "DRIVE_ML";
+    case PortRole::DRIVE_MR:
+        return "DRIVE_MR";
+    case PortRole::DRIVE_RL:
+        return "DRIVE_RL";
+    case PortRole::DRIVE_RR:
+        return "DRIVE_RR";
+    case PortRole::AUXILITARY:
+        return "AUXILITARY";
     default:
         return "UNKNOWN";
     }
 }
 
-inline const char* chassisToString(Chassis chassis)
+inline const char *chassisToString(Chassis chassis)
 {
     switch (chassis)
     {
@@ -86,7 +92,34 @@ inline const char* chassisToString(Chassis chassis)
     }
 }
 
-constexpr uint8_t WHEEL_COUNT = 6;
+inline uint8_t chassisToWheelCount(Chassis chassis)
+{
+    switch (chassis)
+    {
+    case Chassis::TWO_WHEEL:
+        return 2;
+    case Chassis::TANK:
+        return 4;
+    case Chassis::OMNI_3:
+        return 3;
+    case Chassis::OMNI_4:
+        return 4;
+    case Chassis::MECANUM:
+        return 4;
+    case Chassis::SIX_WHEEL:
+        return 6;
+    case Chassis::HOLONOMIC:
+        return 4;
+    case Chassis::XDRIVE:
+        return 4;
+    case Chassis::INDEPENDENT:
+        return 6;
+    case Chassis::CUSTOM:
+        return MAX_PORT_COUNT;
+    default:
+        return 0;
+    }
+}
 
 // Share of each command a wheel receives, in percent. All zero means the chassis does not use that wheel.
 struct Mix
@@ -100,7 +133,7 @@ struct Mix
 class Drive
 {
 public:
-    void assign(WheelRole role, IMotor *motor, bool inverted);
+    void assign(PortRole role, IMotor *motor, bool inverted);
     void clearMotors();
     void setChassis(Chassis chassis, const Mix *custom); // custom is only read for Chassis::CUSTOM
     void setPwmLimit(uint8_t limit) { _pwmLimit = limit; }
@@ -117,11 +150,12 @@ private:
         bool inverted = false;
         int16_t last = 0;
     };
-
-    Wheel _wheels[WHEEL_COUNT];
-    Mix _mix[WHEEL_COUNT] = {};
+    Chassis _chassis = Chassis::MECANUM;
+    Wheel _wheels[MAX_PORT_COUNT];
+    Mix _mix[MAX_PORT_COUNT] = {};
     uint8_t _pwmLimit = 255;
     uint8_t _accelStep = 0;
+    uint8_t _wheelCount = 0;
 };
 
 #endif

@@ -11,7 +11,7 @@ constexpr uint8_t CHASSIS_COUNT = static_cast<uint8_t>(Chassis::COUNT);
 // Gán motor của riêng một chassis
 struct __attribute__((__packed__)) ChassisMap
 {
-    WheelRole role[MOTOR_SLOTS];
+    PortRole role[MOTOR_SLOTS];
     uint8_t inverted;
 };
 
@@ -22,9 +22,9 @@ struct __attribute__((__packed__)) RobotConfig
     Chassis chassis;
     uint8_t pwmLimit;
     uint8_t accelStep;
-    WheelRole role[MOTOR_SLOTS];     // bản đang dùng của chassis hiện tại
+    PortRole role[MOTOR_SLOTS];      // bản đang dùng của chassis hiện tại
     uint8_t inverted;                // bit n set = motor slot n runs reversed
-    Mix custom[WHEEL_COUNT];         // mixing table used when chassis is CUSTOM
+    Mix custom[MAX_PORT_COUNT];      // mixing table used when chassis is CUSTOM
     ChassisMap saved[CHASSIS_COUNT]; // mỗi chassis một pool
     uint8_t crc;
 

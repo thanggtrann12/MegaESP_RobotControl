@@ -31,15 +31,15 @@ ASSIGN_LOG_MACROS(RemoteESP8266Bridge, Serial);
 // Callback khi nhận dữ liệu từ ESP32-C3
 void OnDataRecv(uint8_t *mac_addr, uint8_t *incomingData, uint8_t len)
 {
-  RemoteESP8266Bridge_LogD("Data received from MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-                           mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+  LOG_D("Data received from MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+        mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
   if (len == sizeof(myData))
   {
     memcpy(&myData, incomingData, sizeof(myData));
 
     // Log dữ liệu nhận được
-    RemoteESP8266Bridge_LogD("Received -> lx:%d, ly:%d, rx:%d, ry:%d, btn:%d",
-                             myData.lx, myData.ly, myData.rx, myData.ry, myData.buttons);
+    LOG_D("Received -> lx:%d, ly:%d, rx:%d, ry:%d, btn:%d",
+          myData.lx, myData.ly, myData.rx, myData.ry, myData.buttons);
   }
 }
 
@@ -71,13 +71,13 @@ void SendControlPacket(const ControlPacket &packet)
 
 void ProcessControlPacket(const ControlPacket &packet)
 {
-  RemoteESP8266Bridge_LogD("RX type=%u throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
-                           packet.msgType,
-                           packet.throttle,
-                           packet.strafe,
-                           packet.rotation,
-                           packet.buttons,
-                           packet.sequenceNum);
+  LOG_D("RX type=%u throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
+        packet.msgType,
+        packet.throttle,
+        packet.strafe,
+        packet.rotation,
+        packet.buttons,
+        packet.sequenceNum);
 
   SendControlPacket(packet);
 
@@ -86,7 +86,7 @@ void ProcessControlPacket(const ControlPacket &packet)
                                 sizeof(ControlPacket));
   if (result != 0)
   {
-    RemoteESP8266Bridge_LogE("Send to robot failed: %u", result);
+    LOG_E("Send to robot failed: %u", result);
   }
 }
 
@@ -110,7 +110,7 @@ void ProcessMegaSerial()
         command[commandLength] = '\0';
         if (strcmp(command, "ESP_RESET") == 0)
         {
-          RemoteESP8266Bridge_LogW("Reset command received");
+          LOG_W("Reset command received");
           Serial.flush();
           delay(20);
           ESP.restart();
@@ -163,7 +163,7 @@ void ProcessMegaSerial()
         }
         else
         {
-          RemoteESP8266Bridge_LogW("Discarded invalid control packet");
+          LOG_W("Discarded invalid control packet");
         }
       }
     }
@@ -175,26 +175,26 @@ void setup()
   Serial.begin(115200);
   delay(100);
 
-  RemoteESP8266Bridge_LogI("ESP8266: DUAL MODE (WIFI + OTA + ESP-NOW)");
+  LOG_I("ESP8266: DUAL MODE (WIFI + OTA + ESP-NOW)");
 
   // Khởi tạo ESP-NOW trước; OTA/WiFi chạy nền và không được chặn remote.
   if (esp_now_init() != 0)
   {
-    RemoteESP8266Bridge_LogF("ESP-NOW init failed");
+    LOG_F("ESP-NOW init failed");
     return;
   }
 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
   if (esp_now_add_peer(robotMac, ESP_NOW_ROLE_COMBO, 0, nullptr, 0) != 0)
   {
-    RemoteESP8266Bridge_LogE("ESP-NOW robot peer setup failed");
+    LOG_E("ESP-NOW robot peer setup failed");
   }
   esp_now_register_recv_cb(OnDataRecv);
-  RemoteESP8266Bridge_LogI("ESP-NOW initialized and ready");
+  LOG_I("ESP-NOW initialized and ready");
 
   GenericOTA::begin(ssid, password, "esp8266-mega-wifi", WIFI_AP_STA);
-  RemoteESP8266Bridge_LogI("Current WiFi channel: %d", WiFi.channel());
-  RemoteESP8266Bridge_LogI("My MAC: %s", WiFi.macAddress().c_str());
+  LOG_I("Current WiFi channel: %d", WiFi.channel());
+  LOG_I("My MAC: %s", WiFi.macAddress().c_str());
 
   lastSendTime = millis();
 }

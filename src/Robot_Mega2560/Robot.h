@@ -10,28 +10,28 @@
 #include <Std_Types.h>
 
 // Helper functions in headers should be inline rather than in anonymous namespaces
-inline bool roleUsedByChassis(Chassis chassis, WheelRole role)
+inline bool roleUsedByChassis(Chassis chassis, PortRole role)
 {
     switch (chassis)
     {
     case Chassis::TWO_WHEEL:
     case Chassis::TANK:
-        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT;
+        return role == PortRole::DRIVE_FL || role == PortRole::DRIVE_FR;
 
     case Chassis::OMNI_3:
-        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
-               role == WheelRole::REAR_LEFT;
+        return role == PortRole::DRIVE_FL || role == PortRole::DRIVE_FR ||
+               role == PortRole::DRIVE_RL;
 
     case Chassis::OMNI_4:
     case Chassis::MECANUM:
     case Chassis::HOLONOMIC:
     case Chassis::XDRIVE:
-        return role == WheelRole::FRONT_LEFT || role == WheelRole::FRONT_RIGHT ||
-               role == WheelRole::REAR_LEFT || role == WheelRole::REAR_RIGHT;
+        return role == PortRole::DRIVE_FL || role == PortRole::DRIVE_FR ||
+               role == PortRole::DRIVE_RL || role == PortRole::DRIVE_RR;
 
     case Chassis::SIX_WHEEL:
     case Chassis::CUSTOM:
-        return role != WheelRole::NONE;
+        return role != PortRole::NONE;
 
     default:
         return false;
@@ -72,7 +72,7 @@ public:
     // Configuration
     RobotConfig &config() { return _config; }
     bool ready() const { return _drive.ready(); }
-    void setMotor(uint8_t slot, WheelRole role, bool inverted);
+    void setMotor(uint8_t slot, PortRole role, bool inverted);
     void apply();       // rebuild the drive from config; motors stop meanwhile
     void applyLimits(); // pwm limit and acceleration only; no stop
     void saveConfig();

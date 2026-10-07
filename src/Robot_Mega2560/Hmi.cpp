@@ -13,20 +13,21 @@ namespace
     // ---------------------------------------------------------------- hằng số
     constexpr const char *UI_PAGE = "Motor_sel"; // chứa c0..c5, b3..b8
     constexpr const char *MON_PAGE = "Monitor";
+    constexpr const char *DIO_PAGE = "Digital_test";
 
     constexpr uint16_t COLOR_GREEN = 2016;
     constexpr uint16_t COLOR_RED = 63488;
     constexpr uint16_t COLOR_GREY = 33808;
 
+    constexpr const char *DIO_MODE_TXT[3] = {"INPUT", "OUTPUT", "PULLUP"};
     constexpr const char *ROLE_SHORT[] = {"--", "FL", "FR", "RL", "RR", "ML", "MR"};
     constexpr uint8_t ROLE_SHORT_COUNT = sizeof(ROLE_SHORT) / sizeof(ROLE_SHORT[0]);
 
-
     // Thứ tự nhãn t0..t5 trên các trang chassis (trang 4 bánh chỉ dùng t0..t3, six-wheel dùng đủ t0..t5)
     constexpr uint8_t LABEL_MAX = 6;
-    constexpr WheelRole LABEL_ORDER[LABEL_MAX] = {WheelRole::FRONT_LEFT, WheelRole::FRONT_RIGHT,
-                                                  WheelRole::REAR_LEFT, WheelRole::REAR_RIGHT,
-                                                  WheelRole::MID_LEFT, WheelRole::MID_RIGHT};
+    constexpr PortRole LABEL_ORDER[LABEL_MAX] = {PortRole::DRIVE_FL, PortRole::DRIVE_FR,
+                                                 PortRole::DRIVE_RL, PortRole::DRIVE_RR,
+                                                 PortRole::DRIVE_ML, PortRole::DRIVE_MR};
 
     constexpr uint8_t MAX_FIELDS = 6;
     constexpr uint8_t TERMINATOR_BYTE = 0xFF;
@@ -37,16 +38,13 @@ namespace
     // Watchdog: dừng xe nếu lệnh lái dạng stream không còn đến.
     constexpr uint32_t JOY_TIMEOUT_MS = 400; // JOY phải được gửi lặp lại khi đang giữ joystick
     constexpr uint32_t RUN_TIMEOUT_MS = 0;   // 0 = tắt. Bật (vd 1000) nếu UI gửi lặp RUN khi giữ nút test motor
-    constexpr long NUMBER_LIMIT = 100000L; // mọi tham số HMI đều nhỏ hơn: chặn tràn khi parse
+    constexpr long NUMBER_LIMIT = 100000L;   // mọi tham số HMI đều nhỏ hơn: chặn tràn khi parse
 
-    // Chỉ 8 chân này mới điều khiển được bằng lệnh IO và hiện ở trang Monitor (xem ioPin()).
-    // Chân 53 là SS của SPI trên Mega: nếu sau này dùng SPI thì đổi IO_PIN_NUM_8 trong RobotPins.h.
-    constexpr uint8_t DIG_PINS[8] = {IO_PIN_NUM_1, IO_PIN_NUM_2, IO_PIN_NUM_3, IO_PIN_NUM_4,
-                                    IO_PIN_NUM_5, IO_PIN_NUM_6, IO_PIN_NUM_7, IO_PIN_NUM_8};
+    // 8 chân IO đa dụng (IO_PIN_NUM_1..8) do DigitalIo quản lý: DigitalIo::pin(i) / indexOfPin(pin).
     // IoPin::readAnalog() nhận SỐ KÊNH (0..15, giống lệnh AIN). ANALOG_PIN_NUM_x là A0.. (số chân
-    // 54.. trên Mega) nên trừ đi A0 để ra số kênh: mọi nơi dùng cùng một quy ước.
-    constexpr uint8_t ADC_CHANNELS[6] = {ANALOG_PIN_NUM_1 - A0, ANALOG_PIN_NUM_2 - A0, ANALOG_PIN_NUM_3 - A0,
-                                         ANALOG_PIN_NUM_4 - A0, ANALOG_PIN_NUM_5 - A0, ANALOG_PIN_NUM_6 - A0};
+    // 54.. trên Mega); analogRead() chấp nhận cả số kênh lẫn số chân, nên dùng thẳng được.
+    constexpr uint8_t ADC_CHANNELS[6] = {ANALOG_PIN_NUM_1, ANALOG_PIN_NUM_2, ANALOG_PIN_NUM_3,
+                                         ANALOG_PIN_NUM_4, ANALOG_PIN_NUM_5, ANALOG_PIN_NUM_6};
 
     constexpr uint8_t I2C_FIRST = 0x08;
     constexpr uint8_t I2C_LAST = 0x77;
@@ -64,8 +62,8 @@ namespace
     constexpr uint8_t MON_CHS = 6;
     constexpr uint8_t MON_PWM = 7;
     constexpr uint8_t MON_ACC = 8;
-    constexpr uint8_t MON_ROLE_BASE = 9;                               // + slot
-    constexpr uint8_t MON_REV_BASE = MON_ROLE_BASE + MOTOR_SLOTS;      // + slot
+    constexpr uint8_t MON_ROLE_BASE = 9;                          // + slot
+    constexpr uint8_t MON_REV_BASE = MON_ROLE_BASE + MOTOR_SLOTS; // + slot
     constexpr uint8_t MON_DIO = MON_REV_BASE + MOTOR_SLOTS;
     constexpr uint8_t MON_AIN = MON_DIO + 1;
     constexpr uint8_t MON_SLOT_COUNT = MON_AIN + 1;
@@ -128,27 +126,26 @@ namespace
     }
 
     /**
-     * @brief Chân mà lệnh IO được phép đụng tới: chỉ 8 chân IO đa dụng (IO_PIN_NUM_1..8).
+     * @brief Đổi số chân Arduino (từ lệnh IO) thành chỉ số GPIO 0..7 của DigitalIo.
      *
-     * Danh sách trắng thay cho danh sách đen: motor chạy qua PCA9685 (I2C), UART là Serial2/3, nên
-     * mọi chân khác (kể cả chân thêm vào robot sau này) mặc định KHÔNG điều khiển được từ màn hình.
-     * Cần thêm chân cho trang IO test thì thêm vào DIG_PINS.
+     * Danh sách trắng: chỉ 8 chân IO đa dụng mới điều khiển được từ màn hình. Motor chạy qua
+     * PCA9685 (I2C), UART là Serial2/3, nên mọi chân khác mặc định KHÔNG đụng được.
+     * @return true nếu pin là một trong 8 chân; index chỉ được ghi khi true
      */
-    bool ioPin(long pin)
+    bool parseIoIndex(const char *text, uint8_t &index)
     {
-        for (uint8_t allowed : DIG_PINS)
+        long pin = 0;
+        if (!number(text, 0, 255, pin))
         {
-            if (pin == allowed)
-            {
-                return true;
-            }
+            return false;
         }
-        return false;
-    }
-
-    bool parsePin(const char *text, long &pin)
-    {
-        return number(text, 0, 255, pin) && ioPin(pin);
+        const int8_t found = DigitalIo::indexOfPin(static_cast<uint8_t>(pin));
+        if (found < 0)
+        {
+            return false;
+        }
+        index = static_cast<uint8_t>(found);
+        return true;
     }
 
     /**
@@ -194,7 +191,7 @@ namespace
     // Nhanh và nhẹ hơn snprintf("%ld")
     const char *num(char *buf, long value) { return ltoa(value, buf, 10); }
 
-    const char *roleShort(WheelRole role)
+    const char *roleShort(PortRole role)
     {
         const uint8_t index = static_cast<uint8_t>(role);
         return index < ROLE_SHORT_COUNT ? ROLE_SHORT[index] : "--";
@@ -215,7 +212,7 @@ namespace
             return 3;
         default: // OMNI_4, MECANUM, XDRIVE, SIX_WHEEL, ...
             // Chassis có bánh giữa (ML/MR) -> 6 nhãn, ngược lại 4
-            return (roleUsedByChassis(c, WheelRole::MID_LEFT) || roleUsedByChassis(c, WheelRole::MID_RIGHT)) ? 6 : 4;
+            return (roleUsedByChassis(c, PortRole::DRIVE_ML) || roleUsedByChassis(c, PortRole::DRIVE_MR)) ? 6 : 4;
         }
     }
 
@@ -223,7 +220,7 @@ namespace
      * @brief Tìm slot đang giữ một role.
      * @return slot 1..MOTOR_SLOTS, hoặc 0 nếu chưa gán
      */
-    uint8_t slotOf(const WheelRole *roles, WheelRole role)
+    uint8_t slotOf(const PortRole *roles, PortRole role)
     {
         for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
         {
@@ -302,7 +299,7 @@ namespace
         endMsg(out);
     }
 
-    // Biến int global trong program.s: "FRONT_LEFT=3"
+    // Biến int global trong program.s: "DRIVE_FL=3"
     void sendGlobal(Print &out, const char *name, long value)
     {
         out.print(name);
@@ -315,32 +312,51 @@ namespace
 // =============================================================== command lookup table
 // Đặt trong flash. JOY / MON / ADC (tần suất cao) đứng đầu để tìm thấy sớm nhất.
 // minFields/maxFields đếm cả từ lệnh; sai số trường thì handle() trả ERR, handler không cần kiểm tra n.
+// clang-format off
 const Hmi::CommandEntry Hmi::CMD_TABLE[] PROGMEM = {
-    //  name       handler          min max quiet
-    {"JOY",     &Hmi::handleJoy,     4, 4, true },
-    {"MON",     &Hmi::handleMon,     1, 2, true },
-    {"ADC",     &Hmi::handleAdc,     1, 1, true },
-    {"RUN",     &Hmi::handleRun,     3, 3, false},
-    {"SYNC",    &Hmi::handleSync,    1, 3, false},
-    {"GET",     &Hmi::handleGet,     1, 1, false},
-    {"CHASSIS", &Hmi::handleChassis, 2, 2, false},
-    {"MOTOR",   &Hmi::handleMotor,   4, 4, false},
-    {"MIX",     &Hmi::handleMix,     5, 5, false},
-    {"PWM",     &Hmi::handlePwm,     2, 2, false},
-    {"ACCEL",   &Hmi::handleAccel,   2, 2, false},
-    {"SAVE",    &Hmi::handleSave,    1, 1, false},
-    {"DEFAULT", &Hmi::handleDefault, 1, 1, false},
-    {"CTRL",    &Hmi::handleCtrl,    2, 2, false},
-    {"BRAKE",   &Hmi::handleBrake,   2, 2, false},
-    {"STOP",    &Hmi::handleStop,    1, 1, false},
-    {"SERVO",   &Hmi::handleServo,   3, 3, false},
-    {"IO",      &Hmi::handleIo,      3, 4, false},
-    {"AIN",     &Hmi::handleAin,     2, 2, false},
+    //  name                    handler                  minFields   maxFields      quiet
+    {"JOY",                 &Hmi::handleJoy,                4,          4,          true},
+    {"MON",                 &Hmi::handleMon,                1,          2,          true},
+    {"DIO",                 &Hmi::handleDio,                1,          2,          true},
+    {"DIOSEL",              &Hmi::handleDioSel,             2,          2,          false},
+    {"DIOSET",              &Hmi::handleDioSet,             5,          5,          false},
+    {"DIORST",              &Hmi::handleDioRst,             1,          1,          false},
+    {"ADC",                 &Hmi::handleAdc,                1,          1,          true},
+    {"RUN",                 &Hmi::handleRun,                3,          4,          false},
+    {"SYNC",                &Hmi::handleSync,               1,          3,          false},
+    {"GET",                 &Hmi::handleGet,                1,          1,          false},
+    {"CHASSIS",             &Hmi::handleChassis,            2,          2,          false},
+    {"MOTOR",               &Hmi::handleMotor,              4,          4,          false},
+    {"MIX",                 &Hmi::handleMix,                5,          5,          false},
+    {"PWM",                 &Hmi::handlePwm,                2,          2,          false},
+    {"ACCEL",               &Hmi::handleAccel,              2,          2,          false},
+    {"SAVE",                &Hmi::handleSave,               1,          1,          false},
+    {"DEFAULT",             &Hmi::handleDefault,            1,          1,          false},
+    {"CTRL",                &Hmi::handleCtrl,               2,          2,          false},
+    {"BRAKE",               &Hmi::handleBrake,              2,          2,          false},
+    {"STOP",                &Hmi::handleStop,               1,          1,          false},
+    {"SERVO",               &Hmi::handleServo,              3,          3,          false},
+    {"IO",                  &Hmi::handleIo,                 3,          4,          false},
+    {"AIN",                 &Hmi::handleAin,                2,          2,          false},
+    {"SYS",                 &Hmi::handleSys,                1,          2,          true},
 };
-
+// clang-format on
 const uint8_t Hmi::CMD_TABLE_SIZE = sizeof(CMD_TABLE) / sizeof(CMD_TABLE[0]);
 
 // =============================================================== line handling
+
+/**
+ * @brief Khởi tạo HMI, thiết lập UART và trạng thái ban đầu.
+ *
+ */
+void Hmi::init()
+{
+    _serial.print("page Main");
+    _serial.write(0xFF);
+    _serial.write(0xFF);
+    _serial.write(0xFF);
+}
+
 /**
  * @brief Đọc UART từ màn hình, gom thành dòng lệnh và gửi heartbeat định kỳ.
  */
@@ -470,6 +486,10 @@ void Hmi::handle(char *line)
         if (!quiet)
         {
             LOG_D("Command: %s (%u field(s))", command, n);
+            for (uint8_t j = 0; j < n; ++j)
+            {
+                LOG_D("Field %u: %s", j, f[j]);
+            }
         }
         if (n < minFields || n > maxFields)
         {
@@ -563,6 +583,7 @@ Hmi::Result Hmi::handleChassis(char **f, uint8_t)
         return Result::ERR;
     }
     const Chassis chassis = static_cast<Chassis>(a);
+    LOG_D("Selected chassis: %s", chassisToString(static_cast<Chassis>(a)));
     if (chassis != _robot.config().chassis) // chọn lại chassis đang chạy: khỏi apply() và khỏi dừng motor
     {
         _robot.selectChassis(chassis);
@@ -574,14 +595,14 @@ Hmi::Result Hmi::handleMotor(char **f, uint8_t)
 {
     long a = 0, b = 0, c = 0;
     if (!(number(f[1], 1, MOTOR_SLOTS, a) &&
-          number(f[2], 0, static_cast<long>(WheelRole::COUNT) - 1, b) &&
+          number(f[2], 0, static_cast<long>(PortRole::COUNT) - 1, b) &&
           number(f[3], 0, 1, c)))
     {
         return Result::ERR;
     }
 
     const uint8_t slot = static_cast<uint8_t>(a - 1);
-    const WheelRole role = static_cast<WheelRole>(b);
+    const PortRole role = static_cast<PortRole>(b);
     const bool inverted = (c == 1);
 
     const RobotConfig &config = _robot.config();
@@ -590,7 +611,7 @@ Hmi::Result Hmi::handleMotor(char **f, uint8_t)
         return Result::OK; // không đổi gì: khỏi apply() và khỏi dừng motor
     }
 
-    LOG_D("MOTOR %ld role=%s inverted=%ld", a, wheelRoleToString(role), c);
+    LOG_D("MOTOR %ld role=%s inverted=%ld", a, PortRoleToString(role), c);
     _robot.setMotor(slot, role, inverted);
     return Result::OK;
 }
@@ -598,7 +619,7 @@ Hmi::Result Hmi::handleMotor(char **f, uint8_t)
 Hmi::Result Hmi::handleMix(char **f, uint8_t)
 {
     long a = 0, b = 0, c = 0, d = 0;
-    if (!(number(f[1], 1, WHEEL_COUNT, a) && number(f[2], -100, 100, b) &&
+    if (!(number(f[1], 1, MAX_PORT_COUNT, a) && number(f[2], -100, 100, b) &&
           number(f[3], -100, 100, c) && number(f[4], -100, 100, d)))
     {
         return Result::ERR;
@@ -699,17 +720,34 @@ Hmi::Result Hmi::handleJoy(char **f, uint8_t)
     return Result::NONE;
 }
 
-Hmi::Result Hmi::handleRun(char **f, uint8_t)
+Hmi::Result Hmi::handleRun(char **f, uint8_t argc)
 {
-    long a = 0, b = 0;
-    if (!(number(f[1], 1, MOTOR_SLOTS, a) && number(f[2], -255, 255, b)))
+    // Cú pháp mới: RUN, <1-6>, <0-1>, <0-255> -> Cần ít nhất 4 tham số (bao gồm cả command "RUN" ở f[0])
+    long slot = 0, dir = 0, speed = 0;
+
+    // Validate 3 tham số: Motor Slot (1-MOTOR_SLOTS), Direction (0-1), Speed (0-255)
+    if (!(number(f[1], 1, MOTOR_SLOTS, slot) &&
+          number(f[2], 0, 1, dir) &&
+          number(f[3], 0, 255, speed)))
     {
         return Result::ERR;
     }
-    const bool ok = _robot.runMotor(static_cast<uint8_t>(a - 1), static_cast<int16_t>(b));
+
+    // Chuyển đổi dir (0: Lùi, 1: Tiến) và speed (0-255) thành giá trị PWM có dấu (-255 đến 255)
+    int16_t pwmValue = static_cast<int16_t>((dir == 1) ? speed : -speed);
+
+    // Truyền giá trị đã tính toán vào hệ thống động cơ
+    const bool ok = _robot.runMotor(static_cast<uint8_t>(slot - 1), pwmValue);
+
     if (ok)
     {
-        armDrive(b != 0 ? RUN_TIMEOUT_MS : 0); // RUN_TIMEOUT_MS == 0: không canh
+        // Giữ armDrive nếu động cơ đang quay (pwmValue != 0)
+        armDrive(pwmValue != 0 ? RUN_TIMEOUT_MS : 0);
+        LOG_D("RUN motor slot: %ld, dir: %ld, speed: %ld -> pwm: %d", slot, dir, speed, pwmValue);
+    }
+    else
+    {
+        LOG_E("Failed to run motor slot: %ld, dir: %ld, speed: %ld -> pwm: %d", slot, dir, speed, pwmValue);
     }
     return toResult(ok);
 }
@@ -746,44 +784,63 @@ Hmi::Result Hmi::handleServo(char **f, uint8_t)
 
 Hmi::Result Hmi::handleIo(char **f, uint8_t n)
 {
-    long a = 0, b = 0;
-    if (!parsePin(f[1], a))
+    if (n == 2 && is(f[1], "ALL"))
+    {
+        LOG_D("DIO,ALL: resend all");
+        memset(_dioHash, 0, sizeof(_dioHash));
+    }
+    uint8_t index = 0;
+    long b = 0;
+    if (!parseIoIndex(f[1], index))
     {
         return Result::ERR;
     }
-    const uint8_t pin = static_cast<uint8_t>(a);
 
     if (n == 3)
     {
         if (is(f[2], "R"))
         {
             _serial.print(F("IO,"));
-            _serial.print(pin);
+            _serial.print(DigitalIo::pin(index));
             _serial.print(',');
-            _serial.print(IoPin::read(pin) ? 1 : 0);
+            _serial.print(_io.read(index) ? 1 : 0); // giá trị logic, giống trang Digital_test
             endMsg(_serial);
             return Result::NONE; // trả giá trị thay cho OK
         }
-        if (is(f[2], "OUT") || is(f[2], "IN") || is(f[2], "PULLUP"))
+
+        DigitalIo::Config config = _io.config(index); // giữ mức mặc định và cờ đảo
+        if (is(f[2], "OUT"))
         {
-            if (is(f[2], "OUT"))
-            {
-                IoPin::configure(pin, IoPin::OUT);
-            }
-            else if (is(f[2], "IN"))
-            {
-                IoPin::configure(pin, IoPin::IN);
-            }
-            else
-            {
-                IoPin::configure(pin, IoPin::IN_PULLUP);
-            }
-            return Result::OK;
+            config.mode = DigitalIo::OUT;
         }
+        else if (is(f[2], "IN"))
+        {
+            config.mode = DigitalIo::IN;
+        }
+        else if (is(f[2], "PULLUP"))
+        {
+            config.mode = DigitalIo::PULLUP;
+        }
+        else
+        {
+            return Result::ERR;
+        }
+        const bool ok = _io.set(index, config);
+        if (ok)
+        {
+            syncDio();
+        }
+        return toResult(ok);
     }
-    else if (n == 4 && is(f[2], "W") && number(f[3], 0, 1, b))
+
+    if (n == 4 && is(f[2], "W") && number(f[3], 0, 1, b))
     {
-        IoPin::write(pin, b == 1);
+        // Chỉ ghi được khi chân đang là OUTPUT: ghi vào chân INPUT sẽ bật/tắt điện trở kéo lên ngoài ý muốn
+        if (_io.config(index).mode != DigitalIo::OUT)
+        {
+            return Result::ERR;
+        }
+        _io.write(index, b == 1);
         return Result::OK;
     }
     return Result::ERR;
@@ -835,7 +892,7 @@ void Hmi::sendConfig()
         endMsg(_serial);
     }
 
-    for (uint8_t wheel = 0; wheel < WHEEL_COUNT; ++wheel)
+    for (uint8_t wheel = 0; wheel < MAX_PORT_COUNT; ++wheel)
     {
         _serial.print(F("MIX,"));
         _serial.print(wheel + 1);
@@ -851,7 +908,7 @@ void Hmi::sendConfig()
 
 // =============================================================== sync
 /**
- * @brief Đồng bộ trang Motor_sel: checkbox đảo chiều, nhãn nút và 6 biến bánh trong program.s.
+ * @brief Đồng bộ trang Motor_sel: checkbox đảo chiều, nhãn nút (hiển thị Role) và 6 biến bánh trong program.s.
  */
 void Hmi::syncScreen()
 {
@@ -862,18 +919,22 @@ void Hmi::syncScreen()
 
     for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
     {
-        // Role không thuộc chassis hiện tại coi như chưa gán
-        const bool bound = cfg.role[s] != WheelRole::NONE &&
+        // Kiểm tra xem Role của slot hiện tại có thuộc Chassis đang chạy hay không
+        const bool bound = (cfg.role[s] != PortRole::NONE) &&
                            roleUsedByChassis(cfg.chassis, cfg.role[s]);
 
-        sendVal(_serial, UI_PAGE, indexed(name, "c", s), (cfg.inverted >> s) & 1);                    // checkbox đảo chiều
-        sendTxt(_serial, UI_PAGE, indexed(name, "b", s + 3), bound ? "BOUNDED" : "UNBOUND");          // nút nhãn
+        // 1. Cập nhật checkbox đảo chiều (c0..c5)
+        sendVal(_serial, UI_PAGE, indexed(name, "c", s), (cfg.inverted >> s) & 1);
+
+        // 2. Cập nhật nhãn nút (b3..b8): Gửi tên Role (FL, FR, RL, RR...) thay vì "BOUNDED"
+        const char *roleText = bound ? roleShort(cfg.role[s]) : "--";
+        sendTxt(_serial, UI_PAGE, indexed(name, "b", s + 3), roleText);
     }
 
-    // Tên biến global trùng tên WheelRole: FRONT_LEFT, FRONT_RIGHT, ...
+    // Tên biến global trùng tên PortRole: DRIVE_FL, DRIVE_FR, ...
     for (uint8_t i = 0; i < 6; ++i)
     {
-        sendGlobal(_serial, wheelRoleToString(static_cast<WheelRole>(i + 1)), wheelMotor[i]);
+        sendGlobal(_serial, PortRoleToString(static_cast<PortRole>(i + 1)), wheelMotor[i]);
     }
 
     LOG_D("SYNC sent: FL=%ld FR=%ld RL=%ld RR=%ld ML=%ld MR=%ld",
@@ -929,13 +990,13 @@ void Hmi::syncChassisLabels(Chassis chassis)
         }
         else
         {
-            text[1] = static_cast<char>('0' + slot - 1); // M0..M5, khớp trang Motor_sel
+            text[1] = static_cast<char>('0' + slot - 1);            // M0..M5, khớp trang Motor_sel
             sendTxt(_serial, nullptr, indexed(name, "t", i), text); // nullptr = trang đang hiển thị
         }
     }
 
-    LOG_D("labels page=%u running=%u count=%u",
-          static_cast<uint8_t>(chassis), static_cast<uint8_t>(cfg.chassis), count);
+    LOG_D("labels page=%s running=%s count=%u",
+          chassisToString(chassis), chassisToString(cfg.chassis), count);
 }
 
 /**
@@ -977,6 +1038,121 @@ void Hmi::monField(uint8_t slot, const char *comp, const char *text, int32_t col
 }
 
 /**
+ * @brief Gửi (hoặc bỏ qua nếu không đổi) một trường của trang Digital_test.
+ *
+ * @param slot Chỉ số cố định (0..DIO_FIELDS-1), khoá của _dioHash.
+ */
+void Hmi::dioField(uint8_t slot, const char *comp, const char *text, int32_t color)
+{
+    if (slot >= DIO_FIELDS)
+    {
+        return;
+    }
+    uint32_t h = hashText(text);
+    if (color >= 0)
+    {
+        h = hashColor(h, static_cast<uint16_t>(color));
+    }
+    if (h == 0)
+    {
+        h = 1; // 0 nghĩa là "chưa gửi lần nào"
+    }
+
+    uint32_t &previous = _dioHash[slot];
+    if (h == previous)
+    {
+        return;
+    }
+    previous = h;
+
+    sendTxt(_serial, DIO_PAGE, comp, text);
+    if (color >= 0)
+    {
+        sendCol(_serial, DIO_PAGE, comp, static_cast<uint16_t>(color));
+    }
+}
+
+Hmi::Result Hmi::handleDio(char **f, uint8_t n)
+{
+    if (n == 2 && is(f[1], "ALL"))
+    {
+        memset(_dioHash, 0, sizeof(_dioHash)); // vừa vào trang: gửi lại tất cả
+    }
+    syncDio();
+    return Result::NONE;
+}
+
+Hmi::Result Hmi::handleDioSel(char **f, uint8_t)
+{
+    long i = 0;
+    if (!number(f[1], 0, DigitalIo::COUNT - 1, i))
+    {
+        return Result::ERR;
+    }
+    syncDioDetail(static_cast<uint8_t>(i));
+    return Result::NONE;
+}
+
+Hmi::Result Hmi::handleDioSet(char **f, uint8_t)
+{
+    long i = 0, mode = 0, def = 0, inv = 0;
+    if (!(number(f[1], 0, DigitalIo::COUNT - 1, i) && number(f[2], 0, 2, mode) &&
+          number(f[3], 0, 1, def) && number(f[4], 0, 1, inv)))
+    {
+        LOG_D("DIOSET rejected: gpio=[%s] mode=[%s] def=[%s] inv=[%s]", f[1], f[2], f[3], f[4]);
+        return Result::ERR;
+    }
+    const DigitalIo::Config config = {static_cast<uint8_t>(mode), static_cast<uint8_t>(def),
+                                      static_cast<uint8_t>(inv)};
+    LOG_D("DIO set: i=%ld mode=%ld def=%ld inv=%ld", i, mode, def, inv);
+    const bool ok = _io.set(static_cast<uint8_t>(i), config);
+    if (ok)
+    {
+        syncDio();                              // cập nhật ngay t0..t7 và t8..t15 (chỉ gửi ô đã đổi)
+        syncDioDetail(static_cast<uint8_t>(i)); // khung PIN DETAILS khớp với giá trị Mega đã lưu
+    }
+    return toResult(ok);
+}
+
+Hmi::Result Hmi::handleDioRst(char **, uint8_t)
+{
+    _io.reset();
+    memset(_dioHash, 0, sizeof(_dioHash)); // gửi lại toàn bộ
+    syncDio();
+    return Result::OK;
+}
+
+// 8 hàng: chế độ (t0..t7) và trạng thái (t8..t15); chỉ gửi trường đã đổi
+void Hmi::syncDio()
+{
+    char name[4] = {'t', '\0', '\0', '\0'};
+    for (uint8_t i = 0; i < DigitalIo::COUNT; ++i)
+    {
+        const bool on = _io.read(i);
+
+        num(name + 1, i); // ghi chữ số ngay sau 't' -> "t0".."t7" (phải truyền `name`, không phải giá trị trả về)
+        dioField(i, name, DIO_MODE_TXT[_io.config(i).mode]);
+
+        num(name + 1, DigitalIo::COUNT + i); // "t8".."t15"
+        dioField(DigitalIo::COUNT + i, name, on ? "ON" : "OFF", on ? COLOR_GREEN : COLOR_GREY);
+    }
+}
+
+// Khung PIN DETAILS và các biến sửa (ed_mode, ed_def) trong program.s
+void Hmi::syncDioDetail(uint8_t i)
+{
+    const DigitalIo::Config &d = _io.config(i);
+    char text[8] = {'G', 'P', 'I', 'O', static_cast<char>('0' + i), '\0'};
+
+    sendTxt(_serial, DIO_PAGE, "tpin", text);
+    sendTxt(_serial, DIO_PAGE, "tmode", DIO_MODE_TXT[d.mode]);
+    sendTxt(_serial, DIO_PAGE, "tdefv", d.defaultHigh ? "HIGH" : "LOW");
+    sendVal(_serial, DIO_PAGE, "cinv", d.invert);
+    sendGlobal(_serial, "ed_mode", d.mode);
+    sendGlobal(_serial, "ed_def", d.defaultHigh);
+}
+
+/**
  * @brief Cập nhật trang Monitor (chỉ gửi các trường đã thay đổi).
  */
 void Hmi::syncMonitor()
@@ -1002,7 +1178,7 @@ void Hmi::syncMonitor()
 
     for (uint8_t s = 0; s < MOTOR_SLOTS; ++s)
     {
-        const bool used = cfg.role[s] != WheelRole::NONE &&
+        const bool used = cfg.role[s] != PortRole::NONE &&
                           roleUsedByChassis(cfg.chassis, cfg.role[s]);
         const bool rev = (cfg.inverted >> s) & 1;
 
@@ -1010,18 +1186,18 @@ void Hmi::syncMonitor()
         monField(MON_REV_BASE + s, indexed(name, "tv", s), rev ? "ON" : "OFF", rev ? COLOR_GREEN : COLOR_GREY);
     }
 
-    char bits[sizeof(DIG_PINS) + 1];
-    for (uint8_t i = 0; i < sizeof(DIG_PINS); ++i)
+    char bits[DigitalIo::COUNT + 1];
+    for (uint8_t i = 0; i < DigitalIo::COUNT; ++i)
     {
-        bits[i] = IoPin::read(DIG_PINS[i]) ? '1' : '0';
+        bits[i] = _io.read(i) ? '1' : '0'; // giá trị logic (đã tính cờ đảo)
     }
-    bits[sizeof(DIG_PINS)] = '\0';
+    bits[DigitalIo::COUNT] = '\0';
     monField(MON_DIO, "tdio", bits);
 
     // Dùng cùng bảng ADC_CHANNELS với trang Analog_test để hai trang luôn hiển thị cùng một kênh
-    char analog[24]; // 4 giá trị <= 1023 và 3 dấu cách: tối đa 19 ký tự
+    char analog[36]; // 6 giá trị <= 1023 (tối đa 4 ký tự/số) + 5 dấu cách + '\0' = tối đa 30 ký tự
     uint8_t length = 0;
-    for (uint8_t i = 0; i < 4; ++i)
+    for (uint8_t i = 0; i < 6; ++i)
     {
         if (i > 0)
         {
@@ -1040,8 +1216,8 @@ void Hmi::syncADC()
     char name[4], text[8];
     for (uint8_t i = 0; i < sizeof(ADC_CHANNELS) / sizeof(ADC_CHANNELS[0]); ++i)
     {
-        const uint16_t value = IoPin::readAnalog(ADC_CHANNELS[i]); // đọc một lần dùng cho cả hai
-        sendVal(_serial, "Analog_test", indexed(name, "h", i), value);   // slider/progress: .val là số
+        const uint16_t value = IoPin::readAnalog(ADC_CHANNELS[i]);     // đọc một lần dùng cho cả hai
+        sendVal(_serial, "Analog_test", indexed(name, "h", i), value); // slider/progress: .val là số
         sendTxt(_serial, "Analog_test", indexed(name, "ta", i), num(text, value));
     }
 }
@@ -1074,7 +1250,14 @@ void Hmi::syncHome()
     strcpy(p, " BOUND");
     sendTxt(_serial, "Main", "thprof", text);
 
-    sendTxt(_serial, "Main", "tsts", _robot.ready() ? "OK" : "NOT READY");
+    // Kiểm tra trạng thái ready
+    const bool isReady = _robot.ready();
+
+    // 1. Cập nhật nội dung văn bản ("OK" hoặc "NOT READY")
+    sendTxt(_serial, "Main", "tsts", isReady ? "OK" : "NOT READY");
+
+    // 2. Cập nhật màu chữ (.pco): Xanh lá (COLOR_GREEN) nếu OK, Đỏ (COLOR_RED) nếu NOT READY
+    sendCol(_serial, "Main", "tsts", isReady ? COLOR_GREEN : COLOR_RED);
 }
 
 /**
@@ -1164,4 +1347,9 @@ void Hmi::stepI2CScan()
     sendTxt(_serial, "I2c_test", "devlist", _i2cList);
 
     LOG_D("I2C scan: %u device(s)", _i2cFound);
+}
+
+Hmi::Result Hmi::handleSys(char **, uint8_t)
+{
+    return Result::NONE; // bỏ qua: heartbeat "SYS,OK" dội ngược về
 }

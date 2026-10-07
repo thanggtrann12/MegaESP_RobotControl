@@ -33,8 +33,8 @@ void setup()
     comBridge.Init(REMOTE_UART_ESP32_BAUD);
     comBridge.SendCommand("ESP_RESET");
 
-    RemoteMega2560_LogI("Mega 2560 started");
-    RemoteMega2560_LogI("Serial3 bridge ready at 115200 baud");
+    LOG_I("Mega 2560 started");
+    LOG_I("Serial3 bridge ready at 115200 baud");
 }
 
 void loop()
@@ -46,13 +46,13 @@ void loop()
     if (comBridge.ReadPacket(echoedPacket) && millis() - lastEchoLog >= 500)
     {
         lastEchoLog = millis();
-        RemoteMega2560_LogD("ESP ECHO OK type=%u throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
-                            echoedPacket.msgType,
-                            echoedPacket.throttle,
-                            echoedPacket.strafe,
-                            echoedPacket.rotation,
-                            echoedPacket.buttons,
-                            echoedPacket.sequenceNum);
+        LOG_D("ESP ECHO OK type=%u throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
+              echoedPacket.msgType,
+              echoedPacket.throttle,
+              echoedPacket.strafe,
+              echoedPacket.rotation,
+              echoedPacket.buttons,
+              echoedPacket.sequenceNum);
     }
 
     if (millis() - lastExec >= 20)

@@ -34,6 +34,7 @@ constexpr uint16_t MOTOR_PWM_HZ = 1000;
 constexpr uint8_t SERVO_PCA_ADDRESS = 0x41; // own chip: servos need 50 Hz, motors 1 kHz
 
 constexpr int CONFIG_EEPROM_ADDRESS = 0x10;
+
 /*=============================================================================
 =======                VARIABLES & MESSAGES & RESSOURCEN                =======
 =============================================================================*/

@@ -13,7 +13,8 @@
 static Pca9685 motorPca(Wire, MOTOR_PCA_ADDRESS);
 static Pca9685 servoPca(Wire, SERVO_PCA_ADDRESS);
 static Robot robot(motorPca, servoPca);
-static Hmi hmi(HMI_UART, robot);
+DigitalIo digitalIo;
+static Hmi hmi(HMI_UART, robot, digitalIo);
 static ComManager remote(REMOTE_UART);
 
 ASSIGN_LOG_MACROS(RobotMega2560, Serial);
@@ -22,6 +23,7 @@ void setup()
 {
     Serial.begin(UART_BAUD);
     HMI_UART.begin(UART_BAUD);
+    hmi.init();
     remote.Init(UART_BAUD);
     robot.begin();
     remote.SendCommand("ESP_RESET");
@@ -31,7 +33,6 @@ void setup()
 void loop()
 {
     hmi.update();
-
     ControlPacket packet;
     if (remote.ReadPacket(packet))
     {

@@ -1,7 +1,7 @@
 #include "Robot.h"
 #include "RobotPins.h"
 #include "GenericLogger.h"
-ASSIGN_LOG_MACROS(Robot, Serial);
+ASSIGN_LOG_MACROS(Robot);
 
 void Robot::begin()
 {

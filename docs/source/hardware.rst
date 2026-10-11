@@ -55,8 +55,8 @@ Servos
 
 Servos use channels 0 to 15 of the PCA9685 at address 0x41. A pulse of 0.5 ms to 2.5 ms maps to 0 to 180 degrees.
 
-Mega 2560 Connections
----------------------
+ESP32-S3 Robot Connections
+--------------------------
 
 .. list-table::
    :widths: 30 30 40
@@ -66,17 +66,14 @@ Mega 2560 Connections
      - Pins
      - Notes
    * - I2C (PCA9685 chips)
-     - 20 (SDA), 21 (SCL)
+     - 8 (SDA), 9 (SCL)
      - Bus runs at 400 kHz.
    * - TJC touchscreen
-     - Serial2: 16 (TX2), 17 (RX2)
-     - 115200 baud.
-   * - ESP8266 receiver
-     - Serial3: 14 (TX3), 15 (RX3)
+     - Serial1: GPIO17 (TX1), GPIO18 (RX1)
      - 115200 baud.
    * - General I/O
-     - 2 to 13 and 22 to 69
-     - Configured as input or output from the touchscreen. Pins 0 to 1 (USB) and 14 to 21 (UARTs and I2C) are refused.
+     - GPIO38, 47, 48, 19, 39 to 42
+     - Configured as input or output from the touchscreen.
 
 Handheld Remote Pinout
 ----------------------

@@ -121,6 +121,11 @@ private:
     void armDrive(uint32_t timeoutMs); // 0 = disarm
     void checkWatchdog(uint32_t now);
 
+    // Non-blocking screen start-up (see init())
+    void stepInit(uint32_t now);
+    uint8_t _initAttempts = 0;
+    uint32_t _initDeadline = 0;
+
     Stream &_serial;
     Robot &_robot;
     DigitalIo &_io;

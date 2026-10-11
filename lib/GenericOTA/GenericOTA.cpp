@@ -6,7 +6,7 @@
 #include "GenericOTA.h"
 #include <GenericLogger.h>
 
-ASSIGN_LOG_MACROS(GenericOTA, Serial);
+ASSIGN_LOG_MACROS(GenericOTA);
 
 namespace
 {

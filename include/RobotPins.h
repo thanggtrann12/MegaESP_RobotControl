@@ -38,7 +38,6 @@
 
 #define I2C_SDA_PIN 8 // ESP32-S3 default I2C pins
 #define I2C_SCL_PIN 9
-// #define REMOTE_UART Serial3 // ESP8266 receiver (ESP-NOW)
 /*=============================================================================
 =======                     CONSTANTS  &  TYPES                         =======
 =============================================================================*/

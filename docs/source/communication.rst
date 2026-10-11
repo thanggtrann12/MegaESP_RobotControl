@@ -1,12 +1,12 @@
 Communication Protocols & ESP-NOW
 =================================
 
-The Mega has two UART links. Both carry commands that end up in the same ``Robot`` object.
+The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object.
 
-* **Serial2:** TJC touchscreen, ASCII text commands.
-* **Serial3:** ESP8266 receiver, framed binary packets from the ESP-NOW remote.
+* **Serial1:** TJC touchscreen, ASCII text commands.
+* **ESP-NOW:** Remote control packets received directly by the ESP32-S3.
 
-TJC Protocol (Serial2)
+TJC Protocol (Serial1)
 ----------------------
 
 A command is ASCII text with comma separated fields. It ends with three ``0xFF`` bytes (what the TJC sends) or with a newline. Every reply ends with three ``0xFF`` bytes.
@@ -81,7 +81,7 @@ Servos and I/O
    * - ``AIN,<channel 0-15>``
      - Reads an analog input. Reply: ``AIN,<channel>,<value>``.
 
-Messages from the Mega
+Messages from the ESP32-S3
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table::
@@ -108,10 +108,10 @@ Example: configure a two-wheel robot with the motors on M1 and M2.
    MOTOR,2,2,1
    SAVE
 
-ESP-NOW Remote (Serial3)
-------------------------
+ESP-NOW Remote
+--------------
 
-The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately **~2.5 ms**. The ESP8266 receiver forwards each packet to the Mega in a frame:
+The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately **~2.5 ms**. The ESP32-S3 receives each ``ControlPacket`` directly:
 
 .. code-block:: text
 
@@ -125,4 +125,4 @@ The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of 
 * Sequence number (rejects duplicate and out-of-order packets)
 * CRC-8
 
-The Mega accepts remote packets only while the source is ``REMOTE``. A heartbeat keeps the link alive and the last command running. At start-up the Mega sends ``ESP_RESET`` to the receiver.
+The ESP32-S3 accepts remote packets only while the source is ``REMOTE``. A heartbeat keeps the link alive and the last command running. Invalid packets and duplicate or out-of-order sequence numbers are discarded.

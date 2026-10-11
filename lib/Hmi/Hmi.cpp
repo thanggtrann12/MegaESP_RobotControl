@@ -6,7 +6,7 @@
 #include "RobotPins.h"
 #include "GenericLogger.h"
 
-ASSIGN_LOG_MACROS(HMI, Serial)
+ASSIGN_LOG_MACROS(HMI)
 
 namespace
 {
@@ -257,55 +257,130 @@ namespace
     }
 
     // ---------------------------------------------------------------- gửi xuống màn hình
-    void endMsg(Print &out)
+    // Ghép cả lệnh (kèm 3 byte kết thúc) vào một bộ đệm rồi ghi một lần: một write() thay cho
+    // hàng chục print() nhỏ, giảm overhead UART/mutex và tránh các lệnh bị xen kẽ.
+    class Frame
     {
-        for (uint8_t i = 0; i < TERMINATOR_COUNT; ++i)
+    public:
+        Frame &add(const char *s)
         {
-            out.write(TERMINATOR_BYTE);
+            while (*s != '\0' && _length < CAPACITY)
+            {
+                _buffer[_length++] = *s++;
+            }
+            return *this;
         }
-    }
+
+        Frame &add(char c)
+        {
+            if (_length < CAPACITY)
+            {
+                _buffer[_length++] = c;
+            }
+            return *this;
+        }
+
+        Frame &add(long value)
+        {
+            char digits[12];
+            return add(static_cast<const char *>(ltoa(value, digits, 10)));
+        }
+
+        void send(Print &out)
+        {
+            for (uint8_t i = 0; i < TERMINATOR_COUNT; ++i)
+            {
+                _buffer[_length++] = static_cast<char>(TERMINATOR_BYTE);
+            }
+            out.write(reinterpret_cast<const uint8_t *>(_buffer), _length);
+        }
+
+    private:
+        static constexpr size_t CAPACITY = 128;
+        char _buffer[CAPACITY + TERMINATOR_COUNT];
+        size_t _length = 0;
+    };
 
     // "<page>.<comp><attr>" (page == nullptr: trang đang hiển thị)
-    void beginAttr(Print &out, const char *page, const char *comp, const __FlashStringHelper *attr)
+    Frame &beginAttr(Frame &frame, const char *page, const char *comp, const char *attr)
     {
         if (page != nullptr)
         {
-            out.print(page);
-            out.print('.');
+            frame.add(page).add('.');
         }
-        out.print(comp);
-        out.print(attr);
+        return frame.add(comp).add(attr);
+    }
+
+    void endMsg(Print &out)
+    {
+        Frame frame;
+        frame.send(out);
     }
 
     void sendTxt(Print &out, const char *page, const char *comp, const char *text)
     {
-        beginAttr(out, page, comp, F(".txt=\""));
-        out.print(text);
-        out.print('"');
-        endMsg(out);
+        Frame frame;
+        beginAttr(frame, page, comp, ".txt=\"").add(text).add('"').send(out);
     }
 
     void sendVal(Print &out, const char *page, const char *comp, long value)
     {
-        beginAttr(out, page, comp, F(".val="));
-        out.print(value);
-        endMsg(out);
+        Frame frame;
+        beginAttr(frame, page, comp, ".val=").add(value).send(out);
     }
 
     void sendCol(Print &out, const char *page, const char *comp, uint16_t color)
     {
-        beginAttr(out, page, comp, F(".pco="));
-        out.print(color);
-        endMsg(out);
+        Frame frame;
+        beginAttr(frame, page, comp, ".pco=").add(static_cast<long>(color)).send(out);
     }
 
     // Biến int global trong program.s: "DRIVE_FL=3"
     void sendGlobal(Print &out, const char *name, long value)
     {
-        out.print(name);
-        out.print('=');
-        out.print(value);
-        endMsg(out);
+        Frame frame;
+        frame.add(name).add('=').add(value).send(out);
+    }
+
+    // Gửi text rồi màu của cùng một component trong một lần ghi
+    void sendTxtCol(Print &out, const char *page, const char *comp, const char *text, int32_t color)
+    {
+        Frame frame;
+        beginAttr(frame, page, comp, ".txt=\"").add(text).add('"');
+        if (color >= 0)
+        {
+            // Hai lệnh liên tiếp: chèn terminator giữa chúng
+            for (uint8_t i = 0; i < TERMINATOR_COUNT; ++i)
+            {
+                frame.add(static_cast<char>(TERMINATOR_BYTE));
+            }
+            beginAttr(frame, page, comp, ".pco=").add(static_cast<long>(color));
+        }
+        frame.send(out);
+    }
+
+    /**
+     * @brief Gửi một trường nếu hash (text + màu) khác lần trước.
+     * @param cache Ô cache của trường (0 = chưa gửi lần nào)
+     */
+    void sendIfChanged(Print &out, uint32_t &cache, const char *page, const char *comp,
+                       const char *text, int32_t color)
+    {
+        uint32_t h = hashText(text);
+        if (color >= 0)
+        {
+            h = hashColor(h, static_cast<uint16_t>(color));
+        }
+        if (h == 0)
+        {
+            h = 1; // 0 nghĩa là "chưa gửi lần nào"
+        }
+        if (h == cache)
+        {
+            return;
+        }
+        cache = h;
+        sendTxtCol(out, page, comp, text, color);
     }
 }
 
@@ -353,19 +428,22 @@ void Hmi::init()
 {
     // The TJC screen boots slower than the MCU: wait, flush its parser with a bare terminator,
     // then send the command twice so at least one copy lands after the screen is ready.
-    delay(500);
-    for (uint8_t attempt = 0; attempt < 2; ++attempt)
+    // Non-blocking: update() performs the two attempts (500 ms, then 300 ms later).
+    _initAttempts = 2;
+    _initDeadline = millis() + 500;
+}
+
+void Hmi::stepInit(uint32_t now)
+{
+    if (_initAttempts == 0 || static_cast<int32_t>(now - _initDeadline) < 0)
     {
-        _serial.write(0xFF);
-        _serial.write(0xFF);
-        _serial.write(0xFF);
-        _serial.print("page Main");
-        _serial.write(0xFF);
-        _serial.write(0xFF);
-        _serial.write(0xFF);
-        _serial.flush();
-        delay(300);
+        return;
     }
+    --_initAttempts;
+    endMsg(_serial);
+    Frame frame;
+    frame.add("page Main").send(_serial);
+    _initDeadline = now + 300;
 }
 
 /**
@@ -412,13 +490,14 @@ void Hmi::update()
 
     const uint32_t now = millis();
     checkWatchdog(now);
+    stepInit(now);
     stepI2CScan();
 
     if (now - _lastHeartbeat >= HEARTBEAT_MS)
     {
         _lastHeartbeat = now;
-        _serial.print(F("SYS,OK"));
-        endMsg(_serial);
+        Frame frame;
+        frame.add("SYS,OK").send(_serial);
     }
 }
 
@@ -525,9 +604,8 @@ void Hmi::handle(char *line)
 
 void Hmi::reply(const char *command, bool ok)
 {
-    _serial.print(ok ? F("OK,") : F("ERR,"));
-    _serial.print(command);
-    endMsg(_serial);
+    Frame frame;
+    frame.add(ok ? "OK," : "ERR,").add(command).send(_serial);
 }
 
 // =============================================================== command handlers
@@ -1024,28 +1102,7 @@ void Hmi::monField(uint8_t slot, const char *comp, const char *text, int32_t col
     {
         return; // quá số trường đã cấp: tăng MON_FIELDS
     }
-    uint32_t h = hashText(text);
-    if (color >= 0)
-    {
-        h = hashColor(h, static_cast<uint16_t>(color));
-    }
-    if (h == 0)
-    {
-        h = 1; // 0 nghĩa là "chưa gửi lần nào"
-    }
-
-    uint32_t &previous = _monHash[slot];
-    if (h == previous)
-    {
-        return;
-    }
-    previous = h;
-
-    sendTxt(_serial, MON_PAGE, comp, text);
-    if (color >= 0)
-    {
-        sendCol(_serial, MON_PAGE, comp, static_cast<uint16_t>(color));
-    }
+    sendIfChanged(_serial, _monHash[slot], MON_PAGE, comp, text, color);
 }
 
 /**
@@ -1059,28 +1116,7 @@ void Hmi::dioField(uint8_t slot, const char *comp, const char *text, int32_t col
     {
         return;
     }
-    uint32_t h = hashText(text);
-    if (color >= 0)
-    {
-        h = hashColor(h, static_cast<uint16_t>(color));
-    }
-    if (h == 0)
-    {
-        h = 1; // 0 nghĩa là "chưa gửi lần nào"
-    }
-
-    uint32_t &previous = _dioHash[slot];
-    if (h == previous)
-    {
-        return;
-    }
-    previous = h;
-
-    sendTxt(_serial, DIO_PAGE, comp, text);
-    if (color >= 0)
-    {
-        sendCol(_serial, DIO_PAGE, comp, static_cast<uint16_t>(color));
-    }
+    sendIfChanged(_serial, _dioHash[slot], DIO_PAGE, comp, text, color);
 }
 
 Hmi::Result Hmi::handleDio(char **f, uint8_t n)

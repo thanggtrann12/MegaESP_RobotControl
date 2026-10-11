@@ -58,13 +58,20 @@ void vprintfLog(Stream &serial,
                 va_list args);
 
 /**
- * @brief Declares the output stream used by a module. Use once per .cpp file.
- *
- * Example: ASSIGN_LOG_MACROS(Robot, Serial);
+ * @brief Khai báo module name cho file hiện tại và liên kết tới stream chung.
+ * Dùng ở các file .cpp khác ngoài main.cpp.
  */
-#define ASSIGN_LOG_MACROS(module, serial)                 \
-    static inline Stream &_logSerial() { return serial; } \
-    static inline const char *_logModule() { return #module; }
+#define ASSIGN_LOG_MACROS(module)                              \
+    static inline const char *_logModule() { return #module; } \
+    extern Stream &_logSerial(); // Khai báo để file này biết stream chung nằm ở main.cpp
+
+/**
+ * @brief Khởi tạo stream đầu ra duy nhất cho toàn chương trình.
+ * CHỈ dùng DUY NHẤT 1 lần trong main.cpp.
+ * @param serial Output stream (ví dụ: Serial).
+ */
+#define INIT_LOG(serial) \
+    Stream &_logSerial() { return serial; }
 
 /**
  * @brief Log macros. __LINE__ and __FILE__ expand at the call site,

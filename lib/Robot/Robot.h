@@ -40,7 +40,7 @@ inline bool roleUsedByChassis(Chassis chassis, PortRole role)
 
 enum class Source : uint8_t
 {
-    REMOTE = 0, // ESP-NOW remote through UART
+    REMOTE = 0, // ESP-NOW remote
     MANUAL = 1  // TJC touchscreen
 };
 

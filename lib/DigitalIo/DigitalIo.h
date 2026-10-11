@@ -12,7 +12,7 @@ public:
     {
         IN = 0,
         OUT = 1,
-        PULLUP = 2
+        PULL_UP = 2
     };
     struct Config
     {

@@ -22,7 +22,7 @@
 //   RUN,<1-6>, <0, 1>, <0-255>  BRAKE,<1-6>  STOP     single-motor test
 //   EMERGENCY_STOP                  immediately stops all motors
 //   SERVO,<0-15>,<0-180>
-//   IO,<pin>,<IN|OUT|PULLUP>  IO,<pin>,W,<0|1>   OK / ERR
+//   IO,<pin>,<IN|OUT|PULL_UP>  IO,<pin>,W,<0|1>   OK / ERR
 //   IO,<pin>,R   AIN,<0-15>          reply with the value instead of OK (no OK/ERR)
 //   SYNC | SYNC,HOME | SYNC,I2C | SYNC,CHASSIS,<0-8>   push UI state to the screen (no reply)
 //   MON  MON,ALL  ADC                push monitor / analog test pages (no reply).
@@ -63,7 +63,7 @@ private:
     static const CommandEntry CMD_TABLE[];
     static const uint8_t CMD_TABLE_SIZE;
 
-    static constexpr uint8_t LINE_MAX = 48;
+    static constexpr uint8_t HMI_LINE_MAX = 48;
     static constexpr uint8_t MON_FIELDS = 24;                   // number of monitor fields cached for change detection
     static constexpr uint8_t DIO_FIELDS = 2 * DigitalIo::COUNT; // mode + status của từng chân
     static constexpr uint8_t I2C_LIST_MAX = 96;                 // text buffer for the I2C scan result
@@ -124,7 +124,7 @@ private:
     Stream &_serial;
     Robot &_robot;
     DigitalIo &_io;
-    char _line[LINE_MAX];
+    char _line[HMI_LINE_MAX];
     uint8_t _length = 0;
     uint8_t _terminators = 0;
     bool _overflow = false; // current line exceeded _line: drop it at the terminator

@@ -10,12 +10,12 @@ namespace IoPin
     {
         IN = 0,
         OUT = 1,
-        IN_PULLUP = 2
+        IN_PULL_UP = 2
     };
 
     inline void configure(uint8_t pin, Mode mode)
     {
-        pinMode(pin, mode == OUT ? OUTPUT : (mode == IN_PULLUP ? INPUT_PULLUP : INPUT));
+        pinMode(pin, mode == OUT ? OUTPUT : (mode == IN_PULL_UP ? INPUT_PULLUP : INPUT));
     }
 
     inline void write(uint8_t pin, bool high) { digitalWrite(pin, high ? HIGH : LOW); }

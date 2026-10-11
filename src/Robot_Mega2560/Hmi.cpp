@@ -19,7 +19,7 @@ namespace
     constexpr uint16_t COLOR_RED = 63488;
     constexpr uint16_t COLOR_GREY = 33808;
 
-    constexpr const char *DIO_MODE_TXT[3] = {"INPUT", "OUTPUT", "PULLUP"};
+    constexpr const char *DIO_MODE_TXT[3] = {"INPUT", "OUTPUT", "PULL_UP"};
     constexpr const char *ROLE_SHORT[] = {"--", "FL", "FR", "RL", "RR", "ML", "MR"};
     constexpr uint8_t ROLE_SHORT_COUNT = sizeof(ROLE_SHORT) / sizeof(ROLE_SHORT[0]);
 
@@ -351,10 +351,21 @@ const uint8_t Hmi::CMD_TABLE_SIZE = sizeof(CMD_TABLE) / sizeof(CMD_TABLE[0]);
  */
 void Hmi::init()
 {
-    _serial.print("page Main");
-    _serial.write(0xFF);
-    _serial.write(0xFF);
-    _serial.write(0xFF);
+    // The TJC screen boots slower than the MCU: wait, flush its parser with a bare terminator,
+    // then send the command twice so at least one copy lands after the screen is ready.
+    delay(500);
+    for (uint8_t attempt = 0; attempt < 2; ++attempt)
+    {
+        _serial.write(0xFF);
+        _serial.write(0xFF);
+        _serial.write(0xFF);
+        _serial.print("page Main");
+        _serial.write(0xFF);
+        _serial.write(0xFF);
+        _serial.write(0xFF);
+        _serial.flush();
+        delay(300);
+    }
 }
 
 /**
@@ -388,7 +399,7 @@ void Hmi::update()
         }
         else if (byte >= 32 && byte < 127)
         {
-            if (_length < LINE_MAX - 1)
+            if (_length < HMI_LINE_MAX - 1)
             {
                 _line[_length++] = static_cast<char>(byte);
             }
@@ -817,9 +828,9 @@ Hmi::Result Hmi::handleIo(char **f, uint8_t n)
         {
             config.mode = DigitalIo::IN;
         }
-        else if (is(f[2], "PULLUP"))
+        else if (is(f[2], "PULL_UP"))
         {
-            config.mode = DigitalIo::PULLUP;
+            config.mode = DigitalIo::PULL_UP;
         }
         else
         {

@@ -2,6 +2,14 @@
 #include <EEPROM.h>
 #include "RobotPins.h"
 
+#if defined(ARDUINO_ARCH_ESP32)
+#define EEPROM_BEGIN() EEPROM.begin(512)
+#define EEPROM_COMMIT() EEPROM.commit()
+#else
+#define EEPROM_BEGIN() ((void)0)
+#define EEPROM_COMMIT() ((void)0)
+#endif
+
 namespace
 {
     constexpr uint8_t STORE_VERSION = 1;
@@ -43,8 +51,8 @@ void DigitalIo::apply(uint8_t i)
         IoPin::configure(PINS[i], IoPin::OUT);
         IoPin::write(PINS[i], (c.defaultHigh ^ c.invert) != 0);
         break;
-    case PULLUP:
-        IoPin::configure(PINS[i], IoPin::IN_PULLUP);
+    case PULL_UP:
+        IoPin::configure(PINS[i], IoPin::IN_PULL_UP);
         break;
     default:
         IoPin::configure(PINS[i], IoPin::IN);
@@ -53,7 +61,7 @@ void DigitalIo::apply(uint8_t i)
 }
 bool DigitalIo::set(uint8_t i, const Config &config)
 {
-    if (i >= COUNT || config.mode > PULLUP || config.defaultHigh > 1 || config.invert > 1)
+    if (i >= COUNT || config.mode > PULL_UP || config.defaultHigh > 1 || config.invert > 1)
         return false;
     _config[i] = config;
     apply(i);
@@ -75,6 +83,7 @@ void DigitalIo::write(uint8_t i, bool logical)
 }
 void DigitalIo::load()
 {
+    EEPROM_BEGIN();
     uint8_t version = EEPROM.read(_address);
     Config stored[COUNT];
     EEPROM.get(_address + 1, stored);
@@ -82,13 +91,15 @@ void DigitalIo::load()
     if (version != STORE_VERSION || crc != crc8(reinterpret_cast<const uint8_t *>(stored), sizeof(stored)))
         return;
     for (uint8_t i = 0; i < COUNT; ++i)
-        if (stored[i].mode > PULLUP || stored[i].defaultHigh > 1 || stored[i].invert > 1)
+        if (stored[i].mode > PULL_UP || stored[i].defaultHigh > 1 || stored[i].invert > 1)
             return;
     memcpy(_config, stored, sizeof(_config));
 }
 void DigitalIo::save()
 {
-    EEPROM.update(_address, STORE_VERSION);
+    EEPROM_BEGIN();
+    EEPROM.write(_address, STORE_VERSION);
     EEPROM.put(_address + 1, _config);
-    EEPROM.update(_address + 1 + sizeof(_config), crc8(reinterpret_cast<const uint8_t *>(_config), sizeof(_config)));
+    EEPROM.write(_address + 1 + sizeof(_config), crc8(reinterpret_cast<const uint8_t *>(_config), sizeof(_config)));
+    EEPROM_COMMIT();
 }

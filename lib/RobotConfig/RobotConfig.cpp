@@ -1,6 +1,14 @@
 #include "RobotConfig.h"
 #include <EEPROM.h>
 
+#if defined(ARDUINO_ARCH_ESP32)
+#define EEPROM_BEGIN() EEPROM.begin(512)
+#define EEPROM_COMMIT() EEPROM.commit()
+#else
+#define EEPROM_BEGIN() ((void)0)
+#define EEPROM_COMMIT() ((void)0)
+#endif
+
 namespace
 {
     uint8_t crc8(const RobotConfig &config)
@@ -88,6 +96,7 @@ bool RobotConfig::isValid() const
 bool RobotConfig::load(int address)
 {
     RobotConfig stored;
+    EEPROM_BEGIN();
     EEPROM.get(address, stored);
     if (stored.crc != crc8(stored) || !stored.isValid())
     {
@@ -100,7 +109,9 @@ bool RobotConfig::load(int address)
 void RobotConfig::save(int address)
 {
     crc = crc8(*this);
+    EEPROM_BEGIN();
     EEPROM.put(address, *this); // put() only rewrites bytes that changed
+    EEPROM_COMMIT();
 }
 
 void RobotConfig::storeCurrent()

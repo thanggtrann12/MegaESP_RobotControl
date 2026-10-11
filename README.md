@@ -54,3 +54,6 @@ graph TD
     style Service fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Transport fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Hardware fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
+
+[Enlish](https://htmlpreview.github.io/?https://github.com/TEN_GITHUB_CUA_BAN/TEN_REPO/blob/TEN_NHANH/docs/_build/release/en/index.html)
+[VietNamese](https://htmlpreview.github.io/?https://github.com/TEN_GITHUB_CUA_BAN/TEN_REPO/blob/TEN_NHANH/docs/_build/release/vi/index.html)

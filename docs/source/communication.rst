@@ -82,7 +82,7 @@ Servos and I/O
      - Reads an analog input. Reply: ``AIN,<channel>,<value>``.
 
 Messages from the ESP32-S3
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table::
    :widths: 34 66

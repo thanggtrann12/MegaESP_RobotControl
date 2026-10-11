@@ -5,14 +5,16 @@ echo ===================================================
 echo   AUTOMATIC MULTILINGUAL SPHINX BUILD (EN / VI)
 echo ===================================================
 
-:: Optional strict mode for translation step:
-if /I "%POTRANSLATOR_REQUIRED%"=="1" (
-    set "TRANSLATION_STRICT=1"
+:: Kiểm tra tham số đầu vào (ví dụ: build.bat release)
+set "IS_RELEASE=0"
+if /I "%~1"=="release" (
+    set "IS_RELEASE=1"
+    echo [+] Mode: RELEASE BUILD (Output: docs\release)
 ) else (
-    set "TRANSLATION_STRICT=0"
+    echo [+] Mode: STANDARD LOCAL BUILD
 )
 
-:: 1. Sac dinh thu muc nguon
+:: 1. Xác định thư mục nguồn
 if exist "docs\source\conf.py" (
     set "SOURCE_DIR=docs\source"
     set "OUTPUT_DIR=docs\_build\html"
@@ -41,7 +43,7 @@ if exist "%DOXYGEN_XML%" (
     echo [WARN] Missing Doxygen XML: %DOXYGEN_XML%
 )
 
-:: 2. Trich xuat van ban & cap nhat file translation
+:: 2. Trích xuất văn bản & cập nhật file translation
 echo [+] Step 1/4: Extracting translatable strings...
 sphinx-build -b gettext "%SOURCE_DIR%" "%OUTPUT_DIR%/gettext"
 
@@ -92,7 +94,7 @@ if errorlevel 1 (
     echo [OK] potranslator completed.
 )
 
-:: 4. Build ra 2 giao dien HTML
+:: 4. Build ra 2 giao diện HTML
 echo [+] Step 4/4: Building HTML outputs...
 
 echo     - Building English version...
@@ -113,18 +115,37 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Tao index.html dieu huong mac dinh
+:: Tạo index.html điều hướng mặc định
 (
 echo ^<html^>^<head^>^<meta http-equiv="refresh" content="0; url=en/index.html"^>^</head^>^</html^>
 ) > "%OUTPUT_DIR%/index.html"
+
+:: 5. Xử lý riêng cho chế độ RELEASE (xuất ra thư mục docs\release)
+if "%IS_RELEASE%"=="1" (
+    echo [+] Packaging into release folder...
+    set "RELEASE_DIR=docs\release"
+    
+    if exist "%RELEASE_DIR%" rmdir /s /q "%RELEASE_DIR%"
+    mkdir "%RELEASE_DIR%"
+    
+    :: Copy toàn bộ nội dung HTML đã build sang thư mục docs\release
+    xcopy /e /i /y "%OUTPUT_DIR%" "%RELEASE_DIR%" > NUL
+    echo [OK] Release folder ready at: %RELEASE_DIR%
+)
 
 echo.
 echo ===================================================
 echo   [SUCCESS] AUTO-TRANSLATION ^& BUILD COMPLETE!
 echo   - English:    %OUTPUT_DIR%\en\index.html
 echo   - Vietnamese: %OUTPUT_DIR%\vi\index.html
+if "%IS_RELEASE%"=="1" (
+echo   - Release:    docs\release\index.html
+)
 echo ===================================================
 echo.
 
-start "" "%OUTPUT_DIR%\en\index.html"
+if "%IS_RELEASE%"=="0" (
+    start "" "%OUTPUT_DIR%\en\index.html"
+)
+
 exit /b 0

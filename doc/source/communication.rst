@@ -111,18 +111,20 @@ Example: configure a two-wheel robot with the motors on M1 and M2.
 ESP-NOW Remote
 --------------
 
-The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately **~2.5 ms**. The ESP32-S3 receives each ``ControlPacket`` directly:
+The paired remote sends each ``ControlPacket`` directly over ESP-NOW to the ESP32-S3. Unlike the Mega UART link, ESP-NOW does not use the ``0xAA 0xFF`` frame header, XOR checksum or ``0x55`` footer.
 
 .. code-block:: text
 
-   0xAA 0xFF | ControlPacket (8 bytes) | XOR checksum | 0x55
+  ControlPacket: 8 packed bytes
 
 ``ControlPacket`` carries:
 
 * Message type: control (0x01) or heartbeat (0x02)
 * Throttle, strafe and rotation, each from -100 to 100
 * Button bitmask
-* Sequence number (rejects duplicate and out-of-order packets)
-* CRC-8
+* Sequence number (the robot rejects duplicate and out-of-order values)
+* CRC-8 over the preceding packet bytes
 
-The ESP32-S3 accepts remote packets only while the source is ``REMOTE``. A heartbeat keeps the link alive and the last command running. Invalid packets and duplicate or out-of-order sequence numbers are discarded.
+The hub listens on ESP-NOW channel 1. Set ``ESPNOW_REMOTE_MAC`` in ``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to ``Robot`` from the main loop.
+
+The ESP32-S3 accepts remote commands only while the control source is ``REMOTE``. ``Robot`` rejects duplicate and out-of-order sequence numbers. A heartbeat updates the link timer while keeping the last control command active. If no accepted remote packet arrives for 500 ms, the robot clears the command and stops the drive. The sequence check is reset after a link timeout or control-source change so a restarted remote can begin again at sequence 0.

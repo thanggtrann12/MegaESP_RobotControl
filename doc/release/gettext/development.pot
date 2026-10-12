@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"POT-Creation-Date: 2026-10-13 10:55+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,125 +25,113 @@ msgid "Reading the Code"
 msgstr ""
 
 #: ../../../source/development.rst:7
-msgid "Start at ``src/esp32_hub/Esp32_HubUnit.cpp``. ``setup()`` and ``loop()`` connect three objects:"
+msgid "Start at ``app/Hub_Main.cpp``. ``setup()`` and ``loop()`` initialize and update the hub services:"
 msgstr ""
 
 #: ../../../source/development.rst:9
-msgid "``Hmi`` reads the touchscreen and calls ``Robot``."
+msgid "``Hmi`` handles touchscreen commands and calls ``Robot``."
 msgstr ""
 
 #: ../../../source/development.rst:10
-msgid "The ESP-NOW callback validates and queues remote packets for ``Robot::onRemote()``."
+msgid "``EspNowLink`` validates remote packets and queues them; ``update()`` delivers them to ``Robot::onRemote()`` from the main loop."
 msgstr ""
 
 #: ../../../source/development.rst:11
-msgid "``Robot::update()`` runs every loop, applies the current command to ``Drive`` every 20 ms and enforces the 500 ms watchdog."
+msgid "``Robot::update()`` applies drive commands on a 20 ms tick and stops after the 500 ms link timeout."
 msgstr ""
 
 #: ../../../source/development.rst:13
-msgid "Everything below ``Robot`` is in ``lib/`` and can be read one folder at a time."
+msgid "Reusable modules are under ``components/``. Public headers are in each component's ``api/`` directory, implementation files are in ``src/``, and board-specific settings are in ``cfg/s3_devkit/``."
 msgstr ""
 
 #: ../../../source/development.rst:16
-msgid "Staged Testing Strategy"
+msgid "Building the Firmware"
 msgstr ""
 
 #: ../../../source/development.rst:18
-msgid "**Motor Test:** run each motor with ``RUN`` from the touchscreen and set its reverse flag."
-msgstr ""
-
-#: ../../../source/development.rst:19
-msgid "**Chassis Test:** use ``JOY`` in manual mode with the wheels lifted and check every wheel direction."
-msgstr ""
-
-#: ../../../source/development.rst:20
-msgid "**Wireless Test:** validate ESP-NOW packet sequence numbers and CRC checks."
-msgstr ""
-
-#: ../../../source/development.rst:21
-msgid "**Integration Test:** full test from the remote to physical movement."
-msgstr ""
-
-#: ../../../source/development.rst:24
-msgid "Extending the Firmware"
+msgid "Install PlatformIO Core or the PlatformIO IDE extension, then run these commands from the repository root:"
 msgstr ""
 
 #: ../../../source/development.rst:26
-msgid "**New motor driver**"
+msgid "Specify ``-e hub`` explicitly because the legacy PlatformIO configuration is also imported by the root project. The Mega 2560 and ESP8266 firmware is kept under ``legacy/`` and is not part of the hub build."
 msgstr ""
 
-#: ../../../source/development.rst:27
-msgid "Implement ``IMotor`` (``run``, ``brake``, ``stop``) in ``lib/Motor``, then create the motors in ``MotorBank`` or in a new bank."
+#: ../../../source/development.rst:28
+msgid "The hub build compiles ``app/`` and ``components/*/src/``. ``tools/pio_components.py`` adds each component's ``api/`` and selected ``cfg/s3_devkit/`` directories to the include path."
 msgstr ""
 
-#: ../../../source/development.rst:29
-msgid "**New chassis**"
-msgstr ""
-
-#: ../../../source/development.rst:30
-msgid "Add a value to ``Chassis`` and a row of six ``Mix`` entries to the preset table in ``lib/Drive/Drive.cpp``. Existing chassis keep working, and the custom chassis needs no code."
-msgstr ""
-
-#: ../../../source/development.rst:32
-msgid "**New TJC command**"
+#: ../../../source/development.rst:31
+msgid "Staged Testing Strategy"
 msgstr ""
 
 #: ../../../source/development.rst:33
-msgid "Add one ``else if`` branch to ``Hmi::handle()`` and one line to the table in :doc:`communication`."
+msgid "**Motor Test:** run each motor with ``RUN`` from the touchscreen and set its reverse flag."
+msgstr ""
+
+#: ../../../source/development.rst:34
+msgid "**Chassis Test:** use ``JOY`` in manual mode with the wheels lifted and check every wheel direction."
 msgstr ""
 
 #: ../../../source/development.rst:35
-msgid "**New configuration field**"
+msgid "**Wireless Test:** verify the configured remote MAC and channel, CRC validation, sequence handling and link timeout."
 msgstr ""
 
 #: ../../../source/development.rst:36
-msgid "Add it to ``RobotConfig``, check it in ``isValid()``, and increase ``ROBOT_CONFIG_VERSION`` so old EEPROM data is replaced by defaults."
+msgid "**Integration Test:** full test from the remote to physical movement."
 msgstr ""
 
 #: ../../../source/development.rst:39
-msgid "Current Status & Roadmap"
-msgstr ""
-
-#: ../../../source/development.rst:41
-msgid "**Done:** layered firmware (PCA9685, motor, drive, config, HMI), six chassis types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW remote, link watchdog, servos and I/O from the touchscreen."
+msgid "Extending the Firmware"
 msgstr ""
 
 #: ../../../source/development.rst:42
-msgid "**Next:** update the TJC project to the command set in :doc:`communication`, telemetry from the Mega to the screen, and a hardware emergency stop."
+msgid "**New motor driver**"
+msgstr ""
+
+#: ../../../source/development.rst:42
+msgid "Implement the motor API in the appropriate driver component, then connect it through ``CDD_MotorTA6586`` or the motor bank."
 msgstr ""
 
 #: ../../../source/development.rst:45
-msgid "PlatformIO Environment Layout"
+msgid "**New chassis**"
 msgstr ""
 
-#: ../../../source/development.rst:47
-msgid "Each environment selects exactly one application folder under ``src/`` with ``build_src_filter``:"
+#: ../../../source/development.rst:45
+msgid "Update the chassis type and mixing logic in ``components/SWC_Drive``. Keep existing presets and custom-mix behavior covered by drive tests."
 msgstr ""
 
-#: ../../../source/development.rst:49
-msgid "``src/Remote_Mega2560``: handheld Mega application."
+#: ../../../source/development.rst:48
+msgid "**New TJC command**"
 msgstr ""
 
-#: ../../../source/development.rst:50
-msgid "``src/Remote_ESP8266_Bridge``: handheld ESP-NOW bridge."
+#: ../../../source/development.rst:48
+msgid "Add the handler in ``components/SRV_Hmi`` and document the command in :doc:`communication`."
 msgstr ""
 
 #: ../../../source/development.rst:51
-msgid "``src/Robot_ESP8266_Receiver``: robot-side ESP-NOW receiver."
+msgid "**New configuration field**"
 msgstr ""
 
-#: ../../../source/development.rst:52
-msgid "``src/Esp32_HubUnit``: ESP32 robot controller."
+#: ../../../source/development.rst:51
+msgid "Add it to ``RobotConfig`` in ``components/SWC_Robot`` and update its validation and persistence versioning."
 msgstr ""
 
 #: ../../../source/development.rst:54
-msgid "Reusable components live in ``lib/``. PlatformIO finds them from the ``#include`` lines, so an environment only compiles the libraries it uses. Do not add per-environment ``src_dir``: the installed PlatformIO ignores it. To add a firmware target, create one folder under ``src/`` and one matching ``build_src_filter`` block in ``platformio.ini``."
+msgid "Current Status & Roadmap"
+msgstr ""
+
+#: ../../../source/development.rst:56
+msgid "**Done:** layered firmware (PCA9685, motor, drive, config, HMI), six chassis types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW remote, link watchdog, servos and I/O from the touchscreen."
 msgstr ""
 
 #: ../../../source/development.rst:57
+msgid "**Next:** update the TJC project to the command set in :doc:`communication`, add telemetry, and add a hardware emergency stop."
+msgstr ""
+
+#: ../../../source/development.rst:60
 msgid "Building the Documentation"
 msgstr ""
 
-#: ../../../source/development.rst:63
-msgid "To refresh the Vietnamese translation after editing the English pages, run ``sphinx-build -b gettext docs/source docs/_build/gettext`` and then ``sphinx-intl update -p docs/_build/gettext -l vi -d docs/locales``."
+#: ../../../source/development.rst:68
+msgid "To build both translated pages on Windows, run ``tools/build.bat local`` from the repository root. To refresh the Vietnamese translation catalog manually, run ``sphinx-build -b gettext doc/source doc/_build/gettext`` followed by ``sphinx-intl update -p doc/_build/gettext -l vi -d doc/locales``."
 msgstr ""

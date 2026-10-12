@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Tham chiếu API (bản dự phòng thủ công) - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -287,9 +287,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <li><p><a class="reference internal" href="#robotconfig">RobotConfig</a></p></li>
 <li><p><a class="reference internal" href="#robot">Robot</a></p></li>
 <li><p><a class="reference internal" href="#hmi">Hmi</a></p></li>
-<li><p><a class="reference internal" href="#commanager">ComManager</a></p></li>
-<li><p><a class="reference internal" href="#swc-button">Swc_Button</a></p></li>
-<li><p><a class="reference internal" href="#swc-joystick">Swc_Joystick</a></p></li>
+<li><p><a class="reference internal" href="#espnowlink">EspNowLink</a></p></li>
 <li><p><a class="reference internal" href="#controlpacket">ControlPacket</a></p></li>
 <li><p><a class="reference internal" href="#pairpacket">PairPacket</a></p></li>
 </ul>
@@ -348,7 +346,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <section id="drive">
 <h3>Drive<a class="headerlink" href="#drive" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>assign(WheelRole, IMotor*, bool inverted): Nối một động cơ với một vai trò bánh.</p></li>
+<li><p>assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role.</p></li>
 <li><p>clearMotors(): Ngắt kết nối mọi động cơ.</p></li>
 <li><p>setChassis(Chassis, const Mix* custom): Chọn khung gầm có sẵn hoặc bảng tùy chỉnh.</p></li>
 <li><p>setPwmLimit(uint8_t), setAccelStep(uint8_t): Đặt các giới hạn ngõ ra.</p></li>
@@ -387,33 +385,12 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 </section>
 <section id="communication">
 <h2>Truyền thông<a class="headerlink" href="#communication" title="Link to this heading">¶</a></h2>
-<section id="commanager">
-<h3>ComManager<a class="headerlink" href="#commanager" title="Link to this heading">¶</a></h3>
+<section id="espnowlink">
+<h3>EspNowLink<a class="headerlink" href="#espnowlink" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Init(uint32 baudrate = 115200): Cấu hình UART.</p></li>
-<li><p>SendPacket(const ControlPacket&amp;): Gửi gói điều khiển có khung.</p></li>
-<li><p>SendCommand(const char*): Gửi lệnh ASCII kết thúc bằng ký tự xuống dòng.</p></li>
-<li><p>ReadPacket(ControlPacket&amp;): Phân tích một gói có khung hợp lệ.</p></li>
-<li><p>ReadLog(char* buffer, size_t bufferSize): Đọc một dòng log đã nhận.</p></li>
-</ul>
-</section>
-</section>
-<section id="input-implementations">
-<h2>Các thành phần đầu vào<a class="headerlink" href="#input-implementations" title="Link to this heading">¶</a></h2>
-<section id="swc-button">
-<h3>Swc_Button<a class="headerlink" href="#swc-button" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p>Init(): Cấu hình chân ngõ vào của nút bấm.</p></li>
-<li><p>Update(): Chống dội trạng thái nút bấm.</p></li>
-<li><p>GetState() const: Trả về bitmask đã chống dội.</p></li>
-</ul>
-</section>
-<section id="swc-joystick">
-<h3>Swc_Joystick<a class="headerlink" href="#swc-joystick" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p>Init(): Cấu hình các chân analog của joystick.</p></li>
-<li><p>Update(): Lấy mẫu và lọc thông thấp các trục.</p></li>
-<li><p>GetProcessedValues(...): Trả về giá trị đã lọc và đã trừ vùng chết.</p></li>
+<li><p>begin(Handler, void* context): Start ESP-NOW on the configured channel and register the packet handler.</p></li>
+<li><p>update(): Call from loop(); hands every queued ControlPacket to the handler.</p></li>
+<li><p>rejectedCount() const, droppedCount() const: Frames refused (length, CRC, type) and frames lost to a full queue.</p></li>
 </ul>
 </section>
 </section>
@@ -495,12 +472,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 </ul>
 </li>
 <li><a class="reference internal" href="#communication">Truyền thông</a><ul>
-<li><a class="reference internal" href="#commanager">ComManager</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#input-implementations">Các thành phần đầu vào</a><ul>
-<li><a class="reference internal" href="#swc-button">Swc_Button</a></li>
-<li><a class="reference internal" href="#swc-joystick">Swc_Joystick</a></li>
+<li><a class="reference internal" href="#espnowlink">EspNowLink</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#shared-data-types">Các kiểu dữ liệu dùng chung</a><ul>
@@ -520,9 +492,9 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=d3888072"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/translations.js?v=4c1d55b0"></script>
+    <script src="_static/translations.js?v=71464233"></script>
     </body>
 </html>

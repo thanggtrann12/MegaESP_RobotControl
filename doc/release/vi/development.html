@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html"><link rel="prev" title="Tham chiếu API firmware" href="api.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Phát triển, kiểm thử và lộ trình - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -275,33 +275,44 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <h1>Phát triển, kiểm thử và lộ trình<a class="headerlink" href="#development-testing-roadmap" title="Link to this heading">¶</a></h1>
 <section id="reading-the-code">
 <h2>Đọc mã nguồn<a class="headerlink" href="#reading-the-code" title="Link to this heading">¶</a></h2>
-<p>Start at <code class="docutils literal notranslate"><span class="pre">src/esp32_hub/Esp32_HubUnit.cpp</span></code>. <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">loop()</span></code> connect three objects:</p>
+<p>Start at <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code>. <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">loop()</span></code> initialize and update the hub services:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Hmi</span></code> đọc màn hình cảm ứng và gọi <code class="docutils literal notranslate"><span class="pre">Robot</span></code>.</p></li>
-<li><p>The ESP-NOW callback validates and queues remote packets for <code class="docutils literal notranslate"><span class="pre">Robot::onRemote()</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Robot::update()</span></code> chạy mỗi vòng lặp, áp dụng lệnh hiện tại cho <code class="docutils literal notranslate"><span class="pre">Drive</span></code> mỗi 20 ms và thực thi watchdog 500 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hmi</span></code> handles touchscreen commands and calls <code class="docutils literal notranslate"><span class="pre">Robot</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EspNowLink</span></code> validates remote packets and queues them; <code class="docutils literal notranslate"><span class="pre">update()</span></code> delivers them to <code class="docutils literal notranslate"><span class="pre">Robot::onRemote()</span></code> from the main loop.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Robot::update()</span></code> applies drive commands on a 20 ms tick and stops after the 500 ms link timeout.</p></li>
 </ol>
-<p>Mọi thứ bên dưới <code class="docutils literal notranslate"><span class="pre">Robot</span></code> nằm trong <code class="docutils literal notranslate"><span class="pre">lib/</span></code> và có thể đọc từng thư mục một.</p>
+<p>Reusable modules are under <code class="docutils literal notranslate"><span class="pre">components/</span></code>. Public headers are in each component's <code class="docutils literal notranslate"><span class="pre">api/</span></code> directory, implementation files are in <code class="docutils literal notranslate"><span class="pre">src/</span></code>, and board-specific settings are in <code class="docutils literal notranslate"><span class="pre">cfg/s3_devkit/</span></code>.</p>
+</section>
+<section id="building-the-firmware">
+<h2>Building the Firmware<a class="headerlink" href="#building-the-firmware" title="Link to this heading">¶</a></h2>
+<p>Install PlatformIO Core or the PlatformIO IDE extension, then run these commands from the repository root:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pio run -e hub</span>
+<span class="go">pio run -e hub -t upload</span>
+<span class="go">pio device monitor -e hub</span>
+</pre></div>
+</div>
+<p>Specify <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">hub</span></code> explicitly because the legacy PlatformIO configuration is also imported by the root project. The Mega 2560 and ESP8266 firmware is kept under <code class="docutils literal notranslate"><span class="pre">legacy/</span></code> and is not part of the hub build.</p>
+<p>The hub build compiles <code class="docutils literal notranslate"><span class="pre">app/</span></code> and <code class="docutils literal notranslate"><span class="pre">components/*/src/</span></code>. <code class="docutils literal notranslate"><span class="pre">tools/pio_components.py</span></code> adds each component's <code class="docutils literal notranslate"><span class="pre">api/</span></code> and selected <code class="docutils literal notranslate"><span class="pre">cfg/s3_devkit/</span></code> directories to the include path.</p>
 </section>
 <section id="staged-testing-strategy">
 <h2>Chiến lược kiểm thử theo giai đoạn<a class="headerlink" href="#staged-testing-strategy" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><p><strong>Kiểm tra động cơ:</strong> chạy từng động cơ bằng <code class="docutils literal notranslate"><span class="pre">RUN</span></code> từ màn hình cảm ứng và đặt cờ đảo chiều.</p></li>
 <li><p><strong>Kiểm tra khung gầm:</strong> dùng <code class="docutils literal notranslate"><span class="pre">JOY</span></code> ở chế độ thủ công khi nhấc bánh khỏi mặt đất và kiểm tra chiều quay từng bánh.</p></li>
-<li><p><strong>Kiểm tra không dây:</strong> kiểm tra số thứ tự gói ESP-NOW và CRC.</p></li>
+<li><p><strong>Wireless Test:</strong> verify the configured remote MAC and channel, CRC validation, sequence handling and link timeout.</p></li>
 <li><p><strong>Kiểm tra tích hợp:</strong> kiểm tra toàn bộ từ remote đến chuyển động vật lý.</p></li>
 </ol>
 </section>
 <section id="extending-the-firmware">
 <h2>Mở rộng firmware<a class="headerlink" href="#extending-the-firmware" title="Link to this heading">¶</a></h2>
 <dl class="simple">
-<dt><strong>Driver động cơ mới</strong></dt><dd><p>Hiện thực <code class="docutils literal notranslate"><span class="pre">IMotor</span></code> (<code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">brake</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code>) trong <code class="docutils literal notranslate"><span class="pre">lib/Motor</span></code>, rồi tạo các động cơ trong <code class="docutils literal notranslate"><span class="pre">MotorBank</span></code> hoặc trong một bank mới.</p>
+<dt><strong>Driver động cơ mới</strong></dt><dd><p>Implement the motor API in the appropriate driver component, then connect it through <code class="docutils literal notranslate"><span class="pre">CDD_MotorTA6586</span></code> or the motor bank.</p>
 </dd>
-<dt><strong>Khung gầm mới</strong></dt><dd><p>Thêm một giá trị vào <code class="docutils literal notranslate"><span class="pre">Chassis</span></code> và một hàng sáu phần tử <code class="docutils literal notranslate"><span class="pre">Mix</span></code> vào bảng preset trong <code class="docutils literal notranslate"><span class="pre">lib/Drive/Drive.cpp</span></code>. Các khung gầm hiện có vẫn hoạt động, còn khung gầm tùy chỉnh không cần mã.</p>
+<dt><strong>Khung gầm mới</strong></dt><dd><p>Update the chassis type and mixing logic in <code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code>. Keep existing presets and custom-mix behavior covered by drive tests.</p>
 </dd>
-<dt><strong>Lệnh TJC mới</strong></dt><dd><p>Thêm một nhánh <code class="docutils literal notranslate"><span class="pre">else</span> <span class="pre">if</span></code> vào <code class="docutils literal notranslate"><span class="pre">Hmi::handle()</span></code> và một dòng vào bảng trong <a class="reference internal" href="communication.html"><span class="doc">Giao thức truyền thông và ESP-NOW</span></a>.</p>
+<dt><strong>Lệnh TJC mới</strong></dt><dd><p>Add the handler in <code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code> and document the command in <a class="reference internal" href="communication.html"><span class="doc">Giao thức truyền thông và ESP-NOW</span></a>.</p>
 </dd>
-<dt><strong>Trường cấu hình mới</strong></dt><dd><p>Thêm nó vào <code class="docutils literal notranslate"><span class="pre">RobotConfig</span></code>, kiểm tra trong <code class="docutils literal notranslate"><span class="pre">isValid()</span></code> và tăng <code class="docutils literal notranslate"><span class="pre">ROBOT_CONFIG_VERSION</span></code> để dữ liệu EEPROM cũ được thay bằng giá trị mặc định.</p>
+<dt><strong>Trường cấu hình mới</strong></dt><dd><p>Add it to <code class="docutils literal notranslate"><span class="pre">RobotConfig</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code> and update its validation and persistence versioning.</p>
 </dd>
 </dl>
 </section>
@@ -309,26 +320,18 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <h2>Trạng thái hiện tại và lộ trình<a class="headerlink" href="#current-status-roadmap" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Đã xong:</strong> firmware phân tầng (PCA9685, motor, drive, config, HMI), sáu loại khung gầm, ánh xạ động cơ và cờ đảo chiều, cấu hình EEPROM, remote ESP-NOW, watchdog đường truyền, servo và I/O từ màn hình cảm ứng.</p></li>
-<li><p><strong>Tiếp theo:</strong> cập nhật dự án TJC theo bộ lệnh trong <a class="reference internal" href="communication.html"><span class="doc">Giao thức truyền thông và ESP-NOW</span></a>, telemetry từ Mega lên màn hình và nút dừng khẩn cấp phần cứng.</p></li>
+<li><p><strong>Next:</strong> update the TJC project to the command set in <a class="reference internal" href="communication.html"><span class="doc">Giao thức truyền thông và ESP-NOW</span></a>, add telemetry, and add a hardware emergency stop.</p></li>
 </ul>
-</section>
-<section id="platformio-environment-layout">
-<h2>Bố cục môi trường PlatformIO<a class="headerlink" href="#platformio-environment-layout" title="Link to this heading">¶</a></h2>
-<p>Mỗi môi trường chọn đúng một thư mục ứng dụng trong <code class="docutils literal notranslate"><span class="pre">src/</span></code> bằng <code class="docutils literal notranslate"><span class="pre">build_src_filter</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Remote_Mega2560</span></code>: ứng dụng Mega của tay cầm.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Remote_ESP8266_Bridge</span></code>: cầu nối ESP-NOW của tay cầm.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Robot_ESP8266_Receiver</span></code>: bộ thu ESP-NOW phía robot.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Esp32_HubUnit</span></code>: ESP32 robot controller.</p></li>
-</ul>
-<p>Các thành phần dùng lại nằm trong <code class="docutils literal notranslate"><span class="pre">lib/</span></code>. PlatformIO tìm chúng từ các dòng <code class="docutils literal notranslate"><span class="pre">#include</span></code>, nên mỗi môi trường chỉ biên dịch các thư viện nó dùng. Không thêm <code class="docutils literal notranslate"><span class="pre">src_dir</span></code> riêng cho từng môi trường: PlatformIO đang cài đặt bỏ qua tùy chọn này. Để thêm một firmware mới, tạo một thư mục trong <code class="docutils literal notranslate"><span class="pre">src/</span></code> và một khối <code class="docutils literal notranslate"><span class="pre">build_src_filter</span></code> tương ứng trong <code class="docutils literal notranslate"><span class="pre">platformio.ini</span></code>.</p>
 </section>
 <section id="building-the-documentation">
 <h2>Build tài liệu<a class="headerlink" href="#building-the-documentation" title="Link to this heading">¶</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html docs/source docs/_build/html
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html doc/source doc/_build/html
 </pre></div>
 </div>
-<p>Để cập nhật bản dịch tiếng Việt sau khi sửa các trang tiếng Anh, chạy <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">gettext</span> <span class="pre">docs/source</span> <span class="pre">docs/_build/gettext</span></code> rồi <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span> <span class="pre">-p</span> <span class="pre">docs/_build/gettext</span> <span class="pre">-l</span> <span class="pre">vi</span> <span class="pre">-d</span> <span class="pre">docs/locales</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Ghi chú</p>
+<p>To build both translated pages on Windows, run <code class="docutils literal notranslate"><span class="pre">tools/build.bat</span> <span class="pre">local</span></code> from the repository root. To refresh the Vietnamese translation catalog manually, run <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">gettext</span> <span class="pre">doc/source</span> <span class="pre">doc/_build/gettext</span></code> followed by <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span> <span class="pre">-p</span> <span class="pre">doc/_build/gettext</span> <span class="pre">-l</span> <span class="pre">vi</span> <span class="pre">-d</span> <span class="pre">doc/locales</span></code>.</p>
+</div>
 </section>
 </section>
 
@@ -381,10 +384,10 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
             <ul>
 <li><a class="reference internal" href="#">Phát triển, kiểm thử và lộ trình</a><ul>
 <li><a class="reference internal" href="#reading-the-code">Đọc mã nguồn</a></li>
+<li><a class="reference internal" href="#building-the-firmware">Building the Firmware</a></li>
 <li><a class="reference internal" href="#staged-testing-strategy">Chiến lược kiểm thử theo giai đoạn</a></li>
 <li><a class="reference internal" href="#extending-the-firmware">Mở rộng firmware</a></li>
 <li><a class="reference internal" href="#current-status-roadmap">Trạng thái hiện tại và lộ trình</a></li>
-<li><a class="reference internal" href="#platformio-environment-layout">Bố cục môi trường PlatformIO</a></li>
 <li><a class="reference internal" href="#building-the-documentation">Build tài liệu</a></li>
 </ul>
 </li>
@@ -398,9 +401,9 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=d3888072"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/translations.js?v=4c1d55b0"></script>
+    <script src="_static/translations.js?v=71464233"></script>
     </body>
 </html>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"POT-Creation-Date: 2026-10-13 10:55+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,313 +77,261 @@ msgid "Hmi_"
 msgstr ""
 
 #: ../../../source/_api_autogen.rst:20
-msgid "ComManager_"
+msgid "EspNowLink_"
 msgstr ""
 
 #: ../../../source/_api_autogen.rst:21
-msgid "Swc_Button_"
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:22
-msgid "Swc_Joystick_"
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:23
 msgid "ControlPacket_"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:24
+#: ../../../source/_api_autogen.rst:22
 msgid "PairPacket_"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:27
+#: ../../../source/_api_autogen.rst:25
 msgid "Motor Layer"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:30
+#: ../../../source/_api_autogen.rst:28
 msgid "IMotor"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:32
+#: ../../../source/_api_autogen.rst:30
 msgid "run(int16_t pwm): Run at a signed PWM from -255 to 255."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:33
+#: ../../../source/_api_autogen.rst:31
 msgid "brake(): Short the motor terminals."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:34
+#: ../../../source/_api_autogen.rst:32
 msgid "stop(): Release the motor."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:37
+#: ../../../source/_api_autogen.rst:35
 msgid "MotorTA6586"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:39
+#: ../../../source/_api_autogen.rst:37
 msgid "run(int16_t), brake(), stop(): Drive one TA6586 through two PCA9685 channels."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:42
+#: ../../../source/_api_autogen.rst:40
 msgid "MotorBank"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:44
+#: ../../../source/_api_autogen.rst:42
 msgid "begin(uint16_t pwmHz): Start the PCA9685 and stop all six motors."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:45
+#: ../../../source/_api_autogen.rst:43
 msgid "motor(uint8_t slot): Return the motor of slot 0 to 5."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:46
+#: ../../../source/_api_autogen.rst:44
 msgid "stopAll(): Release every motor."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:49
+#: ../../../source/_api_autogen.rst:47
 msgid "Pca9685"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:51
+#: ../../../source/_api_autogen.rst:49
 msgid "begin(uint16_t frequencyHz): Start the chip at a PWM frequency."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:52
+#: ../../../source/_api_autogen.rst:50
 msgid "setDuty(uint8_t channel, uint16_t ticks): Set one channel from 0 to 4095."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:55
+#: ../../../source/_api_autogen.rst:53
 msgid "ServoOut"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:57
+#: ../../../source/_api_autogen.rst:55
 msgid "begin(): Start the servo PCA9685 at 50 Hz."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:58
+#: ../../../source/_api_autogen.rst:56
 msgid "write(uint8_t channel, uint8_t angle): Move a servo from 0 to 180 degrees."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:59
+#: ../../../source/_api_autogen.rst:57
 msgid "release(uint8_t channel): Stop driving a servo."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:62
+#: ../../../source/_api_autogen.rst:60
 msgid "IoPin"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:64
+#: ../../../source/_api_autogen.rst:62
 msgid "configure(uint8_t pin, Mode mode): Set a pin as IN, OUT or IN_PULLUP."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:65
+#: ../../../source/_api_autogen.rst:63
 msgid "write(uint8_t pin, bool high): Write a digital output."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:66
+#: ../../../source/_api_autogen.rst:64
 msgid "read(uint8_t pin): Read a digital input."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:67
+#: ../../../source/_api_autogen.rst:65
 msgid "readAnalog(uint8_t channel): Read an analog input."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:70
+#: ../../../source/_api_autogen.rst:68
 msgid "Drive and Configuration"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:73
+#: ../../../source/_api_autogen.rst:71
 msgid "Drive"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:75
-msgid "assign(WheelRole, IMotor*, bool inverted): Connect a motor to a wheel role."
+#: ../../../source/_api_autogen.rst:73
+msgid "assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:76
+#: ../../../source/_api_autogen.rst:74
 msgid "clearMotors(): Disconnect every motor."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:77
+#: ../../../source/_api_autogen.rst:75
 msgid "setChassis(Chassis, const Mix* custom): Select a chassis preset or the custom table."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:78
+#: ../../../source/_api_autogen.rst:76
 msgid "setPwmLimit(uint8_t), setAccelStep(uint8_t): Set the output limits."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:79
+#: ../../../source/_api_autogen.rst:77
 msgid "ready() const: True when every wheel the chassis needs has a motor."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:80
+#: ../../../source/_api_autogen.rst:78
 msgid "move(int8_t throttle, int8_t strafe, int8_t rotation): Mix a command into wheel speeds."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:81
+#: ../../../source/_api_autogen.rst:79
 msgid "stop(): Release every motor."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:84
+#: ../../../source/_api_autogen.rst:82
 msgid "RobotConfig"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:86
+#: ../../../source/_api_autogen.rst:84
 msgid "defaults(): Return the factory configuration."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:87
+#: ../../../source/_api_autogen.rst:85
 msgid "isValid() const: Check version, ranges and duplicate roles."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:88
+#: ../../../source/_api_autogen.rst:86
 msgid "load(int address): Load from EEPROM; false when empty or corrupt."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:89
+#: ../../../source/_api_autogen.rst:87
 msgid "save(int address): Store with a CRC-8."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:92
+#: ../../../source/_api_autogen.rst:90
 msgid "Robot"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:94
+#: ../../../source/_api_autogen.rst:92
 msgid "begin(): Start motors, servos and load the configuration."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:95
+#: ../../../source/_api_autogen.rst:93
 msgid "update(): Run the 20 ms control tick and the link watchdog."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:96
+#: ../../../source/_api_autogen.rst:94
 msgid "onRemote(const ControlPacket&): Take a remote command."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:97
+#: ../../../source/_api_autogen.rst:95
 msgid "setSource(Source): Choose REMOTE or MANUAL control."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:98
+#: ../../../source/_api_autogen.rst:96
 msgid "joy(...), runMotor(...), brakeMotor(...), stop(): Manual control."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:99
+#: ../../../source/_api_autogen.rst:97
 msgid "setMotor(...), apply(), applyLimits(): Change the configuration."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:100
+#: ../../../source/_api_autogen.rst:98
 msgid "saveConfig(), resetConfig(): Store or restore the configuration."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:103
+#: ../../../source/_api_autogen.rst:101
 msgid "Hmi"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:105
+#: ../../../source/_api_autogen.rst:103
 msgid "update(): Read the touchscreen UART, run commands and send the heartbeat."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:108
+#: ../../../source/_api_autogen.rst:106
 msgid "Communication"
 msgstr ""
 
+#: ../../../source/_api_autogen.rst:109
+msgid "EspNowLink"
+msgstr ""
+
 #: ../../../source/_api_autogen.rst:111
-msgid "ComManager"
+msgid "begin(Handler, void* context): Start ESP-NOW on the configured channel and register the packet handler."
+msgstr ""
+
+#: ../../../source/_api_autogen.rst:112
+msgid "update(): Call from loop(); hands every queued ControlPacket to the handler."
 msgstr ""
 
 #: ../../../source/_api_autogen.rst:113
-msgid "Init(uint32 baudrate = 115200): Configure UART."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:114
-msgid "SendPacket(const ControlPacket&): Send framed control packet."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:115
-msgid "SendCommand(const char*): Send newline-terminated ASCII command."
+msgid "rejectedCount() const, droppedCount() const: Frames refused (length, CRC, type) and frames lost to a full queue."
 msgstr ""
 
 #: ../../../source/_api_autogen.rst:116
-msgid "ReadPacket(ControlPacket&): Parse one valid framed packet."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:117
-msgid "ReadLog(char* buffer, size_t bufferSize): Read one received log line."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:120
-msgid "Input Implementations"
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:123
-msgid "Swc_Button"
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:125
-msgid "Init(): Configure button input pin."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:126
-msgid "Update(): Debounce button state."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:127
-msgid "GetState() const: Return debounced bitmask."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:130
-msgid "Swc_Joystick"
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:132
-msgid "Init(): Configure joystick analog pins."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:133
-msgid "Update(): Sample and low-pass filter axes."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:134
-msgid "GetProcessedValues(...): Return filtered + deadzone-adjusted values."
-msgstr ""
-
-#: ../../../source/_api_autogen.rst:137
 msgid "Shared Data Types"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:140
+#: ../../../source/_api_autogen.rst:119
 msgid "ControlPacket"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:142
+#: ../../../source/_api_autogen.rst:121
 msgid "msgType: CONTROL_MESSAGE or HEARTBEAT_MESSAGE."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:143
+#: ../../../source/_api_autogen.rst:122
 msgid "throttle/strafe/rotation: Signed command channels."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:144
+#: ../../../source/_api_autogen.rst:123
 msgid "buttons: Bitmask from remote buttons."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:145
+#: ../../../source/_api_autogen.rst:124
 msgid "sequenceNum: Monotonic sequence id."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:146
+#: ../../../source/_api_autogen.rst:125
 msgid "crc8: Packet CRC-8."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:149
+#: ../../../source/_api_autogen.rst:128
 msgid "PairPacket"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:151
+#: ../../../source/_api_autogen.rst:130
 msgid "cmd: Pairing command id."
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:152
+#: ../../../source/_api_autogen.rst:131
 msgid "macAddr[6]: Device MAC address."
 msgstr ""

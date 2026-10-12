@@ -9,11 +9,6 @@
 #include <freertos/queue.h>
 #endif
 
-// Receives ControlPackets from the remote over ESP-NOW.
-//
-// The ESP-NOW receive callback runs in the WiFi task, not in loop(). The callback only validates the
-// frame and pushes it on a queue; update() (called from loop()) pops packets and hands them to the
-// handler, so the handler runs in the same context as the rest of the firmware and needs no locking.
 class EspNowLink
 {
 public:
@@ -22,15 +17,13 @@ public:
     EspNowLink();
     ~EspNowLink();
 
-    // handler is called from update() once per valid CONTROL / HEARTBEAT packet, oldest first.
     bool begin(Handler handler, void *context);
     void update();
 
-    uint32_t rejectedCount() const { return _rejected; } // wrong length, bad CRC or unknown type
-    uint32_t droppedCount() const { return _dropped; }   // queue was full
+    uint32_t rejectedCount() const { return _rejected; }
+    uint32_t droppedCount() const { return _dropped; }
 
-    // Called by the ESP-NOW callback (WiFi task); not for application code.
-    static void receive(const uint8_t *data, int length);
+    static void receive(const uint8_t *senderMac, const uint8_t *data, int length);
 
 private:
     static EspNowLink *instance;
@@ -40,6 +33,9 @@ private:
     QueueHandle_t _queue = nullptr;
     volatile uint32_t _rejected = 0;
     volatile uint32_t _dropped = 0;
+
+    bool _initialized = false;
+    bool _callbackRegistered = false;
 };
 
 #endif // ESPNOWLINK_H

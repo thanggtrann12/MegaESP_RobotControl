@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html"><link rel="next" title="Kiến trúc hệ thống và triết lý thiết kế" href="architecture.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -274,7 +274,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
           <section id="universal-robot-hub">
 <h1>Robot Hub đa năng<a class="headerlink" href="#universal-robot-hub" title="Link to this heading">¶</a></h1>
 <p>Firmware PlatformIO phân tầng cho bộ điều khiển robot cắm, cấu hình, chạy: một firmware, nhiều khung gầm, cấu hình từ màn hình cảm ứng.</p>
-<p>Hệ thống được xây dựng xoay quanh <strong>Arduino Mega 2560 Master Hub</strong>, tích hợp <strong>TJC/Nextion HMI (480x320px)</strong>, và kết nối tới bộ điều khiển cầm tay tùy chỉnh thông qua cầu nối không dây <strong>ESP8266 ESP-NOW</strong>.</p>
+<p>The current robot hub runs on an <strong>ESP32-S3</strong> and connects to a <strong>TJC/Nextion HMI</strong> over UART. A handheld remote sends control packets directly to the hub over ESP-NOW. The older Mega 2560 and ESP8266 firmware is retained under <code class="docutils literal notranslate"><span class="pre">legacy/</span></code>.</p>
 <p>Dự án được thiết kế như một <strong>nền tảng robot cho DIY, người đam mê và giáo dục</strong>. Mục tiêu chính là khám phá cách cấu trúc một bộ điều khiển robot thực tế bằng C++, trừu tượng hóa phần cứng, ánh xạ động cơ có thể cấu hình, động học, giao thức truyền thông và cơ chế an toàn, đồng thời vẫn đủ thực tiễn để sinh viên có thể tự lắp ráp và hiểu được.</p>
 <section id="design-inspiration">
 <h2>Nguồn cảm hứng thiết kế<a class="headerlink" href="#design-inspiration" title="Link to this heading">¶</a></h2>
@@ -334,7 +334,6 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <li class="toctree-l2"><a class="reference internal" href="api.html#motor-layer">Tầng động cơ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#drive-and-configuration">Drive và cấu hình</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#communication">Truyền thông</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#input-implementations">Các thành phần đầu vào</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#shared-data-types">Các kiểu dữ liệu dùng chung</a></li>
 </ul>
 </li>
@@ -345,10 +344,10 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Phát triển, kiểm thử và lộ trình</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development.html#reading-the-code">Đọc mã nguồn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#building-the-firmware">Building the Firmware</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#staged-testing-strategy">Chiến lược kiểm thử theo giai đoạn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#extending-the-firmware">Mở rộng firmware</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#current-status-roadmap">Trạng thái hiện tại và lộ trình</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#platformio-environment-layout">Bố cục môi trường PlatformIO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#building-the-documentation">Build tài liệu</a></li>
 </ul>
 </li>
@@ -427,9 +426,9 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=d3888072"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/translations.js?v=4c1d55b0"></script>
+    <script src="_static/translations.js?v=71464233"></script>
     </body>
 </html>

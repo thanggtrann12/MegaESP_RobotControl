@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html"><link rel="next" title="Cấu hình khung gầm và động cơ" href="configuration.html"><link rel="prev" title="Tầng phần cứng và sơ đồ chân" href="hardware.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Giao thức truyền thông và ESP-NOW - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -434,8 +434,8 @@ SAVE
 </section>
 <section id="esp-now-remote">
 <h2>ESP-NOW Remote<a class="headerlink" href="#esp-now-remote" title="Link to this heading">¶</a></h2>
-<p>The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately <strong>~2.5 ms</strong>. The ESP32-S3 receives each <code class="docutils literal notranslate"><span class="pre">ControlPacket</span></code> directly:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>0xAA 0xFF | ControlPacket (8 bytes) | XOR checksum | 0x55
+<p>The paired remote sends each <code class="docutils literal notranslate"><span class="pre">ControlPacket</span></code> directly over ESP-NOW to the ESP32-S3. Unlike the Mega UART link, ESP-NOW does not use the <code class="docutils literal notranslate"><span class="pre">0xAA</span> <span class="pre">0xFF</span></code> frame header, XOR checksum or <code class="docutils literal notranslate"><span class="pre">0x55</span></code> footer.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ControlPacket: 8 packed bytes
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">ControlPacket</span></code> gồm:</p>
@@ -443,10 +443,11 @@ SAVE
 <li><p>Loại thông điệp: điều khiển (0x01) hoặc heartbeat (0x02)</p></li>
 <li><p>Throttle, strafe và rotation, mỗi giá trị từ -100 đến 100</p></li>
 <li><p>Bitmask các nút bấm</p></li>
-<li><p>Số thứ tự (loại bỏ gói trùng lặp và sai thứ tự)</p></li>
-<li><p>CRC-8</p></li>
+<li><p>Sequence number (the robot rejects duplicate and out-of-order values)</p></li>
+<li><p>CRC-8 over the preceding packet bytes</p></li>
 </ul>
-<p>The ESP32-S3 accepts remote packets only while the source is <code class="docutils literal notranslate"><span class="pre">REMOTE</span></code>. A heartbeat keeps the link alive and the last command running. Invalid packets and duplicate or out-of-order sequence numbers are discarded.</p>
+<p>The hub listens on ESP-NOW channel 1. Set <code class="docutils literal notranslate"><span class="pre">ESPNOW_REMOTE_MAC</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h</span></code> to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to <code class="docutils literal notranslate"><span class="pre">Robot</span></code> from the main loop.</p>
+<p>The ESP32-S3 accepts remote commands only while the control source is <code class="docutils literal notranslate"><span class="pre">REMOTE</span></code>. <code class="docutils literal notranslate"><span class="pre">Robot</span></code> rejects duplicate and out-of-order sequence numbers. A heartbeat updates the link timer while keeping the last control command active. If no accepted remote packet arrives for 500 ms, the robot clears the command and stops the drive. The sequence check is reset after a link timeout or control-source change so a restarted remote can begin again at sequence 0.</p>
 </section>
 </section>
 
@@ -526,9 +527,9 @@ SAVE
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=d3888072"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/translations.js?v=4c1d55b0"></script>
+    <script src="_static/translations.js?v=71464233"></script>
     </body>
 </html>

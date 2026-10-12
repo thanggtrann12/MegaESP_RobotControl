@@ -65,7 +65,7 @@ void Pca9685::setDuty(uint8_t channel, uint16_t ticks)
     {
         off = FULL_ON_OFF; // Tắt hoàn toàn kênh PWM
     }
-    else if (ticks >= 4095)
+    else if (ticks == 4095)
     {
         on = FULL_ON_OFF;  // Bật tối đa hoàn toàn kênh PWM
         off = 0;

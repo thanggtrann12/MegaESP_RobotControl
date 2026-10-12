@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Hardware Layer &amp; Pinouts" href="hardware.html"><link rel="prev" title="Universal Robot Hub" href="index.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>System Architecture &amp; Design Philosophy - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -294,11 +294,13 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
                                  |
                                Drive           chassis mixing, speed scaling, output limits
                                  |
-                               MotorBank       M0..M5: run (PWM), brake, stop
+                               MotorBank       M1..M6: run (PWM), brake, stop
                                  |
                                Pca9685         I2C PWM chip (0x40) + TA6586 motor drivers
 
-ESP-NOW remote   -- ESP-NOW --&gt; Robot           drive commands from the remote
+ESP-NOW remote   -- ESP-NOW --&gt; EspNowLink      validate MAC, length, type and CRC; queue packets
+                                 |
+                               Robot           sequence check, source selection and watchdog
 Servos                          ServoOut        PCA9685 chip 2 (0x41)
 Digital / analog pins           IoPin           in / out only
 </pre></div>
@@ -319,26 +321,32 @@ Digital / analog pins           IoPin           in / out only
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Pca9685</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
 <td><p>I2C PWM chip: set one channel duty cycle.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Motor</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">IMotor</span></code> (run, brake, stop), the TA6586 driver and <code class="docutils literal notranslate"><span class="pre">MotorBank</span></code> with six motors.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_MotorTA6586</span></code></p></td>
+<td><p>Motor interface, TA6586 driver and six-motor bank.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/ServoOut</span></code></p></td>
-<td><p>Servo angle on a PCA9685 channel.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
+<td><p>Servo output on a PCA9685 channel.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/IoPin</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Gpio</span></code></p></td>
 <td><p>Configure a pin as input or output, read and write it.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Drive</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code></p></td>
 <td><p>The six chassis presets, wheel mixing, PWM limit and acceleration limit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/RobotConfig</span></code></p></td>
-<td><p>One configuration structure with defaults, validation and EEPROM load and save.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code></p></td>
+<td><p>Robot control, configuration validation and EEPROM load and save.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/esp32_hub</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Robot</span></code> (glue), <code class="docutils literal notranslate"><span class="pre">Hmi</span></code> (TJC protocol) and <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code>.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code></p></td>
+<td><p>TJC command protocol and handlers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow</span></code></p></td>
+<td><p>ESP-NOW receive validation and packet queue.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code></p></td>
+<td><p>Composition root and <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code> for the ESP32-S3 hub.</p></td>
 </tr>
 </tbody>
 </table>
@@ -346,19 +354,20 @@ Digital / analog pins           IoPin           in / out only
 </section>
 <section id="control-pipeline">
 <h2>Control Pipeline<a class="headerlink" href="#control-pipeline" title="Link to this heading">¶</a></h2>
-<a class="reference internal image-reference" href="_images/control_pipeline.svg"><img alt="Complete Control Pipeline" src="_images/control_pipeline.svg" style="width: 100%;" />
-</a>
+<a class="reference internal image-reference" href="_images/control_pipeline.svg"><img alt="Complete Control Pipeline" src="_images/control_pipeline.svg" width="100%" /></a>
 </section>
 <section id="system-architecture-wireless-data-flow">
 <h2>System Architecture &amp; Wireless Data Flow<a class="headerlink" href="#system-architecture-wireless-data-flow" title="Link to this heading">¶</a></h2>
-<a class="reference internal image-reference" href="_images/system_architecture.svg"><img alt="System Architecture &amp; Wireless Data Flow" src="_images/system_architecture.svg" style="width: 100%;" />
-</a>
+<a class="reference internal image-reference" href="_images/system_architecture.svg"><img alt="System Architecture &amp; Wireless Data Flow" src="_images/system_architecture.svg" width="100%" /></a>
 </section>
 <section id="design-philosophy">
 <h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
-<li><p><strong>Simple:</strong>
-A newcomer should be able to read <code class="docutils literal notranslate"><span class="pre">src/esp32_hub/Esp32_HubUnit.cpp</span></code> and follow the whole system in a few minutes.</p></li>
+<li><dl class="simple">
+<dt><strong>Simple:</strong></dt><dd><p>A newcomer should be able to read <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> and follow the whole system in a few minutes.</p>
+</dd>
+</dl>
+</li>
 <li><p><strong>Layered:</strong>
 Motors only run, brake or stop. Servos only move to an angle. Pins are only inputs or outputs. Everything else is built on top.</p></li>
 <li><p><strong>Configurable:</strong>
@@ -443,8 +452,8 @@ If the chassis is not fully mapped, or the command link is silent, the motors st
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>

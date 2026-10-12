@@ -25,11 +25,13 @@ Layers
                                     |
                                   Drive           chassis mixing, speed scaling, output limits
                                     |
-                                  MotorBank       M0..M5: run (PWM), brake, stop
+                                  MotorBank       M1..M6: run (PWM), brake, stop
                                     |
                                   Pca9685         I2C PWM chip (0x40) + TA6586 motor drivers
 
-   ESP-NOW remote   -- ESP-NOW --> Robot           drive commands from the remote
+   ESP-NOW remote   -- ESP-NOW --> EspNowLink      validate MAC, length, type and CRC; queue packets
+                                    |
+                                  Robot           sequence check, source selection and watchdog
    Servos                          ServoOut        PCA9685 chip 2 (0x41)
    Digital / analog pins           IoPin           in / out only
 
@@ -44,20 +46,24 @@ Where the code lives
 
    * - Folder
      - Responsibility
-   * - ``lib/Pca9685``
+   * - ``components/CDD_Pca9685``
      - I2C PWM chip: set one channel duty cycle.
-   * - ``lib/Motor``
-     - ``IMotor`` (run, brake, stop), the TA6586 driver and ``MotorBank`` with six motors.
-   * - ``lib/ServoOut``
-     - Servo angle on a PCA9685 channel.
-   * - ``lib/IoPin``
+   * - ``components/CDD_MotorTA6586``
+     - Motor interface, TA6586 driver and six-motor bank.
+   * - ``components/CDD_Pca9685``
+     - Servo output on a PCA9685 channel.
+   * - ``components/CDD_Gpio``
      - Configure a pin as input or output, read and write it.
-   * - ``lib/Drive``
+   * - ``components/SWC_Drive``
      - The six chassis presets, wheel mixing, PWM limit and acceleration limit.
-   * - ``lib/RobotConfig``
-     - One configuration structure with defaults, validation and EEPROM load and save.
-   * - ``src/esp32_hub``
-     - ``Robot`` (glue), ``Hmi`` (TJC protocol) and ``setup()`` / ``loop()``.
+   * - ``components/SWC_Robot``
+     - Robot control, configuration validation and EEPROM load and save.
+   * - ``components/SRV_Hmi``
+     - TJC command protocol and handlers.
+   * - ``components/SRV_EspNow``
+     - ESP-NOW receive validation and packet queue.
+   * - ``app/Hub_Main.cpp``
+     - Composition root and ``setup()`` / ``loop()`` for the ESP32-S3 hub.
 
 Control Pipeline
 ----------------
@@ -77,7 +83,7 @@ Design Philosophy
 -----------------
 
 1. **Simple:**
-   A newcomer should be able to read ``src/esp32_hub/Esp32_HubUnit.cpp`` and follow the whole system in a few minutes.
+    A newcomer should be able to read ``app/Hub_Main.cpp`` and follow the whole system in a few minutes.
 
 2. **Layered:**
    Motors only run, brake or stop. Servos only move to an angle. Pins are only inputs or outputs. Everything else is built on top.

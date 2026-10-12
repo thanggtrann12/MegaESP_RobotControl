@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Firmware API Reference" href="api.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Development, Testing &amp; Roadmap - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -275,33 +275,44 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <h1>Development, Testing &amp; Roadmap<a class="headerlink" href="#development-testing-roadmap" title="Link to this heading">¶</a></h1>
 <section id="reading-the-code">
 <h2>Reading the Code<a class="headerlink" href="#reading-the-code" title="Link to this heading">¶</a></h2>
-<p>Start at <code class="docutils literal notranslate"><span class="pre">src/esp32_hub/Esp32_HubUnit.cpp</span></code>. <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">loop()</span></code> connect three objects:</p>
+<p>Start at <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code>. <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">loop()</span></code> initialize and update the hub services:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Hmi</span></code> reads the touchscreen and calls <code class="docutils literal notranslate"><span class="pre">Robot</span></code>.</p></li>
-<li><p>The ESP-NOW callback validates and queues remote packets for <code class="docutils literal notranslate"><span class="pre">Robot::onRemote()</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Robot::update()</span></code> runs every loop, applies the current command to <code class="docutils literal notranslate"><span class="pre">Drive</span></code> every 20 ms and enforces the 500 ms watchdog.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hmi</span></code> handles touchscreen commands and calls <code class="docutils literal notranslate"><span class="pre">Robot</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EspNowLink</span></code> validates remote packets and queues them; <code class="docutils literal notranslate"><span class="pre">update()</span></code> delivers them to <code class="docutils literal notranslate"><span class="pre">Robot::onRemote()</span></code> from the main loop.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Robot::update()</span></code> applies drive commands on a 20 ms tick and stops after the 500 ms link timeout.</p></li>
 </ol>
-<p>Everything below <code class="docutils literal notranslate"><span class="pre">Robot</span></code> is in <code class="docutils literal notranslate"><span class="pre">lib/</span></code> and can be read one folder at a time.</p>
+<p>Reusable modules are under <code class="docutils literal notranslate"><span class="pre">components/</span></code>. Public headers are in each component’s <code class="docutils literal notranslate"><span class="pre">api/</span></code> directory, implementation files are in <code class="docutils literal notranslate"><span class="pre">src/</span></code>, and board-specific settings are in <code class="docutils literal notranslate"><span class="pre">cfg/s3_devkit/</span></code>.</p>
+</section>
+<section id="building-the-firmware">
+<h2>Building the Firmware<a class="headerlink" href="#building-the-firmware" title="Link to this heading">¶</a></h2>
+<p>Install PlatformIO Core or the PlatformIO IDE extension, then run these commands from the repository root:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pio run -e hub</span>
+<span class="go">pio run -e hub -t upload</span>
+<span class="go">pio device monitor -e hub</span>
+</pre></div>
+</div>
+<p>Specify <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">hub</span></code> explicitly because the legacy PlatformIO configuration is also imported by the root project. The Mega 2560 and ESP8266 firmware is kept under <code class="docutils literal notranslate"><span class="pre">legacy/</span></code> and is not part of the hub build.</p>
+<p>The hub build compiles <code class="docutils literal notranslate"><span class="pre">app/</span></code> and <code class="docutils literal notranslate"><span class="pre">components/*/src/</span></code>. <code class="docutils literal notranslate"><span class="pre">tools/pio_components.py</span></code> adds each component’s <code class="docutils literal notranslate"><span class="pre">api/</span></code> and selected <code class="docutils literal notranslate"><span class="pre">cfg/s3_devkit/</span></code> directories to the include path.</p>
 </section>
 <section id="staged-testing-strategy">
 <h2>Staged Testing Strategy<a class="headerlink" href="#staged-testing-strategy" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><p><strong>Motor Test:</strong> run each motor with <code class="docutils literal notranslate"><span class="pre">RUN</span></code> from the touchscreen and set its reverse flag.</p></li>
 <li><p><strong>Chassis Test:</strong> use <code class="docutils literal notranslate"><span class="pre">JOY</span></code> in manual mode with the wheels lifted and check every wheel direction.</p></li>
-<li><p><strong>Wireless Test:</strong> validate ESP-NOW packet sequence numbers and CRC checks.</p></li>
+<li><p><strong>Wireless Test:</strong> verify the configured remote MAC and channel, CRC validation, sequence handling and link timeout.</p></li>
 <li><p><strong>Integration Test:</strong> full test from the remote to physical movement.</p></li>
 </ol>
 </section>
 <section id="extending-the-firmware">
 <h2>Extending the Firmware<a class="headerlink" href="#extending-the-firmware" title="Link to this heading">¶</a></h2>
 <dl class="simple">
-<dt><strong>New motor driver</strong></dt><dd><p>Implement <code class="docutils literal notranslate"><span class="pre">IMotor</span></code> (<code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">brake</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code>) in <code class="docutils literal notranslate"><span class="pre">lib/Motor</span></code>, then create the motors in <code class="docutils literal notranslate"><span class="pre">MotorBank</span></code> or in a new bank.</p>
+<dt><strong>New motor driver</strong></dt><dd><p>Implement the motor API in the appropriate driver component, then connect it through <code class="docutils literal notranslate"><span class="pre">CDD_MotorTA6586</span></code> or the motor bank.</p>
 </dd>
-<dt><strong>New chassis</strong></dt><dd><p>Add a value to <code class="docutils literal notranslate"><span class="pre">Chassis</span></code> and a row of six <code class="docutils literal notranslate"><span class="pre">Mix</span></code> entries to the preset table in <code class="docutils literal notranslate"><span class="pre">lib/Drive/Drive.cpp</span></code>. Existing chassis keep working, and the custom chassis needs no code.</p>
+<dt><strong>New chassis</strong></dt><dd><p>Update the chassis type and mixing logic in <code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code>. Keep existing presets and custom-mix behavior covered by drive tests.</p>
 </dd>
-<dt><strong>New TJC command</strong></dt><dd><p>Add one <code class="docutils literal notranslate"><span class="pre">else</span> <span class="pre">if</span></code> branch to <code class="docutils literal notranslate"><span class="pre">Hmi::handle()</span></code> and one line to the table in <a class="reference internal" href="communication.html"><span class="doc">Communication Protocols &amp; ESP-NOW</span></a>.</p>
+<dt><strong>New TJC command</strong></dt><dd><p>Add the handler in <code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code> and document the command in <a class="reference internal" href="communication.html"><span class="doc">Communication Protocols &amp; ESP-NOW</span></a>.</p>
 </dd>
-<dt><strong>New configuration field</strong></dt><dd><p>Add it to <code class="docutils literal notranslate"><span class="pre">RobotConfig</span></code>, check it in <code class="docutils literal notranslate"><span class="pre">isValid()</span></code>, and increase <code class="docutils literal notranslate"><span class="pre">ROBOT_CONFIG_VERSION</span></code> so old EEPROM data is replaced by defaults.</p>
+<dt><strong>New configuration field</strong></dt><dd><p>Add it to <code class="docutils literal notranslate"><span class="pre">RobotConfig</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code> and update its validation and persistence versioning.</p>
 </dd>
 </dl>
 </section>
@@ -309,26 +320,18 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <h2>Current Status &amp; Roadmap<a class="headerlink" href="#current-status-roadmap" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Done:</strong> layered firmware (PCA9685, motor, drive, config, HMI), six chassis types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW remote, link watchdog, servos and I/O from the touchscreen.</p></li>
-<li><p><strong>Next:</strong> update the TJC project to the command set in <a class="reference internal" href="communication.html"><span class="doc">Communication Protocols &amp; ESP-NOW</span></a>, telemetry from the Mega to the screen, and a hardware emergency stop.</p></li>
+<li><p><strong>Next:</strong> update the TJC project to the command set in <a class="reference internal" href="communication.html"><span class="doc">Communication Protocols &amp; ESP-NOW</span></a>, add telemetry, and add a hardware emergency stop.</p></li>
 </ul>
-</section>
-<section id="platformio-environment-layout">
-<h2>PlatformIO Environment Layout<a class="headerlink" href="#platformio-environment-layout" title="Link to this heading">¶</a></h2>
-<p>Each environment selects exactly one application folder under <code class="docutils literal notranslate"><span class="pre">src/</span></code> with <code class="docutils literal notranslate"><span class="pre">build_src_filter</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Remote_Mega2560</span></code>: handheld Mega application.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Remote_ESP8266_Bridge</span></code>: handheld ESP-NOW bridge.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Robot_ESP8266_Receiver</span></code>: robot-side ESP-NOW receiver.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">src/Esp32_HubUnit</span></code>: ESP32 robot controller.</p></li>
-</ul>
-<p>Reusable components live in <code class="docutils literal notranslate"><span class="pre">lib/</span></code>. PlatformIO finds them from the <code class="docutils literal notranslate"><span class="pre">#include</span></code> lines, so an environment only compiles the libraries it uses. Do not add per-environment <code class="docutils literal notranslate"><span class="pre">src_dir</span></code>: the installed PlatformIO ignores it. To add a firmware target, create one folder under <code class="docutils literal notranslate"><span class="pre">src/</span></code> and one matching <code class="docutils literal notranslate"><span class="pre">build_src_filter</span></code> block in <code class="docutils literal notranslate"><span class="pre">platformio.ini</span></code>.</p>
 </section>
 <section id="building-the-documentation">
 <h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading">¶</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html docs/source docs/_build/html
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html doc/source doc/_build/html
 </pre></div>
 </div>
-<p>To refresh the Vietnamese translation after editing the English pages, run <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">gettext</span> <span class="pre">docs/source</span> <span class="pre">docs/_build/gettext</span></code> and then <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span> <span class="pre">-p</span> <span class="pre">docs/_build/gettext</span> <span class="pre">-l</span> <span class="pre">vi</span> <span class="pre">-d</span> <span class="pre">docs/locales</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To build both translated pages on Windows, run <code class="docutils literal notranslate"><span class="pre">tools/build.bat</span> <span class="pre">local</span></code> from the repository root. To refresh the Vietnamese translation catalog manually, run <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">gettext</span> <span class="pre">doc/source</span> <span class="pre">doc/_build/gettext</span></code> followed by <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span> <span class="pre">-p</span> <span class="pre">doc/_build/gettext</span> <span class="pre">-l</span> <span class="pre">vi</span> <span class="pre">-d</span> <span class="pre">doc/locales</span></code>.</p>
+</div>
 </section>
 </section>
 
@@ -381,10 +384,10 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
             <ul>
 <li><a class="reference internal" href="#">Development, Testing &amp; Roadmap</a><ul>
 <li><a class="reference internal" href="#reading-the-code">Reading the Code</a></li>
+<li><a class="reference internal" href="#building-the-firmware">Building the Firmware</a></li>
 <li><a class="reference internal" href="#staged-testing-strategy">Staged Testing Strategy</a></li>
 <li><a class="reference internal" href="#extending-the-firmware">Extending the Firmware</a></li>
 <li><a class="reference internal" href="#current-status-roadmap">Current Status &amp; Roadmap</a></li>
-<li><a class="reference internal" href="#platformio-environment-layout">PlatformIO Environment Layout</a></li>
 <li><a class="reference internal" href="#building-the-documentation">Building the Documentation</a></li>
 </ul>
 </li>
@@ -398,8 +401,8 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>

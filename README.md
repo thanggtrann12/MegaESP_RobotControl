@@ -1,6 +1,6 @@
 # Universal Robot Hub
 
-Một hệ thống C++ Firmware kiến trúc phân tầng (Layered Architecture), thiết kế theo nguyên lý **SOLID** và chuẩn **AUTOSAR-lite** dành cho Robot đa năng (Universal Robot Hub).
+A layered-architecture C++ firmware for a general-purpose robot (Universal Robot Hub), designed around the **SOLID** principles and an **AUTOSAR-lite** style.
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Arduino%20Mega%202560%20%7C%20ESP32%20%7C%20ESP8266-blue)
@@ -13,18 +13,18 @@ Một hệ thống C++ Firmware kiến trúc phân tầng (Layered Architecture)
 
 ## Features
 
-- **Decoupled Kinematics Engine:** Hỗ trợ linh hoạt các cơ cấu động học (`DifferentialKinematics`, `MecanumKinematics`, `OmniKinematics`) thông qua giao diện `IKinematics` thuần toán học.
-- **Dynamic Motor Binding (`MotorRole`):** Ánh xạ vai trò bánh xe (`FRONT_LEFT`, `REAR_RIGHT`,...) linh hoạt tới các Slot phần cứng mà không phụ thuộc vào thứ tự cắm dây hay bitmask.
-- **Event-Driven TJC HMI Service:** Giao tiếp với màn hình TJC/Nextion qua chuẩn mã hóa ASCII (32-127), hỗ trợ gọi Callback nội bộ trực tiếp trên màn hình.
-- **Transport Abstraction (`ITransport`):** Tách biệt tầng truyền dẫn (`UARTTransport`, `ESPNowTransport`) khỏi tầng nghiệp vụ xử lý lệnh (`HMIService`, `RemoteControlService`).
-- **EEPROM Storage & Persistence:** Lưu trữ cấu hình cài đặt, gán role motor và chế độ lái mượt mà qua các lần khởi động.
-- **Safety Watchdog & Failsafe:** Tự động cắt PWM dừng toàn bộ động cơ khi mất tín hiệu điều khiển quá ngưỡng timeout.
+- **Decoupled Kinematics Engine:** Supports multiple drive mechanisms (`DifferentialKinematics`, `MecanumKinematics`, `OmniKinematics`) through the purely mathematical `IKinematics` interface.
+- **Dynamic Motor Binding (`MotorRole`):** Maps wheel roles (`FRONT_LEFT`, `REAR_RIGHT`, ...) to hardware slots independently of wiring order or bitmasks.
+- **Event-Driven TJC HMI Service:** Talks to TJC/Nextion displays using ASCII encoding (32-127) and supports invoking internal callbacks directly from the screen.
+- **Transport Abstraction (`ITransport`):** Separates the transport layer (`UARTTransport`, `ESPNowTransport`) from the command-handling layer (`HMIService`, `RemoteControlService`).
+- **EEPROM Storage & Persistence:** Keeps settings, motor role assignments and drive mode across reboots.
+- **Safety Watchdog & Failsafe:** Automatically cuts PWM and stops all motors when the control signal is lost for longer than the timeout.
 
 ---
 
 ## Architecture
 
-Hệ thống được thiết kế phân tầng nghiêm ngặt nhằm đảm bảo tính mở rộng và dễ bảo trì (Separation of Concerns):
+The system is strictly layered to keep it extensible and maintainable (Separation of Concerns):
 
 ```mermaid
 graph TD
@@ -54,10 +54,63 @@ graph TD
     style Service fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Transport fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Hardware fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
+```
+
+---
+
+## Hardware & PCB Design
+
+- **Supported MCUs:** Arduino Mega 2560, ESP32, ESP8266.
+- **Motor driver:** TA6586.
+- **PWM controller:** PCA9685.
+- **HMI display:** TJC / Nextion (UART).
+
+> TODO: add schematic, PCB images and pinout table.
+
+---
+
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/YOUR_GITHUB_USERNAME/MegaESP_RobotControl.git
+cd MegaESP_RobotControl
+```
+
+### 2. Build the firmware
+
+> TODO: add build/flash instructions (Arduino IDE or PlatformIO).
+
+### 3. Build the documentation (EN / VI)
+
+Requirements: Python, `sphinx`, `sphinx-intl`, `potranslator`; Doxygen (optional, used for the API page).
+
+```bat
+:: Full build and package the release into docs\release
+build.bat
+
+:: Quick build, no release packaging
+build.bat local
+```
+
+Output:
+
+| Mode | Path |
+|---|---|
+| Local | `docs/_build/html/en/index.html`, `docs/_build/html/vi/index.html` |
+| Release | `docs/release/en/index.html`, `docs/release/vi/index.html` |
+
+---
+
+## Documentation
+
+- [English](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/docs/release/en/index.html)
+- [Tiếng Việt (Vietnamese)](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/docs/release/vi/index.html)
 
 
+---
 
+## License
 
-
-[Enlish](https://htmlpreview.github.io/?https://github.com/TEN_GITHUB_CUA_BAN/TEN_REPO/blob/TEN_NHANH/docs/_build/release/en/index.html)
-[VietNamese](https://htmlpreview.github.io/?https://github.com/TEN_GITHUB_CUA_BAN/TEN_REPO/blob/TEN_NHANH/docs/_build/release/vi/index.html)
+MIT

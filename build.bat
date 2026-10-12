@@ -5,13 +5,14 @@ echo ===================================================
 echo   AUTOMATIC MULTILINGUAL SPHINX BUILD (EN / VI)
 echo ===================================================
 
-:: Kiểm tra tham số đầu vào (ví dụ: build.bat release)
-set "IS_RELEASE=0"
-if /I "%~1"=="release" (
-    set "IS_RELEASE=1"
-    echo [+] Mode: RELEASE BUILD (Output: docs\release)
+:: Mặc định build release; truyền "local" để bỏ qua bước đóng gói
+set "IS_RELEASE=1"
+if /I "%~1"=="local" set "IS_RELEASE=0"
+
+if "%IS_RELEASE%"=="1" (
+    echo [+] Mode: RELEASE BUILD - Output: docs\release
 ) else (
-    echo [+] Mode: STANDARD LOCAL BUILD
+    echo [+] Mode: LOCAL BUILD - no release packaging
 )
 
 :: 1. Xác định thư mục nguồn
@@ -25,7 +26,9 @@ if exist "docs\source\conf.py" (
     exit /b 1
 )
 
+set "RELEASE_DIR=%DOCS_DIR%\release"
 set "DOXYGEN_XML=docs\_build\doxygen\xml\index.xml"
+
 where doxygen >NUL 2>&1
 if errorlevel 1 (
     echo [WARN] Doxygen not found in PATH. API page will show placeholder.
@@ -120,17 +123,14 @@ if errorlevel 1 (
 echo ^<html^>^<head^>^<meta http-equiv="refresh" content="0; url=en/index.html"^>^</head^>^</html^>
 ) > "%OUTPUT_DIR%/index.html"
 
-:: 5. Xử lý riêng cho chế độ RELEASE (xuất ra thư mục docs\release)
+:: 5. Tự động đóng gói release (trừ khi chạy "build.bat local")
 if "%IS_RELEASE%"=="1" (
-    echo [+] Packaging into release folder...
-    set "RELEASE_DIR=docs\release"
-    
-    if exist "%RELEASE_DIR%" rmdir /s /q "%RELEASE_DIR%"
-    mkdir "%RELEASE_DIR%"
-    
-    :: Copy toàn bộ nội dung HTML đã build sang thư mục docs\release
-    xcopy /e /i /y "%OUTPUT_DIR%" "%RELEASE_DIR%" > NUL
-    echo [OK] Release folder ready at: %RELEASE_DIR%
+    call :release
+    if errorlevel 1 (
+        echo [ERROR] Release packaging failed!
+        pause
+        exit /b 1
+    )
 )
 
 echo.
@@ -138,14 +138,30 @@ echo ===================================================
 echo   [SUCCESS] AUTO-TRANSLATION ^& BUILD COMPLETE!
 echo   - English:    %OUTPUT_DIR%\en\index.html
 echo   - Vietnamese: %OUTPUT_DIR%\vi\index.html
-if "%IS_RELEASE%"=="1" (
-echo   - Release:    docs\release\index.html
-)
+if "%IS_RELEASE%"=="1" echo   - Release:    %RELEASE_DIR%\index.html
 echo ===================================================
 echo.
 
-if "%IS_RELEASE%"=="0" (
+if "%IS_RELEASE%"=="1" (
+    start "" "%RELEASE_DIR%\en\index.html"
+) else (
     start "" "%OUTPUT_DIR%\en\index.html"
 )
 
+exit /b 0
+
+:: ---------------------------------------------------
+:: Subroutine: đóng gói release (copy HTML sang docs\release)
+:: ---------------------------------------------------
+:release
+echo [+] Packaging into release folder...
+if exist "%RELEASE_DIR%" rmdir /s /q "%RELEASE_DIR%"
+mkdir "%RELEASE_DIR%"
+xcopy /e /i /y "%OUTPUT_DIR%" "%RELEASE_DIR%" > NUL
+if errorlevel 1 exit /b 1
+
+:: Bỏ comment dòng dưới nếu không muốn đưa file .pot (gettext) vào release
+:: if exist "%RELEASE_DIR%\gettext" rmdir /s /q "%RELEASE_DIR%\gettext"
+
+echo [OK] Release folder ready at: %RELEASE_DIR%
 exit /b 0

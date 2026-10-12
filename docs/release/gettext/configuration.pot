@@ -1,0 +1,321 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/configuration.rst:2
+msgid "Chassis & Motor Configuration"
+msgstr ""
+
+#: ../../../source/configuration.rst:5
+msgid "Concepts"
+msgstr ""
+
+#: ../../../source/configuration.rst:7
+msgid "**Motor slot:** a physical motor port, M1 to M6."
+msgstr ""
+
+#: ../../../source/configuration.rst:8
+msgid "**Wheel role:** where a motor sits on the chassis. A slot is assigned one role, or none."
+msgstr ""
+
+#: ../../../source/configuration.rst:9
+msgid "**Chassis:** a mixing table that says how much of throttle, strafe and rotation each wheel receives."
+msgstr ""
+
+#: ../../../source/configuration.rst:11
+msgid "Changing the chassis or the mapping never needs new firmware."
+msgstr ""
+
+#: ../../../source/configuration.rst:14
+msgid "Wheel Roles"
+msgstr ""
+
+#: ../../../source/configuration.rst:20
+msgid "Role"
+msgstr ""
+
+#: ../../../source/configuration.rst:21
+msgid "Wheel"
+msgstr ""
+
+#: ../../../source/configuration.rst:22
+#: ../../../source/configuration.rst:50
+msgid "0"
+msgstr ""
+
+#: ../../../source/configuration.rst:23
+msgid "Unused"
+msgstr ""
+
+#: ../../../source/configuration.rst:24
+#: ../../../source/configuration.rst:54
+msgid "1"
+msgstr ""
+
+#: ../../../source/configuration.rst:25
+msgid "Front left"
+msgstr ""
+
+#: ../../../source/configuration.rst:26
+#: ../../../source/configuration.rst:58
+msgid "2"
+msgstr ""
+
+#: ../../../source/configuration.rst:27
+msgid "Front right"
+msgstr ""
+
+#: ../../../source/configuration.rst:28
+#: ../../../source/configuration.rst:62
+msgid "3"
+msgstr ""
+
+#: ../../../source/configuration.rst:29
+msgid "Middle left"
+msgstr ""
+
+#: ../../../source/configuration.rst:30
+#: ../../../source/configuration.rst:66
+msgid "4"
+msgstr ""
+
+#: ../../../source/configuration.rst:31
+msgid "Middle right"
+msgstr ""
+
+#: ../../../source/configuration.rst:32
+#: ../../../source/configuration.rst:70
+msgid "5"
+msgstr ""
+
+#: ../../../source/configuration.rst:33
+msgid "Rear left"
+msgstr ""
+
+#: ../../../source/configuration.rst:34
+msgid "6"
+msgstr ""
+
+#: ../../../source/configuration.rst:35
+msgid "Rear right"
+msgstr ""
+
+#: ../../../source/configuration.rst:37
+msgid "Assigning a role to a slot takes it away from any other slot that had it, so each wheel has exactly one motor."
+msgstr ""
+
+#: ../../../source/configuration.rst:40
+msgid "Chassis Types"
+msgstr ""
+
+#: ../../../source/configuration.rst:46
+msgid "Id"
+msgstr ""
+
+#: ../../../source/configuration.rst:47
+msgid "Chassis"
+msgstr ""
+
+#: ../../../source/configuration.rst:48
+msgid "Required roles"
+msgstr ""
+
+#: ../../../source/configuration.rst:49
+msgid "Mixing"
+msgstr ""
+
+#: ../../../source/configuration.rst:51
+msgid "Two-wheel"
+msgstr ""
+
+#: ../../../source/configuration.rst:52
+msgid "1, 2"
+msgstr ""
+
+#: ../../../source/configuration.rst:53
+msgid "Differential: left = throttle + rotation, right = throttle - rotation."
+msgstr ""
+
+#: ../../../source/configuration.rst:55
+msgid "Tank"
+msgstr ""
+
+#: ../../../source/configuration.rst:56
+#: ../../../source/configuration.rst:60
+#: ../../../source/configuration.rst:64
+msgid "1, 2, 5, 6"
+msgstr ""
+
+#: ../../../source/configuration.rst:57
+msgid "Four-wheel skid steer, same mixing as two-wheel on each side."
+msgstr ""
+
+#: ../../../source/configuration.rst:59
+msgid "4-wheel omni"
+msgstr ""
+
+#: ../../../source/configuration.rst:61
+msgid "X layout; mixes exactly like mecanum."
+msgstr ""
+
+#: ../../../source/configuration.rst:63
+msgid "Mecanum"
+msgstr ""
+
+#: ../../../source/configuration.rst:65
+msgid "Throttle, strafe and rotation combined per wheel."
+msgstr ""
+
+#: ../../../source/configuration.rst:67
+msgid "6-wheel"
+msgstr ""
+
+#: ../../../source/configuration.rst:68
+msgid "1 to 6"
+msgstr ""
+
+#: ../../../source/configuration.rst:69
+msgid "Six-wheel skid steer, same mixing on each side."
+msgstr ""
+
+#: ../../../source/configuration.rst:71
+msgid "Custom"
+msgstr ""
+
+#: ../../../source/configuration.rst:72
+msgid "Every role with a non-zero mix"
+msgstr ""
+
+#: ../../../source/configuration.rst:73
+msgid "Mixing table entered from the touchscreen."
+msgstr ""
+
+#: ../../../source/configuration.rst:75
+msgid "Positive rotation turns right. A wheel at full command receives 255 PWM."
+msgstr ""
+
+#: ../../../source/configuration.rst:78
+msgid "Custom Chassis"
+msgstr ""
+
+#: ../../../source/configuration.rst:80
+msgid "For each wheel role the table stores three percentages from -100 to 100: throttle, strafe and rotation. With the commands T, S and R also in the range -100 to 100, the wheel speed in percent of full PWM is:"
+msgstr ""
+
+#: ../../../source/configuration.rst:86
+msgid "A role whose three values are all zero is not used. If a command would push any wheel above the PWM limit, all wheels are scaled down together so the direction of travel is kept."
+msgstr ""
+
+#: ../../../source/configuration.rst:89
+msgid "Calibration"
+msgstr ""
+
+#: ../../../source/configuration.rst:91
+msgid "Select the chassis."
+msgstr ""
+
+#: ../../../source/configuration.rst:92
+msgid "Map each motor slot to its wheel role."
+msgstr ""
+
+#: ../../../source/configuration.rst:93
+msgid "Switch to manual control and press the single-motor test for each slot. If a wheel turns the wrong way, set its reverse flag and test again. The test already applies the reverse flag."
+msgstr ""
+
+#: ../../../source/configuration.rst:94
+msgid "Set the PWM limit and, if wanted, the acceleration step."
+msgstr ""
+
+#: ../../../source/configuration.rst:95
+msgid "Save."
+msgstr ""
+
+#: ../../../source/configuration.rst:98
+msgid "Settings"
+msgstr ""
+
+#: ../../../source/configuration.rst:104
+msgid "Setting"
+msgstr ""
+
+#: ../../../source/configuration.rst:105
+msgid "Meaning"
+msgstr ""
+
+#: ../../../source/configuration.rst:106
+msgid "PWM limit"
+msgstr ""
+
+#: ../../../source/configuration.rst:107
+msgid "Highest PWM sent to a motor, 0 to 255."
+msgstr ""
+
+#: ../../../source/configuration.rst:108
+msgid "Acceleration step"
+msgstr ""
+
+#: ../../../source/configuration.rst:109
+msgid "Largest change of one wheel speed per 20 ms control tick. 0 turns the limit off."
+msgstr ""
+
+#: ../../../source/configuration.rst:110
+msgid "Reverse flag"
+msgstr ""
+
+#: ../../../source/configuration.rst:111
+msgid "Reverses one motor so a wheel turns forward when told to."
+msgstr ""
+
+#: ../../../source/configuration.rst:114
+msgid "Persistence"
+msgstr ""
+
+#: ../../../source/configuration.rst:116
+msgid "The whole configuration is one 30-byte structure with a version byte and a CRC-8, stored in EEPROM from address ``0x10``. At start-up the firmware loads it and checks:"
+msgstr ""
+
+#: ../../../source/configuration.rst:118
+msgid "The version matches this firmware."
+msgstr ""
+
+#: ../../../source/configuration.rst:119
+msgid "The CRC is correct."
+msgstr ""
+
+#: ../../../source/configuration.rst:120
+msgid "The chassis id and all roles are in range and no role is used twice."
+msgstr ""
+
+#: ../../../source/configuration.rst:121
+msgid "The custom mix values are within -100 to 100."
+msgstr ""
+
+#: ../../../source/configuration.rst:123
+msgid "If any check fails the defaults are used: mecanum, motors M1 to M4 as front left, rear left, front right and rear right, PWM limit 255, no acceleration limit."
+msgstr ""
+
+#: ../../../source/configuration.rst:125
+msgid "Changes take effect immediately and are only written to EEPROM by the save command. Saving only rewrites bytes that changed."
+msgstr ""
+
+#: ../../../source/configuration.rst:128
+msgid "Not Ready State"
+msgstr ""
+
+#: ../../../source/configuration.rst:130
+msgid "The drive is *ready* when every wheel the chassis needs has a motor. When it is not ready the motors stay stopped. The ``GET`` command reports the ready flag so the touchscreen can show what is missing."
+msgstr ""

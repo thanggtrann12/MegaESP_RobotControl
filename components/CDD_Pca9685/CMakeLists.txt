@@ -1,0 +1,15 @@
+# CDD_Pca9685
+file(GLOB CDD_Pca9685_SRCS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+
+if(CDD_Pca9685_SRCS)
+  add_library(CDD_Pca9685 STATIC ${CDD_Pca9685_SRCS})
+  set(CDD_Pca9685_SCOPE PUBLIC)
+else()
+  add_library(CDD_Pca9685 INTERFACE)
+  set(CDD_Pca9685_SCOPE INTERFACE)
+endif()
+
+target_include_directories(CDD_Pca9685 ${CDD_Pca9685_SCOPE} ${CMAKE_CURRENT_SOURCE_DIR}/api)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cfg/${HW_VARIANT})
+  target_include_directories(CDD_Pca9685 ${CDD_Pca9685_SCOPE} ${CMAKE_CURRENT_SOURCE_DIR}/cfg/${HW_VARIANT})
+endif()

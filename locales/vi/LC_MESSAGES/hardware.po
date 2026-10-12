@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-01 11:02+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: ../../../source/hardware.rst:2
+msgid "Hardware Layer & Pinouts"
+msgstr "Tầng phần cứng và sơ đồ chân"
+
+#: ../../../source/hardware.rst:5
+msgid "Hardware Overview"
+msgstr "Tổng quan phần cứng"
+
+#: ../../../source/hardware.rst:6
+msgid ""
+"The Master Hub hardware setup consists of an **Arduino Mega 2560** "
+"connected to **6x TA6586 dual-H-bridge motor drivers** controlling DC "
+"brushed motors."
+msgstr ""
+"Cấu hình phần cứng Master Hub gồm một **Arduino Mega 2560** kết nối với "
+"**6 driver động cơ TA6586 cầu H kép**, điều khiển các động cơ DC chổi "
+"than."
+
+#: ../../../source/hardware.rst:9
+msgid "TA6586 Driver Motor Mapping (Arduino Mega 2560)"
+msgstr "Ánh xạ động cơ driver TA6586 (Arduino Mega 2560)"
+
+#: ../../../source/hardware.rst:15
+msgid "Channel"
+msgstr "Kênh"
+
+#: ../../../source/hardware.rst:16
+msgid "Hardware Timer"
+msgstr "Bộ định thời phần cứng"
+
+#: ../../../source/hardware.rst:17
+msgid "TA6586 IN1 (PWM 1)"
+msgstr "TA6586 IN1 (PWM 1)"
+
+#: ../../../source/hardware.rst:18
+msgid "TA6586 IN2 (PWM 2)"
+msgstr "TA6586 IN2 (PWM 2)"
+
+#: ../../../source/hardware.rst:19
+msgid "Motor 0 (CH0)"
+msgstr "Động cơ 0 (CH0)"
+
+#: ../../../source/hardware.rst:20
+msgid "Timer 3"
+msgstr "Timer 3"
+
+#: ../../../source/hardware.rst:21
+msgid "Pin 2"
+msgstr "Pin 2"
+
+#: ../../../source/hardware.rst:22
+msgid "Pin 3"
+msgstr "Pin 3"
+
+#: ../../../source/hardware.rst:23
+msgid "Motor 1 (CH1)"
+msgstr "Động cơ 1 (CH1)"
+
+#: ../../../source/hardware.rst:24
+msgid "Timer 0 / 3"
+msgstr "Timer 0 / 3"
+
+#: ../../../source/hardware.rst:25
+msgid "Pin 4"
+msgstr "Pin 4"
+
+#: ../../../source/hardware.rst:26
+msgid "Pin 5"
+msgstr "Pin 5"
+
+#: ../../../source/hardware.rst:27
+msgid "Motor 2 (CH2)"
+msgstr "Động cơ 2 (CH2)"
+
+#: ../../../source/hardware.rst:28
+msgid "Timer 4"
+msgstr "Timer 4"
+
+#: ../../../source/hardware.rst:29
+msgid "Pin 6"
+msgstr "Pin 6"
+
+#: ../../../source/hardware.rst:30
+msgid "Pin 7"
+msgstr "Pin 7"
+
+#: ../../../source/hardware.rst:31
+msgid "Motor 3 (CH3)"
+msgstr "Động cơ 3 (CH3)"
+
+#: ../../../source/hardware.rst:32
+msgid "Timer 2 / 4"
+msgstr "Timer 2 / 4"
+
+#: ../../../source/hardware.rst:33
+msgid "Pin 8"
+msgstr "Pin 8"
+
+#: ../../../source/hardware.rst:34
+msgid "Pin 9"
+msgstr "Pin 9"
+
+#: ../../../source/hardware.rst:35
+msgid "Motor 4 (CH4)"
+msgstr "Động cơ 4 (CH4)"
+
+#: ../../../source/hardware.rst:36
+msgid "Timer 2"
+msgstr "Timer 2"
+
+#: ../../../source/hardware.rst:37
+msgid "Pin 10"
+msgstr "Pin 10"
+
+#: ../../../source/hardware.rst:38
+msgid "Pin 11"
+msgstr "Pin 11"
+
+#: ../../../source/hardware.rst:39
+msgid "Motor 5 (CH5)"
+msgstr "Động cơ 5 (CH5)"
+
+#: ../../../source/hardware.rst:40
+msgid "Timer 1"
+msgstr "Timer 1"
+
+#: ../../../source/hardware.rst:41
+msgid "Pin 12"
+msgstr "Pin 12"
+
+#: ../../../source/hardware.rst:42
+msgid "Pin 13"
+msgstr "Pin 13"
+
+#: ../../../source/hardware.rst:45
+msgid "Handheld Remote Pinout"
+msgstr "Sơ đồ chân remote cầm tay"
+
+#: ../../../source/hardware.rst:47
+msgid "**Left Joystick (X/Y):** ``A0`` / ``A1`` ($V_x$ Lateral / $V_y$ Forward)"
+msgstr "**Joystick trái (X/Y):** ``A0`` / ``A1`` ($V_x$ ngang / $V_y$ tiến)"
+
+#: ../../../source/hardware.rst:48
+msgid ""
+"**Right Joystick (X/Y):** ``A2`` / ``A3`` ($\\Omega_z$ Yaw Rotation / "
+"Auxiliary)"
+msgstr "**Joystick phải (X/Y):** ``A2`` / ``A3`` ($\\Omega_z$ quay yaw / phụ trợ)"
+
+#: ../../../source/hardware.rst:49
+msgid "**Emergency Stop Switch:** Pin 21 (External Interrupt 0)"
+msgstr "**Công tắc dừng khẩn:** Pin 21 (ngắt ngoài 0)"
+
+#: ../../../source/hardware.rst:50
+msgid "**Mode Selector Switches:** Pins 22, 23, 24"
+msgstr "**Công tắc chọn chế độ:** Pin 22, 23, 24"
+
+#~ msgid ":widths: 20 20 30 30  :header-rows: 1"
+#~ msgstr ""
+

@@ -1,0 +1,501 @@
+<!doctype html>
+<html class="no-js" lang="vi" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html"><link rel="next" title="Phát triển, kiểm thử và lộ trình" href="development.html"><link rel="prev" title="An toàn và cơ chế failsafe" href="safety.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Tham chiếu API firmware - Robot Hub</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Robot Hub</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">Robot Hub</span>
+  
+</a><div style="padding: 10px 16px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85em; display: flex; align-items: center; justify-content: space-between;">
+  <span style="font-weight: bold; opacity: 0.8;">🌐 Language:</span>
+  <div>
+    <a href="#" id="link-en" onclick="switchLang('en'); return false;" style="margin-right: 8px; text-decoration: none; font-weight: bold; color: #58a6ff;">EN</a>
+    <span style="opacity: 0.4;">|</span>
+    <a href="#" id="link-vi" onclick="switchLang('vi'); return false;" style="margin-left: 8px; text-decoration: none; font-weight: bold; color: #00f2fe;">VI</a>
+  </div>
+</div>
+
+<script>
+function buildLangUrl(lang) {
+  const currentPath = window.location.pathname.replace(/\\/g, '/');
+  if (currentPath.includes('/en/')) {
+    return currentPath.replace('/en/', '/' + lang + '/');
+  }
+  if (currentPath.includes('/vi/')) {
+    return currentPath.replace('/vi/', '/' + lang + '/');
+  }
+  return currentPath.replace(/\/[^/]*$/, '/' + lang + '/index.html');
+}
+
+function switchLang(lang) {
+  window.location.href = buildLangUrl(lang);
+}
+
+document.getElementById('link-en').setAttribute('href', buildLangUrl('en'));
+document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
+</script><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Tìm Kiếm" name="q" aria-label="Tìm Kiếm">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Tổng quan hệ thống và kiến trúc:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kiến trúc hệ thống và triết lý thiết kế</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Tầng phần cứng và sơ đồ chân</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication.html">Giao thức truyền thông và ESP-NOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Firmware và cấu hình:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Cấu hình khung gầm và động cơ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="safety.html">An toàn và cơ chế failsafe</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tham chiếu API firmware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#api-reference-manual-fallback">Tham chiếu API (bản dự phòng thủ công)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Phát triển và kiểm thử:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Phát triển, kiểm thử và lộ trình</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/api.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="firmware-api-reference">
+<h1>Tham chiếu API firmware<a class="headerlink" href="#firmware-api-reference" title="Link to this heading">¶</a></h1>
+<p>Trang này được tạo tự động từ các comment Doxygen trong mã nguồn C++.</p>
+</section>
+<section id="api-reference-manual-fallback">
+<h1>Tham chiếu API (bản dự phòng thủ công)<a class="headerlink" href="#api-reference-manual-fallback" title="Link to this heading">¶</a></h1>
+<p>Trang này được tạo ra vì môi trường hiện tại không có Doxygen XML. Trang cung cấp tổng quan API thực tế được trích từ các header của dự án.</p>
+<section id="quick-links">
+<h2>Liên kết nhanh<a class="headerlink" href="#quick-links" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#imotor">IMotor</a></p></li>
+<li><p><a class="reference internal" href="#motorta6586">MotorTA6586</a></p></li>
+<li><p><a class="reference internal" href="#motorbank">MotorBank</a></p></li>
+<li><p><a class="reference internal" href="#pca9685">Pca9685</a></p></li>
+<li><p><a class="reference internal" href="#servoout">ServoOut</a></p></li>
+<li><p><a class="reference internal" href="#iopin">IoPin</a></p></li>
+<li><p><a class="reference internal" href="#drive">Drive</a></p></li>
+<li><p><a class="reference internal" href="#robotconfig">RobotConfig</a></p></li>
+<li><p><a class="reference internal" href="#robot">Robot</a></p></li>
+<li><p><a class="reference internal" href="#hmi">Hmi</a></p></li>
+<li><p><a class="reference internal" href="#commanager">ComManager</a></p></li>
+<li><p><a class="reference internal" href="#swc-button">Swc_Button</a></p></li>
+<li><p><a class="reference internal" href="#swc-joystick">Swc_Joystick</a></p></li>
+<li><p><a class="reference internal" href="#controlpacket">ControlPacket</a></p></li>
+<li><p><a class="reference internal" href="#pairpacket">PairPacket</a></p></li>
+</ul>
+</section>
+<section id="motor-layer">
+<h2>Tầng động cơ<a class="headerlink" href="#motor-layer" title="Link to this heading">¶</a></h2>
+<section id="imotor">
+<h3>IMotor<a class="headerlink" href="#imotor" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>run(int16_t pwm): Chạy với PWM có dấu từ -255 đến 255.</p></li>
+<li><p>brake(): Nối tắt hai đầu động cơ để hãm.</p></li>
+<li><p>stop(): Thả động cơ (quay tự do).</p></li>
+</ul>
+</section>
+<section id="motorta6586">
+<h3>MotorTA6586<a class="headerlink" href="#motorta6586" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>run(int16_t), brake(), stop(): Điều khiển một TA6586 qua hai kênh PCA9685.</p></li>
+</ul>
+</section>
+<section id="motorbank">
+<h3>MotorBank<a class="headerlink" href="#motorbank" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>begin(uint16_t pwmHz): Khởi động PCA9685 và dừng cả sáu động cơ.</p></li>
+<li><p>motor(uint8_t slot): Trả về động cơ ở cổng 0 đến 5.</p></li>
+<li><p>stopAll(): Thả tất cả động cơ.</p></li>
+</ul>
+</section>
+<section id="pca9685">
+<h3>Pca9685<a class="headerlink" href="#pca9685" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>begin(uint16_t frequencyHz): Khởi động chip với tần số PWM cho trước.</p></li>
+<li><p>setDuty(uint8_t channel, uint16_t ticks): Đặt một kênh từ 0 đến 4095.</p></li>
+</ul>
+</section>
+<section id="servoout">
+<h3>ServoOut<a class="headerlink" href="#servoout" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>begin(): Khởi động PCA9685 của servo ở 50 Hz.</p></li>
+<li><p>write(uint8_t channel, uint8_t angle): Quay servo từ 0 đến 180 độ.</p></li>
+<li><p>release(uint8_t channel): Ngừng cấp xung cho servo.</p></li>
+</ul>
+</section>
+<section id="iopin">
+<h3>IoPin<a class="headerlink" href="#iopin" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>configure(uint8_t pin, Mode mode): Đặt chân là IN, OUT hoặc IN_PULLUP.</p></li>
+<li><p>write(uint8_t pin, bool high): Ghi ngõ ra số.</p></li>
+<li><p>read(uint8_t pin): Đọc ngõ vào số.</p></li>
+<li><p>readAnalog(uint8_t channel): Đọc ngõ vào analog.</p></li>
+</ul>
+</section>
+</section>
+<section id="drive-and-configuration">
+<h2>Drive và cấu hình<a class="headerlink" href="#drive-and-configuration" title="Link to this heading">¶</a></h2>
+<section id="drive">
+<h3>Drive<a class="headerlink" href="#drive" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>assign(WheelRole, IMotor*, bool inverted): Nối một động cơ với một vai trò bánh.</p></li>
+<li><p>clearMotors(): Ngắt kết nối mọi động cơ.</p></li>
+<li><p>setChassis(Chassis, const Mix* custom): Chọn khung gầm có sẵn hoặc bảng tùy chỉnh.</p></li>
+<li><p>setPwmLimit(uint8_t), setAccelStep(uint8_t): Đặt các giới hạn ngõ ra.</p></li>
+<li><p>ready() const: Trả về true khi mọi bánh mà khung gầm cần đều có động cơ.</p></li>
+<li><p>move(int8_t throttle, int8_t strafe, int8_t rotation): Trộn một lệnh thành tốc độ từng bánh.</p></li>
+<li><p>stop(): Thả mọi động cơ.</p></li>
+</ul>
+</section>
+<section id="robotconfig">
+<h3>RobotConfig<a class="headerlink" href="#robotconfig" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>defaults(): Trả về cấu hình mặc định.</p></li>
+<li><p>isValid() const: Kiểm tra phiên bản, phạm vi giá trị và vai trò trùng lặp.</p></li>
+<li><p>load(int address): Nạp từ EEPROM; trả về false khi trống hoặc hỏng.</p></li>
+<li><p>save(int address): Lưu kèm CRC-8.</p></li>
+</ul>
+</section>
+<section id="robot">
+<h3>Robot<a class="headerlink" href="#robot" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>begin(): Khởi động động cơ, servo và nạp cấu hình.</p></li>
+<li><p>update(): Chạy chu kỳ điều khiển 20 ms và watchdog đường truyền.</p></li>
+<li><p>onRemote(const ControlPacket&amp;): Nhận lệnh từ remote.</p></li>
+<li><p>setSource(Source): Chọn điều khiển REMOTE hoặc MANUAL.</p></li>
+<li><p>joy(...), runMotor(...), brakeMotor(...), stop(): Điều khiển thủ công.</p></li>
+<li><p>setMotor(...), apply(), applyLimits(): Thay đổi cấu hình.</p></li>
+<li><p>saveConfig(), resetConfig(): Lưu hoặc khôi phục cấu hình.</p></li>
+</ul>
+</section>
+<section id="hmi">
+<h3>Hmi<a class="headerlink" href="#hmi" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>update(): Đọc UART màn hình cảm ứng, chạy lệnh và gửi heartbeat.</p></li>
+</ul>
+</section>
+</section>
+<section id="communication">
+<h2>Truyền thông<a class="headerlink" href="#communication" title="Link to this heading">¶</a></h2>
+<section id="commanager">
+<h3>ComManager<a class="headerlink" href="#commanager" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Init(uint32 baudrate = 115200): Cấu hình UART.</p></li>
+<li><p>SendPacket(const ControlPacket&amp;): Gửi gói điều khiển có khung.</p></li>
+<li><p>SendCommand(const char*): Gửi lệnh ASCII kết thúc bằng ký tự xuống dòng.</p></li>
+<li><p>ReadPacket(ControlPacket&amp;): Phân tích một gói có khung hợp lệ.</p></li>
+<li><p>ReadLog(char* buffer, size_t bufferSize): Đọc một dòng log đã nhận.</p></li>
+</ul>
+</section>
+</section>
+<section id="input-implementations">
+<h2>Các thành phần đầu vào<a class="headerlink" href="#input-implementations" title="Link to this heading">¶</a></h2>
+<section id="swc-button">
+<h3>Swc_Button<a class="headerlink" href="#swc-button" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Init(): Cấu hình chân ngõ vào của nút bấm.</p></li>
+<li><p>Update(): Chống dội trạng thái nút bấm.</p></li>
+<li><p>GetState() const: Trả về bitmask đã chống dội.</p></li>
+</ul>
+</section>
+<section id="swc-joystick">
+<h3>Swc_Joystick<a class="headerlink" href="#swc-joystick" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Init(): Cấu hình các chân analog của joystick.</p></li>
+<li><p>Update(): Lấy mẫu và lọc thông thấp các trục.</p></li>
+<li><p>GetProcessedValues(...): Trả về giá trị đã lọc và đã trừ vùng chết.</p></li>
+</ul>
+</section>
+</section>
+<section id="shared-data-types">
+<h2>Các kiểu dữ liệu dùng chung<a class="headerlink" href="#shared-data-types" title="Link to this heading">¶</a></h2>
+<section id="controlpacket">
+<h3>ControlPacket<a class="headerlink" href="#controlpacket" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>msgType: CONTROL_MESSAGE hoặc HEARTBEAT_MESSAGE.</p></li>
+<li><p>throttle/strafe/rotation: Các kênh lệnh có dấu.</p></li>
+<li><p>buttons: Bitmask các nút bấm của remote.</p></li>
+<li><p>sequenceNum: Số thứ tự tăng dần.</p></li>
+<li><p>crc8: CRC-8 của gói.</p></li>
+</ul>
+</section>
+<section id="pairpacket">
+<h3>PairPacket<a class="headerlink" href="#pairpacket" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>cmd: Mã lệnh ghép cặp.</p></li>
+<li><p>macAddr[6]: Địa chỉ MAC của thiết bị.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="development.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Phát triển, kiểm thử và lộ trình</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="safety.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">An toàn và cơ chế failsafe</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, ThanggTrann12
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=d3888072"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/translations.js?v=4c1d55b0"></script>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+/* Ép khung code/ASCII art giữ nguyên định dạng chữ và hiển thị thanh cuộn ngang khi tràn */
+.rst-content div[class^='highlight'] pre,
+div.highlight pre,
+pre.literal-block {
+    white-space: pre !important;
+    word-wrap: normal !important;
+    overflow-x: auto !important;
+}
+
+/* Đảm bảo khung chứa không bị ép tràn ra ngoài layout chính */
+.rst-content div[class^='highlight'],
+div.highlight {
+    max-width: 100% !important;
+}

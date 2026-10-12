@@ -1,0 +1,245 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/hardware.rst:2
+msgid "Hardware Layer & Pinouts"
+msgstr ""
+
+#: ../../../source/hardware.rst:5
+msgid "Hardware Overview"
+msgstr ""
+
+#: ../../../source/hardware.rst:6
+msgid "The robot controller is an **Arduino Mega 2560** that talks to its outputs over I2C. Two **PCA9685** PWM chips generate all motor and servo signals; the Mega itself only provides the I2C bus, two UARTs and plain I/O pins."
+msgstr ""
+
+#: ../../../source/hardware.rst:8
+msgid "**PCA9685 at 0x40:** drives six **TA6586** motor drivers at 1 kHz."
+msgstr ""
+
+#: ../../../source/hardware.rst:9
+msgid "**PCA9685 at 0x41:** drives servos at 50 Hz."
+msgstr ""
+
+#: ../../../source/hardware.rst:11
+msgid "One PCA9685 has a single PWM frequency, so motors and servos need separate chips."
+msgstr ""
+
+#: ../../../source/hardware.rst:14
+msgid "Motor Slots"
+msgstr ""
+
+#: ../../../source/hardware.rst:16
+msgid "Each motor slot uses two adjacent PCA9685 channels connected to the two inputs of one TA6586."
+msgstr ""
+
+#: ../../../source/hardware.rst:22
+msgid "Slot"
+msgstr ""
+
+#: ../../../source/hardware.rst:23
+msgid "Name in firmware"
+msgstr ""
+
+#: ../../../source/hardware.rst:24
+msgid "Reverse input (BI)"
+msgstr ""
+
+#: ../../../source/hardware.rst:25
+msgid "Forward input (FI)"
+msgstr ""
+
+#: ../../../source/hardware.rst:26
+msgid "M1"
+msgstr ""
+
+#: ../../../source/hardware.rst:27
+msgid "slot 0"
+msgstr ""
+
+#: ../../../source/hardware.rst:28
+msgid "Channel 0"
+msgstr ""
+
+#: ../../../source/hardware.rst:29
+msgid "Channel 1"
+msgstr ""
+
+#: ../../../source/hardware.rst:30
+msgid "M2"
+msgstr ""
+
+#: ../../../source/hardware.rst:31
+msgid "slot 1"
+msgstr ""
+
+#: ../../../source/hardware.rst:32
+msgid "Channel 2"
+msgstr ""
+
+#: ../../../source/hardware.rst:33
+msgid "Channel 3"
+msgstr ""
+
+#: ../../../source/hardware.rst:34
+msgid "M3"
+msgstr ""
+
+#: ../../../source/hardware.rst:35
+msgid "slot 2"
+msgstr ""
+
+#: ../../../source/hardware.rst:36
+msgid "Channel 4"
+msgstr ""
+
+#: ../../../source/hardware.rst:37
+msgid "Channel 5"
+msgstr ""
+
+#: ../../../source/hardware.rst:38
+msgid "M4"
+msgstr ""
+
+#: ../../../source/hardware.rst:39
+msgid "slot 3"
+msgstr ""
+
+#: ../../../source/hardware.rst:40
+msgid "Channel 6"
+msgstr ""
+
+#: ../../../source/hardware.rst:41
+msgid "Channel 7"
+msgstr ""
+
+#: ../../../source/hardware.rst:42
+msgid "M5"
+msgstr ""
+
+#: ../../../source/hardware.rst:43
+msgid "slot 4"
+msgstr ""
+
+#: ../../../source/hardware.rst:44
+msgid "Channel 8"
+msgstr ""
+
+#: ../../../source/hardware.rst:45
+msgid "Channel 9"
+msgstr ""
+
+#: ../../../source/hardware.rst:46
+msgid "M6"
+msgstr ""
+
+#: ../../../source/hardware.rst:47
+msgid "slot 5"
+msgstr ""
+
+#: ../../../source/hardware.rst:48
+msgid "Channel 10"
+msgstr ""
+
+#: ../../../source/hardware.rst:49
+msgid "Channel 11"
+msgstr ""
+
+#: ../../../source/hardware.rst:51
+msgid "The touchscreen and the protocol number motors from 1 (M1 to M6). Which wheel a motor drives is configured, not wired; see :doc:`configuration`."
+msgstr ""
+
+#: ../../../source/hardware.rst:54
+msgid "Servos"
+msgstr ""
+
+#: ../../../source/hardware.rst:56
+msgid "Servos use channels 0 to 15 of the PCA9685 at address 0x41. A pulse of 0.5 ms to 2.5 ms maps to 0 to 180 degrees."
+msgstr ""
+
+#: ../../../source/hardware.rst:59
+msgid "ESP32-S3 Robot Connections"
+msgstr ""
+
+#: ../../../source/hardware.rst:65
+msgid "Function"
+msgstr ""
+
+#: ../../../source/hardware.rst:66
+msgid "Pins"
+msgstr ""
+
+#: ../../../source/hardware.rst:67
+msgid "Notes"
+msgstr ""
+
+#: ../../../source/hardware.rst:68
+msgid "I2C (PCA9685 chips)"
+msgstr ""
+
+#: ../../../source/hardware.rst:69
+msgid "8 (SDA), 9 (SCL)"
+msgstr ""
+
+#: ../../../source/hardware.rst:70
+msgid "Bus runs at 400 kHz."
+msgstr ""
+
+#: ../../../source/hardware.rst:71
+msgid "TJC touchscreen"
+msgstr ""
+
+#: ../../../source/hardware.rst:72
+msgid "Serial1: GPIO17 (TX1), GPIO18 (RX1)"
+msgstr ""
+
+#: ../../../source/hardware.rst:73
+msgid "115200 baud."
+msgstr ""
+
+#: ../../../source/hardware.rst:74
+msgid "General I/O"
+msgstr ""
+
+#: ../../../source/hardware.rst:75
+msgid "GPIO38, 47, 48, 19, 39 to 42"
+msgstr ""
+
+#: ../../../source/hardware.rst:76
+msgid "Configured as input or output from the touchscreen."
+msgstr ""
+
+#: ../../../source/hardware.rst:79
+msgid "Handheld Remote Pinout"
+msgstr ""
+
+#: ../../../source/hardware.rst:81
+msgid "**Left Joystick (X/Y):** ``A0`` / ``A1`` ($V_x$ Lateral / $V_y$ Forward)"
+msgstr ""
+
+#: ../../../source/hardware.rst:82
+msgid "**Right Joystick (X/Y):** ``A2`` / ``A3`` ($\\Omega_z$ Yaw Rotation / Auxiliary)"
+msgstr ""
+
+#: ../../../source/hardware.rst:83
+msgid "**Emergency Stop Switch:** Pin 21 (External Interrupt 0)"
+msgstr ""
+
+#: ../../../source/hardware.rst:84
+msgid "**Mode Selector Switches:** Pins 22, 23, 24"
+msgstr ""

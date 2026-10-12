@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/communication.rst:2
+msgid "Communication Protocols & ESP-NOW"
+msgstr ""
+
+#: ../../../source/communication.rst:4
+msgid "The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object."
+msgstr ""
+
+#: ../../../source/communication.rst:6
+msgid "**Serial1:** TJC touchscreen, ASCII text commands."
+msgstr ""
+
+#: ../../../source/communication.rst:7
+msgid "**ESP-NOW:** Remote control packets received directly by the ESP32-S3."
+msgstr ""
+
+#: ../../../source/communication.rst:10
+msgid "TJC Protocol (Serial1)"
+msgstr ""
+
+#: ../../../source/communication.rst:12
+msgid "A command is ASCII text with comma separated fields. It ends with three ``0xFF`` bytes (what the TJC sends) or with a newline. Every reply ends with three ``0xFF`` bytes."
+msgstr ""
+
+#: ../../../source/communication.rst:14
+msgid "Motor slots are numbered from 1 (M1 to M6)."
+msgstr ""
+
+#: ../../../source/communication.rst:15
+msgid "Wheel roles are numbered 0 to 6; see :doc:`configuration`."
+msgstr ""
+
+#: ../../../source/communication.rst:16
+msgid "A command is answered with ``OK,<NAME>`` or ``ERR,<NAME>``, except where noted."
+msgstr ""
+
+#: ../../../source/communication.rst:19
+msgid "Configuration"
+msgstr ""
+
+#: ../../../source/communication.rst:25
+#: ../../../source/communication.rst:51
+#: ../../../source/communication.rst:71
+msgid "Command"
+msgstr ""
+
+#: ../../../source/communication.rst:26
+#: ../../../source/communication.rst:52
+#: ../../../source/communication.rst:72
+#: ../../../source/communication.rst:92
+msgid "Description"
+msgstr ""
+
+#: ../../../source/communication.rst:27
+msgid "``GET``"
+msgstr ""
+
+#: ../../../source/communication.rst:28
+msgid "Reports the configuration (see below). No ``OK`` reply."
+msgstr ""
+
+#: ../../../source/communication.rst:29
+msgid "``CHASSIS,<0-5>``"
+msgstr ""
+
+#: ../../../source/communication.rst:30
+msgid "Selects two-wheel, tank, omni-4, mecanum, six-wheel or custom. Stops the motors."
+msgstr ""
+
+#: ../../../source/communication.rst:31
+msgid "``MOTOR,<slot 1-6>,<role 0-6>,<0|1>``"
+msgstr ""
+
+#: ../../../source/communication.rst:32
+msgid "Assigns a wheel role to a motor slot and sets its reverse flag. Role 0 frees the slot. Stops the motors."
+msgstr ""
+
+#: ../../../source/communication.rst:33
+msgid "``MIX,<role 1-6>,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../../source/communication.rst:34
+msgid "Sets the custom chassis mix of one wheel, each value from -100 to 100. Stops the motors."
+msgstr ""
+
+#: ../../../source/communication.rst:35
+msgid "``PWM,<0-255>``"
+msgstr ""
+
+#: ../../../source/communication.rst:36
+msgid "Sets the output limit. Applies immediately without stopping."
+msgstr ""
+
+#: ../../../source/communication.rst:37
+msgid "``ACCEL,<0-255>``"
+msgstr ""
+
+#: ../../../source/communication.rst:38
+msgid "Sets the largest speed change per 20 ms. 0 turns it off."
+msgstr ""
+
+#: ../../../source/communication.rst:39
+msgid "``SAVE``"
+msgstr ""
+
+#: ../../../source/communication.rst:40
+msgid "Writes the configuration to EEPROM."
+msgstr ""
+
+#: ../../../source/communication.rst:41
+msgid "``DEFAULT``"
+msgstr ""
+
+#: ../../../source/communication.rst:42
+msgid "Restores the factory configuration in RAM. Use ``SAVE`` to keep it."
+msgstr ""
+
+#: ../../../source/communication.rst:45
+msgid "Control"
+msgstr ""
+
+#: ../../../source/communication.rst:53
+msgid "``CTRL,<REMOTE|MANUAL>``"
+msgstr ""
+
+#: ../../../source/communication.rst:54
+msgid "Chooses who drives the robot. Stops the motors."
+msgstr ""
+
+#: ../../../source/communication.rst:55
+msgid "``JOY,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../../source/communication.rst:56
+msgid "Manual drive, each value from -100 to 100. Needs ``MANUAL``. Send it repeatedly; no reply when it succeeds, ``ERR,JOY`` otherwise."
+msgstr ""
+
+#: ../../../source/communication.rst:57
+msgid "``RUN,<slot 1-6>,<pwm>``"
+msgstr ""
+
+#: ../../../source/communication.rst:58
+msgid "Runs one motor from -255 to 255, limited by the PWM limit and using its reverse flag. Needs ``MANUAL``. The motor stops 500 ms after the last ``RUN``."
+msgstr ""
+
+#: ../../../source/communication.rst:59
+msgid "``BRAKE,<slot 1-6>``"
+msgstr ""
+
+#: ../../../source/communication.rst:60
+msgid "Brakes one motor. Needs ``MANUAL``."
+msgstr ""
+
+#: ../../../source/communication.rst:61
+msgid "``STOP``"
+msgstr ""
+
+#: ../../../source/communication.rst:62
+msgid "Stops every motor."
+msgstr ""
+
+#: ../../../source/communication.rst:65
+msgid "Servos and I/O"
+msgstr ""
+
+#: ../../../source/communication.rst:73
+msgid "``SERVO,<channel 0-15>,<angle 0-180>``"
+msgstr ""
+
+#: ../../../source/communication.rst:74
+msgid "Moves a servo on the second PCA9685."
+msgstr ""
+
+#: ../../../source/communication.rst:75
+msgid "``IO,<pin>,<IN|OUT|PULLUP>``"
+msgstr ""
+
+#: ../../../source/communication.rst:76
+msgid "Configures a pin. Allowed pins: 2 to 13 and 22 to 69."
+msgstr ""
+
+#: ../../../source/communication.rst:77
+msgid "``IO,<pin>,W,<0|1>``"
+msgstr ""
+
+#: ../../../source/communication.rst:78
+msgid "Writes a digital output."
+msgstr ""
+
+#: ../../../source/communication.rst:79
+msgid "``IO,<pin>,R``"
+msgstr ""
+
+#: ../../../source/communication.rst:80
+msgid "Reads a digital pin. Reply: ``IO,<pin>,<0|1>``."
+msgstr ""
+
+#: ../../../source/communication.rst:81
+msgid "``AIN,<channel 0-15>``"
+msgstr ""
+
+#: ../../../source/communication.rst:82
+msgid "Reads an analog input. Reply: ``AIN,<channel>,<value>``."
+msgstr ""
+
+#: ../../../source/communication.rst:85
+msgid "Messages from the ESP32-S3"
+msgstr ""
+
+#: ../../../source/communication.rst:91
+msgid "Message"
+msgstr ""
+
+#: ../../../source/communication.rst:93
+msgid "``SYS,OK``"
+msgstr ""
+
+#: ../../../source/communication.rst:94
+msgid "Heartbeat, sent every 500 ms."
+msgstr ""
+
+#: ../../../source/communication.rst:95
+msgid "``CFG,<chassis>,<pwm>,<accel>,<ready>,<source>``"
+msgstr ""
+
+#: ../../../source/communication.rst:96
+msgid "First line of the ``GET`` reply. ``ready`` is 1 when every wheel the chassis needs has a motor. ``source`` is ``REMOTE`` or ``MANUAL``."
+msgstr ""
+
+#: ../../../source/communication.rst:97
+msgid "``MAP,<slot>,<role>,<reverse>``"
+msgstr ""
+
+#: ../../../source/communication.rst:98
+msgid "One line per motor slot in the ``GET`` reply."
+msgstr ""
+
+#: ../../../source/communication.rst:99
+msgid "``MIX,<role>,<t>,<s>,<r>``"
+msgstr ""
+
+#: ../../../source/communication.rst:100
+msgid "One line per wheel role in the ``GET`` reply."
+msgstr ""
+
+#: ../../../source/communication.rst:102
+msgid "Example: configure a two-wheel robot with the motors on M1 and M2."
+msgstr ""
+
+#: ../../../source/communication.rst:112
+msgid "ESP-NOW Remote"
+msgstr ""
+
+#: ../../../source/communication.rst:114
+msgid "The remote sends its sticks over ESP-NOW at 2.4 GHz with an observed latency of approximately **~2.5 ms**. The ESP32-S3 receives each ``ControlPacket`` directly:"
+msgstr ""
+
+#: ../../../source/communication.rst:120
+msgid "``ControlPacket`` carries:"
+msgstr ""
+
+#: ../../../source/communication.rst:122
+msgid "Message type: control (0x01) or heartbeat (0x02)"
+msgstr ""
+
+#: ../../../source/communication.rst:123
+msgid "Throttle, strafe and rotation, each from -100 to 100"
+msgstr ""
+
+#: ../../../source/communication.rst:124
+msgid "Button bitmask"
+msgstr ""
+
+#: ../../../source/communication.rst:125
+msgid "Sequence number (rejects duplicate and out-of-order packets)"
+msgstr ""
+
+#: ../../../source/communication.rst:126
+msgid "CRC-8"
+msgstr ""
+
+#: ../../../source/communication.rst:128
+msgid "The ESP32-S3 accepts remote packets only while the source is ``REMOTE``. A heartbeat keeps the link alive and the last command running. Invalid packets and duplicate or out-of-order sequence numbers are discarded."
+msgstr ""

@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/safety.rst:2
+msgid "Safety & Failsafe Mechanisms"
+msgstr ""
+
+#: ../../../source/safety.rst:5
+msgid "Core Safety Principle"
+msgstr ""
+
+#: ../../../source/safety.rst:6
+msgid "**If the controller cannot verify that movement is safe, all motor outputs stay at zero.**"
+msgstr ""
+
+#: ../../../source/safety.rst:9
+msgid "What Stops the Motors"
+msgstr ""
+
+#: ../../../source/safety.rst:15
+msgid "Situation"
+msgstr ""
+
+#: ../../../source/safety.rst:16
+msgid "Behaviour"
+msgstr ""
+
+#: ../../../source/safety.rst:17
+msgid "No command for 500 ms"
+msgstr ""
+
+#: ../../../source/safety.rst:18
+msgid "The drive stops and the pending command is cleared. This covers a lost remote and a silent touchscreen."
+msgstr ""
+
+#: ../../../source/safety.rst:19
+msgid "Drive not ready"
+msgstr ""
+
+#: ../../../source/safety.rst:20
+msgid "Some wheel the chassis needs has no motor. The motors never move."
+msgstr ""
+
+#: ../../../source/safety.rst:21
+msgid "Chassis, mapping or custom mix changed"
+msgstr ""
+
+#: ../../../source/safety.rst:22
+msgid "All motors stop before the change applies."
+msgstr ""
+
+#: ../../../source/safety.rst:23
+msgid "Control source changed"
+msgstr ""
+
+#: ../../../source/safety.rst:24
+msgid "All motors stop and the pending command is cleared."
+msgstr ""
+
+#: ../../../source/safety.rst:25
+msgid "``STOP`` command"
+msgstr ""
+
+#: ../../../source/safety.rst:26
+msgid "All motors stop."
+msgstr ""
+
+#: ../../../source/safety.rst:27
+msgid "Single-motor test"
+msgstr ""
+
+#: ../../../source/safety.rst:28
+msgid "The motor stops 500 ms after the last ``RUN`` command."
+msgstr ""
+
+#: ../../../source/safety.rst:29
+msgid "Remote restarted"
+msgstr ""
+
+#: ../../../source/safety.rst:30
+msgid "After a link loss the sequence check restarts, so a remote that begins again at sequence 0 is accepted."
+msgstr ""
+
+#: ../../../source/safety.rst:33
+msgid "Limits"
+msgstr ""
+
+#: ../../../source/safety.rst:35
+msgid "The PWM limit caps every motor output, including the single-motor test."
+msgstr ""
+
+#: ../../../source/safety.rst:36
+msgid "The acceleration step limits how fast a wheel can change speed."
+msgstr ""
+
+#: ../../../source/safety.rst:37
+msgid "If a command would push a wheel past the limit, all wheels are scaled down together so the direction of travel is kept."
+msgstr ""
+
+#: ../../../source/safety.rst:40
+msgid "Control Source"
+msgstr ""
+
+#: ../../../source/safety.rst:42
+msgid "Only one source drives the robot at a time. Remote packets are ignored in ``MANUAL`` and joystick commands from the touchscreen are refused in ``REMOTE``."
+msgstr ""
+
+#: ../../../source/safety.rst:45
+msgid "Not Implemented"
+msgstr ""
+
+#: ../../../source/safety.rst:47
+msgid "The robot firmware has no emergency stop input. Power the motors through a switch you can reach."
+msgstr ""

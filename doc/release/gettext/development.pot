@@ -1,0 +1,149 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, ThanggTrann12
+# This file is distributed under the same license as the Robot Hub package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Robot Hub \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../source/development.rst:2
+msgid "Development, Testing & Roadmap"
+msgstr ""
+
+#: ../../../source/development.rst:5
+msgid "Reading the Code"
+msgstr ""
+
+#: ../../../source/development.rst:7
+msgid "Start at ``src/esp32_hub/Esp32_HubUnit.cpp``. ``setup()`` and ``loop()`` connect three objects:"
+msgstr ""
+
+#: ../../../source/development.rst:9
+msgid "``Hmi`` reads the touchscreen and calls ``Robot``."
+msgstr ""
+
+#: ../../../source/development.rst:10
+msgid "The ESP-NOW callback validates and queues remote packets for ``Robot::onRemote()``."
+msgstr ""
+
+#: ../../../source/development.rst:11
+msgid "``Robot::update()`` runs every loop, applies the current command to ``Drive`` every 20 ms and enforces the 500 ms watchdog."
+msgstr ""
+
+#: ../../../source/development.rst:13
+msgid "Everything below ``Robot`` is in ``lib/`` and can be read one folder at a time."
+msgstr ""
+
+#: ../../../source/development.rst:16
+msgid "Staged Testing Strategy"
+msgstr ""
+
+#: ../../../source/development.rst:18
+msgid "**Motor Test:** run each motor with ``RUN`` from the touchscreen and set its reverse flag."
+msgstr ""
+
+#: ../../../source/development.rst:19
+msgid "**Chassis Test:** use ``JOY`` in manual mode with the wheels lifted and check every wheel direction."
+msgstr ""
+
+#: ../../../source/development.rst:20
+msgid "**Wireless Test:** validate ESP-NOW packet sequence numbers and CRC checks."
+msgstr ""
+
+#: ../../../source/development.rst:21
+msgid "**Integration Test:** full test from the remote to physical movement."
+msgstr ""
+
+#: ../../../source/development.rst:24
+msgid "Extending the Firmware"
+msgstr ""
+
+#: ../../../source/development.rst:26
+msgid "**New motor driver**"
+msgstr ""
+
+#: ../../../source/development.rst:27
+msgid "Implement ``IMotor`` (``run``, ``brake``, ``stop``) in ``lib/Motor``, then create the motors in ``MotorBank`` or in a new bank."
+msgstr ""
+
+#: ../../../source/development.rst:29
+msgid "**New chassis**"
+msgstr ""
+
+#: ../../../source/development.rst:30
+msgid "Add a value to ``Chassis`` and a row of six ``Mix`` entries to the preset table in ``lib/Drive/Drive.cpp``. Existing chassis keep working, and the custom chassis needs no code."
+msgstr ""
+
+#: ../../../source/development.rst:32
+msgid "**New TJC command**"
+msgstr ""
+
+#: ../../../source/development.rst:33
+msgid "Add one ``else if`` branch to ``Hmi::handle()`` and one line to the table in :doc:`communication`."
+msgstr ""
+
+#: ../../../source/development.rst:35
+msgid "**New configuration field**"
+msgstr ""
+
+#: ../../../source/development.rst:36
+msgid "Add it to ``RobotConfig``, check it in ``isValid()``, and increase ``ROBOT_CONFIG_VERSION`` so old EEPROM data is replaced by defaults."
+msgstr ""
+
+#: ../../../source/development.rst:39
+msgid "Current Status & Roadmap"
+msgstr ""
+
+#: ../../../source/development.rst:41
+msgid "**Done:** layered firmware (PCA9685, motor, drive, config, HMI), six chassis types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW remote, link watchdog, servos and I/O from the touchscreen."
+msgstr ""
+
+#: ../../../source/development.rst:42
+msgid "**Next:** update the TJC project to the command set in :doc:`communication`, telemetry from the Mega to the screen, and a hardware emergency stop."
+msgstr ""
+
+#: ../../../source/development.rst:45
+msgid "PlatformIO Environment Layout"
+msgstr ""
+
+#: ../../../source/development.rst:47
+msgid "Each environment selects exactly one application folder under ``src/`` with ``build_src_filter``:"
+msgstr ""
+
+#: ../../../source/development.rst:49
+msgid "``src/Remote_Mega2560``: handheld Mega application."
+msgstr ""
+
+#: ../../../source/development.rst:50
+msgid "``src/Remote_ESP8266_Bridge``: handheld ESP-NOW bridge."
+msgstr ""
+
+#: ../../../source/development.rst:51
+msgid "``src/Robot_ESP8266_Receiver``: robot-side ESP-NOW receiver."
+msgstr ""
+
+#: ../../../source/development.rst:52
+msgid "``src/Esp32_HubUnit``: ESP32 robot controller."
+msgstr ""
+
+#: ../../../source/development.rst:54
+msgid "Reusable components live in ``lib/``. PlatformIO finds them from the ``#include`` lines, so an environment only compiles the libraries it uses. Do not add per-environment ``src_dir``: the installed PlatformIO ignores it. To add a firmware target, create one folder under ``src/`` and one matching ``build_src_filter`` block in ``platformio.ini``."
+msgstr ""
+
+#: ../../../source/development.rst:57
+msgid "Building the Documentation"
+msgstr ""
+
+#: ../../../source/development.rst:63
+msgid "To refresh the Vietnamese translation after editing the English pages, run ``sphinx-build -b gettext docs/source docs/_build/gettext`` and then ``sphinx-intl update -p docs/_build/gettext -l vi -d docs/locales``."
+msgstr ""

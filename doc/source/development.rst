@@ -4,60 +4,65 @@ Development, Testing & Roadmap
 Reading the Code
 ----------------
 
-Start at ``src/esp32_hub/Esp32_HubUnit.cpp``. ``setup()`` and ``loop()`` connect three objects:
+Start at ``app/Hub_Main.cpp``. ``setup()`` and ``loop()`` initialize and update the hub services:
 
-1. ``Hmi`` reads the touchscreen and calls ``Robot``.
-2. The ESP-NOW callback validates and queues remote packets for ``Robot::onRemote()``.
-3. ``Robot::update()`` runs every loop, applies the current command to ``Drive`` every 20 ms and enforces the 500 ms watchdog.
+1. ``Hmi`` handles touchscreen commands and calls ``Robot``.
+2. ``EspNowLink`` validates remote packets and queues them; ``update()`` delivers them to ``Robot::onRemote()`` from the main loop.
+3. ``Robot::update()`` applies drive commands on a 20 ms tick and stops after the 500 ms link timeout.
 
-Everything below ``Robot`` is in ``lib/`` and can be read one folder at a time.
+Reusable modules are under ``components/``. Public headers are in each component's ``api/`` directory, implementation files are in ``src/``, and board-specific settings are in ``cfg/s3_devkit/``.
+
+Building the Firmware
+---------------------
+
+Install PlatformIO Core or the PlatformIO IDE extension, then run these commands from the repository root:
+
+.. code-block:: console
+
+   pio run -e hub
+   pio run -e hub -t upload
+   pio device monitor -e hub
+
+Specify ``-e hub`` explicitly because the legacy PlatformIO configuration is also imported by the root project. The Mega 2560 and ESP8266 firmware is kept under ``legacy/`` and is not part of the hub build.
+
+The hub build compiles ``app/`` and ``components/*/src/``. ``tools/pio_components.py`` adds each component's ``api/`` and selected ``cfg/s3_devkit/`` directories to the include path.
 
 Staged Testing Strategy
 -----------------------
 
 1. **Motor Test:** run each motor with ``RUN`` from the touchscreen and set its reverse flag.
 2. **Chassis Test:** use ``JOY`` in manual mode with the wheels lifted and check every wheel direction.
-3. **Wireless Test:** validate ESP-NOW packet sequence numbers and CRC checks.
+3. **Wireless Test:** verify the configured remote MAC and channel, CRC validation, sequence handling and link timeout.
 4. **Integration Test:** full test from the remote to physical movement.
 
 Extending the Firmware
 ----------------------
 
 **New motor driver**
-   Implement ``IMotor`` (``run``, ``brake``, ``stop``) in ``lib/Motor``, then create the motors in ``MotorBank`` or in a new bank.
+   Implement the motor API in the appropriate driver component, then connect it through ``CDD_MotorTA6586`` or the motor bank.
 
 **New chassis**
-   Add a value to ``Chassis`` and a row of six ``Mix`` entries to the preset table in ``lib/Drive/Drive.cpp``. Existing chassis keep working, and the custom chassis needs no code.
+   Update the chassis type and mixing logic in ``components/SWC_Drive``. Keep existing presets and custom-mix behavior covered by drive tests.
 
 **New TJC command**
-   Add one ``else if`` branch to ``Hmi::handle()`` and one line to the table in :doc:`communication`.
+   Add the handler in ``components/SRV_Hmi`` and document the command in :doc:`communication`.
 
 **New configuration field**
-   Add it to ``RobotConfig``, check it in ``isValid()``, and increase ``ROBOT_CONFIG_VERSION`` so old EEPROM data is replaced by defaults.
+   Add it to ``RobotConfig`` in ``components/SWC_Robot`` and update its validation and persistence versioning.
 
 Current Status & Roadmap
 ------------------------
 
 * **Done:** layered firmware (PCA9685, motor, drive, config, HMI), six chassis types, motor mapping and reverse flags, EEPROM configuration, ESP-NOW remote, link watchdog, servos and I/O from the touchscreen.
-* **Next:** update the TJC project to the command set in :doc:`communication`, telemetry from the Mega to the screen, and a hardware emergency stop.
-
-PlatformIO Environment Layout
------------------------------
-
-Each environment selects exactly one application folder under ``src/`` with ``build_src_filter``:
-
-* ``src/Remote_Mega2560``: handheld Mega application.
-* ``src/Remote_ESP8266_Bridge``: handheld ESP-NOW bridge.
-* ``src/Robot_ESP8266_Receiver``: robot-side ESP-NOW receiver.
-* ``src/Esp32_HubUnit``: ESP32 robot controller.
-
-Reusable components live in ``lib/``. PlatformIO finds them from the ``#include`` lines, so an environment only compiles the libraries it uses. Do not add per-environment ``src_dir``: the installed PlatformIO ignores it. To add a firmware target, create one folder under ``src/`` and one matching ``build_src_filter`` block in ``platformio.ini``.
+* **Next:** update the TJC project to the command set in :doc:`communication`, add telemetry, and add a hardware emergency stop.
 
 Building the Documentation
 --------------------------
 
 .. code-block:: text
 
-   sphinx-build -b html docs/source docs/_build/html
+   sphinx-build -b html doc/source doc/_build/html
 
-To refresh the Vietnamese translation after editing the English pages, run ``sphinx-build -b gettext docs/source docs/_build/gettext`` and then ``sphinx-intl update -p docs/_build/gettext -l vi -d docs/locales``.
+.. note::
+
+   To build both translated pages on Windows, run ``tools/build.bat local`` from the repository root. To refresh the Vietnamese translation catalog manually, run ``sphinx-build -b gettext doc/source doc/_build/gettext`` followed by ``sphinx-intl update -p doc/_build/gettext -l vi -d doc/locales``.

@@ -8,17 +8,26 @@ ASSIGN_LOG_MACROS(EspNowLink);
 
 EspNowLink *EspNowLink::instance = nullptr;
 
+
 namespace
 {
-    // The receive callback signature changed in ESP-IDF 5 (Arduino-ESP32 3.x).
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-    void onReceive(const esp_now_recv_info_t *, const uint8_t *data, int length)
-#else
-    void onReceive(const uint8_t *, const uint8_t *data, int length)
-#endif
+    bool isExpectedSender(const uint8_t *senderMac)
     {
-        EspNowLink::receive(data, length);
+        return senderMac != nullptr &&
+               memcmp(senderMac, ESPNOW_REMOTE_MAC, sizeof(ESPNOW_REMOTE_MAC)) == 0;
     }
+
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    void onReceive(const esp_now_recv_info_t *info, const uint8_t *data, int length)
+    {
+        EspNowLink::receive(info != nullptr ? info->src_addr : nullptr, data, length);
+    }
+#else
+    void onReceive(const uint8_t *senderMac, const uint8_t *data, int length)
+    {
+        EspNowLink::receive(senderMac, data, length);
+    }
+#endif
 }
 
 EspNowLink::EspNowLink()
@@ -28,13 +37,17 @@ EspNowLink::EspNowLink()
 
 EspNowLink::~EspNowLink()
 {
+    esp_now_unregister_recv_cb();
+
     if (instance == this)
     {
-        instance = nullptr; // the ESP-NOW callback checks this before touching the queue
+        instance = nullptr;
     }
+
     if (_queue != nullptr)
     {
         vQueueDelete(_queue);
+        _queue = nullptr;
     }
 }
 
@@ -68,6 +81,7 @@ bool EspNowLink::begin(Handler handler, void *context)
     if (esp_now_register_recv_cb(onReceive) != ESP_OK)
     {
         LOG_E("Failed to register ESP-NOW receive callback");
+        esp_now_deinit();
         return false;
     }
     LOG_I("ESP-NOW initialized successfully");
@@ -99,11 +113,17 @@ void EspNowLink::update()
 }
 
 // Runs in the WiFi task: validate, enqueue, return. No logging and no Robot access here.
-void EspNowLink::receive(const uint8_t *data, int length)
+void EspNowLink::receive(const uint8_t *senderMac, const uint8_t *data, int length)
 {
     EspNowLink *self = instance;
     if (self == nullptr || self->_queue == nullptr)
     {
+        return;
+    }
+
+    if (!isExpectedSender(senderMac))
+    {
+        ++self->_rejected;
         return;
     }
 

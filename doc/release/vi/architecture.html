@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Tìm Kiếm" href="search.html"><link rel="next" title="Tầng phần cứng và sơ đồ chân" href="hardware.html"><link rel="prev" title="Robot Hub đa năng" href="index.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2025.12.19 -->
         <title>Kiến trúc hệ thống và triết lý thiết kế - Robot Hub</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e573a0a" />
@@ -294,11 +294,13 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
                                  |
                                Drive           chassis mixing, speed scaling, output limits
                                  |
-                               MotorBank       M0..M5: run (PWM), brake, stop
+                               MotorBank       M1..M6: run (PWM), brake, stop
                                  |
                                Pca9685         I2C PWM chip (0x40) + TA6586 motor drivers
 
-ESP-NOW remote   -- ESP-NOW --&gt; Robot           drive commands from the remote
+ESP-NOW remote   -- ESP-NOW --&gt; EspNowLink      validate MAC, length, type and CRC; queue packets
+                                 |
+                               Robot           sequence check, source selection and watchdog
 Servos                          ServoOut        PCA9685 chip 2 (0x41)
 Digital / analog pins           IoPin           in / out only
 </pre></div>
@@ -319,26 +321,32 @@ Digital / analog pins           IoPin           in / out only
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Pca9685</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
 <td><p>Chip PWM I2C: đặt chu kỳ nhiệm vụ cho một kênh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Motor</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">IMotor</span></code> (run, brake, stop), driver TA6586 và <code class="docutils literal notranslate"><span class="pre">MotorBank</span></code> gồm sáu động cơ.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_MotorTA6586</span></code></p></td>
+<td><p>Motor interface, TA6586 driver and six-motor bank.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/ServoOut</span></code></p></td>
-<td><p>Góc servo trên một kênh PCA9685.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
+<td><p>Servo output on a PCA9685 channel.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/IoPin</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Gpio</span></code></p></td>
 <td><p>Cấu hình một chân làm ngõ vào hoặc ngõ ra, đọc và ghi chân đó.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lib/Drive</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code></p></td>
 <td><p>Sáu khung gầm có sẵn, trộn tốc độ bánh, giới hạn PWM và giới hạn gia tốc.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lib/RobotConfig</span></code></p></td>
-<td><p>Một cấu trúc cấu hình duy nhất với giá trị mặc định, kiểm tra hợp lệ và nạp/lưu EEPROM.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code></p></td>
+<td><p>Robot control, configuration validation and EEPROM load and save.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">src/esp32_hub</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Robot</span></code> (phần kết nối), <code class="docutils literal notranslate"><span class="pre">Hmi</span></code> (giao thức TJC) và <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code>.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code></p></td>
+<td><p>TJC command protocol and handlers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow</span></code></p></td>
+<td><p>ESP-NOW receive validation and packet queue.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code></p></td>
+<td><p>Composition root and <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code> for the ESP32-S3 hub.</p></td>
 </tr>
 </tbody>
 </table>
@@ -346,19 +354,20 @@ Digital / analog pins           IoPin           in / out only
 </section>
 <section id="control-pipeline">
 <h2>Pipeline điều khiển<a class="headerlink" href="#control-pipeline" title="Link to this heading">¶</a></h2>
-<a class="reference internal image-reference" href="_images/control_pipeline.svg"><img alt="Pipeline điều khiển hoàn chỉnh" src="_images/control_pipeline.svg" style="width: 100%;" />
-</a>
+<a class="reference internal image-reference" href="_images/control_pipeline.svg"><img alt="Pipeline điều khiển hoàn chỉnh" src="_images/control_pipeline.svg" width="100%" /></a>
 </section>
 <section id="system-architecture-wireless-data-flow">
 <h2>Kiến trúc hệ thống và luồng dữ liệu không dây<a class="headerlink" href="#system-architecture-wireless-data-flow" title="Link to this heading">¶</a></h2>
-<a class="reference internal image-reference" href="_images/system_architecture.svg"><img alt="Kiến trúc hệ thống và luồng dữ liệu không dây" src="_images/system_architecture.svg" style="width: 100%;" />
-</a>
+<a class="reference internal image-reference" href="_images/system_architecture.svg"><img alt="Kiến trúc hệ thống và luồng dữ liệu không dây" src="_images/system_architecture.svg" width="100%" /></a>
 </section>
 <section id="design-philosophy">
 <h2>Triết lý thiết kế<a class="headerlink" href="#design-philosophy" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
-<li><p><strong>Simple:</strong>
-A newcomer should be able to read <code class="docutils literal notranslate"><span class="pre">src/esp32_hub/Esp32_HubUnit.cpp</span></code> and follow the whole system in a few minutes.</p></li>
+<li><dl class="simple">
+<dt><strong>Simple:</strong></dt><dd><p>A newcomer should be able to read <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> and follow the whole system in a few minutes.</p>
+</dd>
+</dl>
+</li>
 <li><p><strong>Phân tầng:</strong> Động cơ chỉ chạy, hãm hoặc dừng. Servo chỉ quay đến một góc. Chân I/O chỉ là ngõ vào hoặc ngõ ra. Mọi thứ khác được xây trên các tầng này.</p></li>
 <li><p><strong>Cấu hình được:</strong> Màn hình cảm ứng quyết định khung gầm, ánh xạ động cơ và các giới hạn. Đây là dữ liệu trong EEPROM, không phải mã.</p></li>
 <li><p><strong>An toàn mặc định:</strong> Nếu khung gầm chưa được gán đủ động cơ hoặc đường truyền lệnh im lặng, động cơ sẽ đứng yên.</p></li>
@@ -440,9 +449,9 @@ A newcomer should be able to read <code class="docutils literal notranslate"><sp
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=d3888072"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/translations.js?v=4c1d55b0"></script>
+    <script src="_static/translations.js?v=71464233"></script>
     </body>
 </html>

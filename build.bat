@@ -5,7 +5,6 @@ echo ===================================================
 echo   AUTOMATIC MULTILINGUAL SPHINX BUILD (EN / VI)
 echo ===================================================
 
-:: Mặc định build release; truyền "local" để bỏ qua bước đóng gói
 set "IS_RELEASE=1"
 if /I "%~1"=="local" set "IS_RELEASE=0"
 
@@ -15,11 +14,10 @@ if "%IS_RELEASE%"=="1" (
     echo [+] Mode: LOCAL BUILD - no release packaging
 )
 
-:: 1. Xác định thư mục nguồn
-if exist "docs\source\conf.py" (
-    set "SOURCE_DIR=docs\source"
-    set "OUTPUT_DIR=docs\_build\html"
-    set "DOCS_DIR=docs"
+if exist "doc\source\conf.py" (
+    set "SOURCE_DIR=doc\source"
+    set "OUTPUT_DIR=doc\_build\html"
+    set "DOCS_DIR=doc"
 ) else (
     echo [ERROR] Could not find conf.py!
     pause
@@ -27,7 +25,7 @@ if exist "docs\source\conf.py" (
 )
 
 set "RELEASE_DIR=%DOCS_DIR%\release"
-set "DOXYGEN_XML=docs\_build\doxygen\xml\index.xml"
+set "DOXYGEN_XML=doc\_build\doxygen\xml\index.xml"
 
 where doxygen >NUL 2>&1
 if errorlevel 1 (
@@ -46,7 +44,6 @@ if exist "%DOXYGEN_XML%" (
     echo [WARN] Missing Doxygen XML: %DOXYGEN_XML%
 )
 
-:: 2. Trích xuất văn bản & cập nhật file translation
 echo [+] Step 1/4: Extracting translatable strings...
 sphinx-build -b gettext "%SOURCE_DIR%" "%OUTPUT_DIR%/gettext"
 
@@ -65,7 +62,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 3. Auto-translate PO files
 echo [+] Step 3/4: Auto-translating PO files to Vietnamese...
 
 set "POTRANSLATOR_LOG=%OUTPUT_DIR%\potranslator_error.log"
@@ -97,7 +93,6 @@ if errorlevel 1 (
     echo [OK] potranslator completed.
 )
 
-:: 4. Build ra 2 giao diện HTML
 echo [+] Step 4/4: Building HTML outputs...
 
 echo     - Building English version...
@@ -118,12 +113,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Tạo index.html điều hướng mặc định
 (
 echo ^<html^>^<head^>^<meta http-equiv="refresh" content="0; url=en/index.html"^>^</head^>^</html^>
 ) > "%OUTPUT_DIR%/index.html"
 
-:: 5. Tự động đóng gói release (trừ khi chạy "build.bat local")
 if "%IS_RELEASE%"=="1" (
     call :release
     if errorlevel 1 (
@@ -150,18 +143,12 @@ if "%IS_RELEASE%"=="1" (
 
 exit /b 0
 
-:: ---------------------------------------------------
-:: Subroutine: đóng gói release (copy HTML sang docs\release)
-:: ---------------------------------------------------
 :release
 echo [+] Packaging into release folder...
 if exist "%RELEASE_DIR%" rmdir /s /q "%RELEASE_DIR%"
 mkdir "%RELEASE_DIR%"
 xcopy /e /i /y "%OUTPUT_DIR%" "%RELEASE_DIR%" > NUL
 if errorlevel 1 exit /b 1
-
-:: Bỏ comment dòng dưới nếu không muốn đưa file .pot (gettext) vào release
-:: if exist "%RELEASE_DIR%\gettext" rmdir /s /q "%RELEASE_DIR%\gettext"
 
 echo [OK] Release folder ready at: %RELEASE_DIR%
 exit /b 0

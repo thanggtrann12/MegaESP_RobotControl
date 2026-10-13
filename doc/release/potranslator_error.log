@@ -1,47 +1,37 @@
-C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\__init__.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources
 Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Scripts\potranslator.exe\__main__.py", line 6, in <module>
-    sys.exit(main())
-             ~~~~^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\click\core.py", line 1631, in __call__
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\Scripts\potranslator.exe\__main__.py", line 7, in <module>
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\click\core.py", line 1157, in __call__
     return self.main(*args, **kwargs)
-           ~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\click\core.py", line 1552, in main
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\click\core.py", line 1078, in main
     rv = self.invoke(ctx)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\click\core.py", line 2032, in invoke
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\click\core.py", line 1688, in invoke
     return _process_result(sub_ctx.command.invoke(sub_ctx))
-                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\click\core.py", line 1415, in invoke
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\click\core.py", line 1434, in invoke
     return ctx.invoke(self.callback, **ctx.params)
-           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\click\core.py", line 910, in invoke
-    return callback(*args, **kwargs)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\commands.py", line 307, in update
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\click\core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\potranslator\commands.py", line 307, in update
     basic.update(locale_dir, pot_dir, languages)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\basic.py", line 53, in update
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\potranslator\basic.py", line 53, in update
     results = translator.translate_all_pot(target_langs=languages, auto_save=True)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\potranslator.py", line 192, in translate_all_pot
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\potranslator\potranslator.py", line 192, in translate_all_pot
     results[pot_file] = self.translate_from_pot(path, status, target_langs=target_langs, src_lang=src_lang, encoding=encoding, auto_save=auto_save, compiled=compiled)
-                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\potranslator.py", line 157, in translate_from_pot
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\potranslator\potranslator.py", line 157, in translate_from_pot
     results[target_lang], updated = self.translate(po_path, target_lang=target_lang, src_lang=src_lang, encoding=encoding, auto_save=auto_save, compiled=compiled)
-                                    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\potranslator\potranslator.py", line 74, in translate
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\potranslator\potranslator.py", line 74, in translate
     translations = self.translator.translate([elmt.msgid for elmt in untranslated], src=src_lang, dest=target_lang)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\googletrans\client.py", line 167, in translate
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\client.py", line 167, in translate
     translated = self.translate(item, dest=dest, src=src)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\googletrans\client.py", line 172, in translate
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\client.py", line 172, in translate
     data = self._translate(text, dest, src)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\googletrans\client.py", line 75, in _translate
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\client.py", line 75, in _translate
     token = self.token_acquirer.do(text)
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\googletrans\gtoken.py", line 180, in do
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\gtoken.py", line 180, in do
     self._update()
-    ~~~~~~~~~~~~^^
-  File "C:\Users\thang\AppData\Local\Programs\Python\Python314\Lib\site-packages\googletrans\gtoken.py", line 59, in _update
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\gtoken.py", line 59, in _update
     code = unicode(self.RE_TKK.search(r.text).group(1)).replace('var ', '')
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'NoneType' object has no attribute 'group'

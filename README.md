@@ -24,7 +24,7 @@ A layered-architecture C++ firmware for a general-purpose robot (Universal Robot
 
 ## Architecture
 
-The system is strictly layered to keep it extensible and maintainable (Separation of Concerns):
+The ESP32-S3 hub firmware is organized into application and reusable component layers:
 
 ```mermaid
 graph TD
@@ -80,33 +80,46 @@ cd MegaESP_RobotControl
 
 ### 2. Build the firmware
 
-> TODO: add build/flash instructions (Arduino IDE or PlatformIO).
+Install PlatformIO Core or the PlatformIO IDE extension, then run from the repository root:
+
+```powershell
+pio run -e hub
+```
+
+To flash the hub and open its serial monitor:
+
+```powershell
+pio run -e hub -t upload
+pio device monitor -e hub
+```
+
+Specify `-e hub` explicitly. The Mega 2560 and ESP8266 remote firmware is archived under `legacy/` and is separate from the ESP32-S3 hub build.
 
 ### 3. Build the documentation (EN / VI)
 
 Requirements: Python, `sphinx`, `sphinx-intl`, `potranslator`; Doxygen (optional, used for the API page).
 
 ```bat
-:: Full build and package the release into docs\release
-build.bat
+:: Full build and package the release into doc\release
+tools\build.bat
 
 :: Quick build, no release packaging
-build.bat local
+tools\build.bat local
 ```
 
 Output:
 
 | Mode | Path |
 |---|---|
-| Local | `docs/_build/html/en/index.html`, `docs/_build/html/vi/index.html` |
-| Release | `docs/release/en/index.html`, `docs/release/vi/index.html` |
+| Local | `doc/_build/html/en/index.html`, `doc/_build/html/vi/index.html` |
+| Release | `doc/release/en/index.html`, `doc/release/vi/index.html` |
 
 ---
 
 ## Documentation
 
-- [English](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/docs/release/en/index.html)
-- [Tiếng Việt (Vietnamese)](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/docs/release/vi/index.html)
+- [English](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/doc/release/en/index.html)
+- [Tiếng Việt (Vietnamese)](https://htmlpreview.github.io/?https://github.com/thanggtrann12/MegaESP_RobotControl/blob/main/doc/release/vi/index.html)
 
 
 ---

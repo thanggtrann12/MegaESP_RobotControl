@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"POT-Creation-Date: 2026-10-13 10:55+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,107 +60,124 @@ msgstr ""
 msgid "Layers"
 msgstr ""
 
-#: ../../../source/architecture.rst:36
+#: ../../../source/architecture.rst:38
 msgid "Each layer only knows the layer directly below it. The motor layer does not know what a wheel is, and ``Drive`` does not know which chip moves a motor."
 msgstr ""
 
-#: ../../../source/architecture.rst:39
+#: ../../../source/architecture.rst:41
 msgid "Where the code lives"
 msgstr ""
 
-#: ../../../source/architecture.rst:45
+#: ../../../source/architecture.rst:47
 msgid "Folder"
 msgstr ""
 
-#: ../../../source/architecture.rst:46
+#: ../../../source/architecture.rst:48
 msgid "Responsibility"
 msgstr ""
 
-#: ../../../source/architecture.rst:47
-msgid "``lib/Pca9685``"
-msgstr ""
-
-#: ../../../source/architecture.rst:48
-msgid "I2C PWM chip: set one channel duty cycle."
-msgstr ""
-
 #: ../../../source/architecture.rst:49
-msgid "``lib/Motor``"
+#: ../../../source/architecture.rst:53
+msgid "``components/CDD_Pca9685``"
 msgstr ""
 
 #: ../../../source/architecture.rst:50
-msgid "``IMotor`` (run, brake, stop), the TA6586 driver and ``MotorBank`` with six motors."
+msgid "I2C PWM chip: set one channel duty cycle."
 msgstr ""
 
 #: ../../../source/architecture.rst:51
-msgid "``lib/ServoOut``"
+msgid "``components/CDD_MotorTA6586``"
 msgstr ""
 
 #: ../../../source/architecture.rst:52
-msgid "Servo angle on a PCA9685 channel."
-msgstr ""
-
-#: ../../../source/architecture.rst:53
-msgid "``lib/IoPin``"
+msgid "Motor interface, TA6586 driver and six-motor bank."
 msgstr ""
 
 #: ../../../source/architecture.rst:54
-msgid "Configure a pin as input or output, read and write it."
+msgid "Servo output on a PCA9685 channel."
 msgstr ""
 
 #: ../../../source/architecture.rst:55
-msgid "``lib/Drive``"
+msgid "``components/CDD_Gpio``"
 msgstr ""
 
 #: ../../../source/architecture.rst:56
-msgid "The six chassis presets, wheel mixing, PWM limit and acceleration limit."
+msgid "Configure a pin as input or output, read and write it."
 msgstr ""
 
 #: ../../../source/architecture.rst:57
-msgid "``lib/RobotConfig``"
+msgid "``components/SWC_Drive``"
 msgstr ""
 
 #: ../../../source/architecture.rst:58
-msgid "One configuration structure with defaults, validation and EEPROM load and save."
+msgid "The six chassis presets, wheel mixing, PWM limit and acceleration limit."
 msgstr ""
 
 #: ../../../source/architecture.rst:59
-msgid "``src/esp32_hub``"
+msgid "``components/SWC_Robot``"
 msgstr ""
 
 #: ../../../source/architecture.rst:60
-msgid "``Robot`` (glue), ``Hmi`` (TJC protocol) and ``setup()`` / ``loop()``."
+msgid "Robot control, configuration validation and EEPROM load and save."
+msgstr ""
+
+#: ../../../source/architecture.rst:61
+msgid "``components/SRV_Hmi``"
+msgstr ""
+
+#: ../../../source/architecture.rst:62
+msgid "TJC command protocol and handlers."
 msgstr ""
 
 #: ../../../source/architecture.rst:63
-msgid "Control Pipeline"
+msgid "``components/SRV_EspNow``"
+msgstr ""
+
+#: ../../../source/architecture.rst:64
+msgid "ESP-NOW receive validation and packet queue."
 msgstr ""
 
 #: ../../../source/architecture.rst:65
+msgid "``app/Hub_Main.cpp``"
+msgstr ""
+
+#: ../../../source/architecture.rst:66
+msgid "Composition root and ``setup()`` / ``loop()`` for the ESP32-S3 hub."
+msgstr ""
+
+#: ../../../source/architecture.rst:69
+msgid "Control Pipeline"
+msgstr ""
+
+#: ../../../source/architecture.rst:-1
 msgid "Complete Control Pipeline"
 msgstr ""
 
-#: ../../../source/architecture.rst:70
-#: ../../../source/architecture.rst:72
+#: ../../../source/architecture.rst:-1
+#: ../../../source/architecture.rst:76
 msgid "System Architecture & Wireless Data Flow"
 msgstr ""
 
-#: ../../../source/architecture.rst:77
+#: ../../../source/architecture.rst:83
 msgid "Design Philosophy"
 msgstr ""
 
-#: ../../../source/architecture.rst:79
-msgid "**Simple:** A newcomer should be able to read ``src/esp32_hub/Esp32_HubUnit.cpp`` and follow the whole system in a few minutes."
+#: ../../../source/architecture.rst:86
+msgid "**Simple:**"
 msgstr ""
 
-#: ../../../source/architecture.rst:82
-msgid "**Layered:** Motors only run, brake or stop. Servos only move to an angle. Pins are only inputs or outputs. Everything else is built on top."
-msgstr ""
-
-#: ../../../source/architecture.rst:85
-msgid "**Configurable:** The touchscreen decides the chassis, the motor mapping and the limits. These are data in EEPROM, not code."
+#: ../../../source/architecture.rst:86
+msgid "A newcomer should be able to read ``app/Hub_Main.cpp`` and follow the whole system in a few minutes."
 msgstr ""
 
 #: ../../../source/architecture.rst:88
+msgid "**Layered:** Motors only run, brake or stop. Servos only move to an angle. Pins are only inputs or outputs. Everything else is built on top."
+msgstr ""
+
+#: ../../../source/architecture.rst:91
+msgid "**Configurable:** The touchscreen decides the chassis, the motor mapping and the limits. These are data in EEPROM, not code."
+msgstr ""
+
+#: ../../../source/architecture.rst:94
 msgid "**Safe by default:** If the chassis is not fully mapped, or the command link is silent, the motors stay stopped."
 msgstr ""

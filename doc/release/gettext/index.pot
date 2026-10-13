@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:54+0700\n"
+"POT-Creation-Date: 2026-10-13 10:55+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgid "A layered PlatformIO firmware for a plug, configure, play robot controlle
 msgstr ""
 
 #: ../../../source/index.rst:7
-msgid "The system is built around an **Arduino Mega 2560 Master Hub**, integrated with a **TJC/Nextion HMI (480x320px)**, and connected to a custom handheld remote controller through **ESP8266 ESP-NOW** wireless bridges."
+msgid "The current robot hub runs on an **ESP32-S3** and connects to a **TJC/Nextion HMI** over UART. A handheld remote sends control packets directly to the hub over ESP-NOW. The older Mega 2560 and ESP8266 firmware is retained under ``legacy/``."
 msgstr ""
 
 #: ../../../source/index.rst:9

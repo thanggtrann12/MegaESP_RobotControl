@@ -17,9 +17,7 @@ Quick Links
 - RobotConfig_
 - Robot_
 - Hmi_
-- ComManager_
-- Swc_Button_
-- Swc_Joystick_
+- EspNowLink_
 - ControlPacket_
 - PairPacket_
 
@@ -72,7 +70,7 @@ Drive and Configuration
 Drive
 ^^^^^
 
-- assign(WheelRole, IMotor*, bool inverted): Connect a motor to a wheel role.
+- assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role.
 - clearMotors(): Disconnect every motor.
 - setChassis(Chassis, const Mix* custom): Select a chassis preset or the custom table.
 - setPwmLimit(uint8_t), setAccelStep(uint8_t): Set the output limits.
@@ -107,31 +105,12 @@ Hmi
 Communication
 -------------
 
-ComManager
+EspNowLink
 ^^^^^^^^^^
 
-- Init(uint32 baudrate = 115200): Configure UART.
-- SendPacket(const ControlPacket&): Send framed control packet.
-- SendCommand(const char*): Send newline-terminated ASCII command.
-- ReadPacket(ControlPacket&): Parse one valid framed packet.
-- ReadLog(char* buffer, size_t bufferSize): Read one received log line.
-
-Input Implementations
----------------------
-
-Swc_Button
-^^^^^^^^^^
-
-- Init(): Configure button input pin.
-- Update(): Debounce button state.
-- GetState() const: Return debounced bitmask.
-
-Swc_Joystick
-^^^^^^^^^^^^
-
-- Init(): Configure joystick analog pins.
-- Update(): Sample and low-pass filter axes.
-- GetProcessedValues(...): Return filtered + deadzone-adjusted values.
+- begin(Handler, void* context): Start ESP-NOW on the configured channel and register the packet handler.
+- update(): Call from loop(); hands every queued ControlPacket to the handler.
+- rejectedCount() const, droppedCount() const: Frames refused (length, CRC, type) and frames lost to a full queue.
 
 Shared Data Types
 -----------------

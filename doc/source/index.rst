@@ -4,7 +4,7 @@ Universal Robot Hub
 
 A layered PlatformIO firmware for a plug, configure, play robot controller: one firmware, many chassis, configured from a touchscreen.
 
-The system is built around an **Arduino Mega 2560 Master Hub**, integrated with a **TJC/Nextion HMI (480x320px)**, and connected to a custom handheld remote controller through **ESP8266 ESP-NOW** wireless bridges.
+The current robot hub runs on an **ESP32-S3** and connects to a **TJC/Nextion HMI** over UART. A handheld remote sends control packets directly to the hub over ESP-NOW. The older Mega 2560 and ESP8266 firmware is retained under ``legacy/``.
 
 The project is designed as a **DIY, hobby, and educational robotics platform**. Its main purpose is to explore how a real robot controller can be structured using C++, hardware abstraction, configurable motor mapping, kinematics, communication protocols, and safety mechanisms — while keeping the overall system practical enough for a student to build and understand.
 

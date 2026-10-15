@@ -20,6 +20,9 @@ public:
 
     IMotor *motor(uint8_t slot) { return &_motors[slot]; } // slot 0..5
 
+    // PCA9685 mà bank này điều khiển, để module khác (Robot) dùng chung đúng 1 object.
+    Pca9685 &pca() { return *_pca; }
+
     void stopAll()
     {
         for (MotorTA6586 &motor : _motors)
@@ -33,4 +36,4 @@ private:
     MotorTA6586 _motors[MOTOR_SLOTS];
 };
 
-#endif
+#endif // MOTOR_BANK_H

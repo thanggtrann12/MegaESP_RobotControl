@@ -8,7 +8,7 @@
 
 constexpr uint32_t I2C_CLOCK_HZ = 400000UL;
 
-constexpr uint8_t MOTOR_PCA_ADDRESS = 0x40;
-constexpr uint8_t SERVO_PCA_ADDRESS = 0x41; // own chip: servos need 50 Hz, motors 1 kHz
+constexpr uint8_t SERVO_PCA_ADDRESS = 0x40; // own chip: servos need 50 Hz, motors 1 kHz
+constexpr uint8_t MOTOR_PCA_ADDRESS = 0x41;
 
 #endif // PCA9685_CFG_H

@@ -27,7 +27,11 @@ namespace
         return crc;
     }
 }
-uint8_t DigitalIo::pin(uint8_t i) { return PINS[i]; }
+uint8_t DigitalIo::pin(uint8_t i)
+{
+    return PINS[i];
+}
+
 int8_t DigitalIo::indexOfPin(uint8_t p)
 {
     for (uint8_t i = 0; i < COUNT; ++i)
@@ -35,6 +39,7 @@ int8_t DigitalIo::indexOfPin(uint8_t p)
             return i;
     return -1;
 }
+
 void DigitalIo::begin(int eepromAddress)
 {
     _address = eepromAddress;
@@ -42,6 +47,7 @@ void DigitalIo::begin(int eepromAddress)
     for (uint8_t i = 0; i < COUNT; ++i)
         apply(i);
 }
+
 void DigitalIo::apply(uint8_t i)
 {
     const Config &c = _config[i];
@@ -59,6 +65,7 @@ void DigitalIo::apply(uint8_t i)
         break;
     }
 }
+
 bool DigitalIo::set(uint8_t i, const Config &config)
 {
     if (i >= COUNT || config.mode > PULL_UP || config.defaultHigh > 1 || config.invert > 1)
@@ -68,6 +75,7 @@ bool DigitalIo::set(uint8_t i, const Config &config)
     save();
     return true;
 }
+
 void DigitalIo::reset()
 {
     memset(_config, 0, sizeof(_config));
@@ -75,12 +83,18 @@ void DigitalIo::reset()
         apply(i);
     save();
 }
-bool DigitalIo::read(uint8_t i) const { return (IoPin::read(PINS[i]) != 0) ^ (_config[i].invert != 0); }
+
+bool DigitalIo::read(uint8_t i) const
+{
+    return (IoPin::read(PINS[i]) != 0) ^ (_config[i].invert != 0);
+}
+
 void DigitalIo::write(uint8_t i, bool logical)
 {
     if (_config[i].mode == OUT)
         IoPin::write(PINS[i], logical ^ (_config[i].invert != 0));
 }
+
 void DigitalIo::load()
 {
     EEPROM_BEGIN();
@@ -95,6 +109,7 @@ void DigitalIo::load()
             return;
     memcpy(_config, stored, sizeof(_config));
 }
+
 void DigitalIo::save()
 {
     EEPROM_BEGIN();

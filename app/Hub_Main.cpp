@@ -7,13 +7,14 @@
 #include <WiFi.h>
 #include <esp_idf_version.h>
 #include "Hmi.h"
-#include "Robot.h"
-#include "Robot_Cfg.h"
+#include "SWC_Robot.h"
 #include "Hmi_Cfg.h"
-#include "Pca9685_Cfg.h"
-#include "Gpio_Cfg.h"
+#include "CDD_Pca9685.h"
+#include "CDD_Gpio.h"
+#include "CDD_MotorTA6586.h"
 #include "GenericLogger.h"
 #include "EspNowLink.h"
+#include "UserCode.h"
 
 /* NOTE: This module initializes and updates sub-modules for the ESP32 hub unit.
  *   - If you want to add more sub-modules, you should initialize and update them in the respective functions.
@@ -23,10 +24,13 @@
  */
 
 //======================================= Constants and Global Objects ========================//
-static Pca9685 motorPca(Wire, MOTOR_PCA_ADDRESS);
-static Pca9685 servoPca(Wire, SERVO_PCA_ADDRESS);
-static Robot robot(motorPca, servoPca);
-static DigitalIo digitalIo;
+
+auto &digitalIo = CDD_Gpio_GetInstance();
+auto &motorBank = CDD_Motor_GetBankInstance();
+
+static Pca9685 &motorPca = CDD_Motor_GetBankInstance().pca();
+static Pca9685 &servoPca = CDD_Pca9685_GetServoPca();
+static Robot &robot = SWC_Robot_GetInstance();
 static Hmi hmi(HMI_UART, robot, digitalIo);
 static EspNowLink espLink;
 
@@ -65,10 +69,13 @@ void loop()
     if (!isSubModuleInited)
     {
         subModuleInit();
+        userCodeInit();
+        isSubModuleInited = true; // Ensure the flag is set after initialization
     }
     else
     {
         subModuleUpdate();
+        userCodeUpdate();
     }
 }
 
@@ -79,8 +86,8 @@ void subModuleInit()
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ);
     HMI_UART.begin(HMI_UART_BAUD, SERIAL_8N1, HMI_UART_RX, HMI_UART_TX);
 
-    digitalIo.begin(GPIO_EEPROM_ADDRESS); // load saved IO modes and apply them
-    robot.begin();                        // init PCA9685 chips, load saved config, apply chassis
+    CDD_Gpio_Begin(); // load saved IO modes and apply them
+    robot.begin();    // init PCA9685 chips, load saved config, apply chassis
 
     if (!espLink.begin(onRemotePacket, &robot))
     {

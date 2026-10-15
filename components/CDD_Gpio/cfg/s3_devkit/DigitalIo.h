@@ -20,7 +20,7 @@ public:
         uint8_t defaultHigh;
         uint8_t invert;
     };
-    void begin(int eepromAddress);
+    void begin(int eepromAddress = GPIO_EEPROM_ADDRESS);
     bool set(uint8_t i, const Config &config);
     void reset();
     const Config &config(uint8_t i) const { return _config[i]; }

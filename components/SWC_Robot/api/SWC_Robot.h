@@ -14,6 +14,8 @@ Robot &SWC_Robot_GetInstance();
 void SWC_Robot_Begin(void);  // khởi tạo 2 chip PCA9685, nạp config EEPROM, dựng chassis
 void SWC_Robot_Update(void); // gọi trong loop()
 
+void SWC_Robot_OnRemote(const ControlPacket &packet); // nhận packet từ ESP-NOW (gọi trong loop)
+
 void SWC_Robot_SetSource(Source source);                             // REMOTE / MANUAL
 bool SWC_Robot_Joy(int8_t throttle, int8_t strafe, int8_t rotation); // chỉ nhận khi source = MANUAL
 bool SWC_Robot_RunMotor(uint8_t slotIndex, int16_t pwm);             // test 1 motor (MANUAL), tự dừng sau timeout

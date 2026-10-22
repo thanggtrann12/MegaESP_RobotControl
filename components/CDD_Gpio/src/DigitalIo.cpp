@@ -1,4 +1,5 @@
 #include "DigitalIo.h"
+#include "Crc.h"
 #include <EEPROM.h>
 #include "Gpio_Cfg.h"
 
@@ -15,17 +16,6 @@ namespace
     constexpr uint8_t STORE_VERSION = 1;
     constexpr uint8_t PINS[DigitalIo::COUNT] = {IO_PIN_NUM_1, IO_PIN_NUM_2, IO_PIN_NUM_3, IO_PIN_NUM_4,
                                                 IO_PIN_NUM_5, IO_PIN_NUM_6, IO_PIN_NUM_7, IO_PIN_NUM_8};
-    uint8_t crc8(const uint8_t *data, size_t length)
-    {
-        uint8_t crc = 0;
-        for (size_t i = 0; i < length; ++i)
-        {
-            crc ^= data[i];
-            for (uint8_t bit = 0; bit < 8; ++bit)
-                crc = (crc & 0x80) ? static_cast<uint8_t>((crc << 1) ^ 0x07) : static_cast<uint8_t>(crc << 1);
-        }
-        return crc;
-    }
 }
 uint8_t DigitalIo::pin(uint8_t i)
 {

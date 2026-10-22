@@ -270,8 +270,6 @@ Hmi::Result Hmi::handleServo(char **f, uint8_t)
 
 Hmi::Result Hmi::handleIo(char **f, uint8_t n)
 {
-
-    memset(_dioHash, 0, sizeof(_dioHash));
     uint8_t index = 0;
     long b = 0;
     if (!parseIoIndex(f[1], index))

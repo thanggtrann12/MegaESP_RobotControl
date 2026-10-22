@@ -17,53 +17,57 @@ The ESP32-S3:
 Layers
 ------
 
-.. code-block:: text
-
-   TJC touchscreen  <-- UART2 -->  Hmi            parse commands, answer, report configuration
-                                    |
-                                  Robot           choose control source, watchdog, own the configuration
-                                    |
-                                  Drive           chassis mixing, speed scaling, output limits
-                                    |
-                                  MotorBank       M1..M6: run (PWM), brake, stop
-                                    |
-                                  Pca9685         I2C PWM chip (0x40) + TA6586 motor drivers
-
-   ESP-NOW remote   -- ESP-NOW --> EspNowLink      validate MAC, length, type and CRC; queue packets
-                                    |
-                                  Robot           sequence check, source selection and watchdog
-   Servos                          ServoOut        PCA9685 chip 2 (0x41)
-   Digital / analog pins           IoPin           in / out only
+.. image:: images/component_stack.svg
+   :width: 100%
+   :alt: Component stack and data flow
 
 Each layer only knows the layer directly below it. The motor layer does not know what a wheel is, and ``Drive`` does not know which chip moves a motor.
+
+Facade API
+----------
+
+The app layer never touches the classes above directly. Every component publishes a small C-style facade in its ``api/`` folder:
+
+* ``XXX_Begin()`` creates the (lazy, file-local) instance and starts the hardware.
+* ``XXX_Update()`` runs one service tick from ``loop()``.
+* Feature calls such as ``CDD_Motor_Run()`` or ``SWC_Robot_OnRemote()`` forward to the same instance.
+
+``app/Hub_Main.cpp`` calls only these functions, so the composition root stays free of component internals and every module is wired the same way.
 
 Where the code lives
 --------------------
 
 .. list-table::
-   :widths: 25 75
+   :widths: 25 45 30
    :header-rows: 1
 
    * - Folder
      - Responsibility
+     - Facade entry points
    * - ``components/CDD_Pca9685``
-     - I2C PWM chip: set one channel duty cycle.
+     - I2C PWM chip: channel duty cycle and servo outputs.
+     - ``CDD_Servo_Begin()``, ``CDD_Servo_Write()``, ``CDD_Servo_Release()``
    * - ``components/CDD_MotorTA6586``
      - Motor interface, TA6586 driver and six-motor bank.
-   * - ``components/CDD_Pca9685``
-     - Servo output on a PCA9685 channel.
+     - ``CDD_Motor_Begin()``, ``CDD_Motor_Run()``, ``CDD_Motor_StopAll()``
    * - ``components/CDD_Gpio``
      - Configure a pin as input or output, read and write it.
+     - ``CDD_Gpio_Begin()``, ``CDD_Gpio_ReadPin()``, ``CDD_Gpio_WritePin()``
    * - ``components/SWC_Drive``
      - The six chassis presets, wheel mixing, PWM limit and acceleration limit.
+     - used through ``SWC_Robot``
    * - ``components/SWC_Robot``
      - Robot control, configuration validation and EEPROM load and save.
+     - ``SWC_Robot_Begin()``, ``SWC_Robot_Update()``, ``SWC_Robot_OnRemote()``
    * - ``components/SRV_Hmi``
      - TJC command protocol and handlers.
+     - ``SRV_Hmi_Begin()``, ``SRV_Hmi_Update()``
    * - ``components/SRV_EspNow``
      - ESP-NOW receive validation and packet queue.
+     - ``SRV_EspNow_Begin()``, ``SRV_EspNow_Update()``
    * - ``app/Hub_Main.cpp``
      - Composition root and ``setup()`` / ``loop()`` for the ESP32-S3 hub.
+     - calls only the facades above
 
 Control Pipeline
 ----------------

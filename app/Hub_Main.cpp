@@ -4,16 +4,14 @@
  */
 
 #include <Arduino.h>
-#include <WiFi.h>
 #include <esp_idf_version.h>
-#include "Hmi.h"
-#include "SWC_Robot.h"
 #include "Hmi_Cfg.h"
-#include "CDD_Pca9685.h"
+#include "Pca9685_Cfg.h" // I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ for Wire.begin()
 #include "CDD_Gpio.h"
-#include "CDD_MotorTA6586.h"
 #include "GenericLogger.h"
-#include "EspNowLink.h"
+#include "SRV_EspNow.h"
+#include "SRV_Hmi.h"
+#include "SWC_Robot.h"
 #include "UserCode.h"
 
 /* NOTE: This module initializes and updates sub-modules for the ESP32 hub unit.
@@ -25,21 +23,13 @@
 
 //======================================= Constants and Global Objects ========================//
 
-auto &digitalIo = CDD_Gpio_GetInstance();
-auto &motorBank = CDD_Motor_GetBankInstance();
-
-static Pca9685 &motorPca = CDD_Motor_GetBankInstance().pca();
-static Pca9685 &servoPca = CDD_Pca9685_GetServoPca();
-static Robot &robot = SWC_Robot_GetInstance();
-static Hmi hmi(HMI_UART, robot, digitalIo);
-static EspNowLink espLink;
-
 constexpr uint32_t LOG_BAUD = 115200;
 
-// ESP-NOW packets are delivered from loop() (EspNowLink::update), never from the WiFi task.
+// ESP-NOW packets are delivered from loop() (SRV_EspNow_Update), never from the WiFi task.
 static void onRemotePacket(const ControlPacket &packet, void *context)
 {
-    static_cast<Robot *>(context)->onRemote(packet);
+    (void)context;
+    SWC_Robot_OnRemote(packet);
 }
 
 //======================================== Logging Macros ====================================//
@@ -57,11 +47,6 @@ void subModuleUpdate();
 void setup()
 {
     Serial.begin(LOG_BAUD);
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-
-    LOG_I("Setup complete");
-    isSubModuleInited = false;
 }
 
 void loop()
@@ -70,7 +55,6 @@ void loop()
     {
         subModuleInit();
         userCodeInit();
-        isSubModuleInited = true; // Ensure the flag is set after initialization
     }
     else
     {
@@ -84,17 +68,15 @@ void subModuleInit()
 {
     LOG_I("Initializing sub-modules");
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ);
-    HMI_UART.begin(HMI_UART_BAUD, SERIAL_8N1, HMI_UART_RX, HMI_UART_TX);
 
-    CDD_Gpio_Begin(); // load saved IO modes and apply them
-    robot.begin();    // init PCA9685 chips, load saved config, apply chassis
+    CDD_Gpio_Begin();    // load saved IO modes and apply them
+    SWC_Robot_Begin();   // init PCA9685 chips, load saved config, apply chassis
+    SRV_Hmi_Begin();     // start the touchscreen UART and the command handler
 
-    if (!espLink.begin(onRemotePacket, &robot))
+    if (!SRV_EspNow_Begin(onRemotePacket, nullptr))
     {
         LOG_E("Failed to initialize ESP-NOW link");
     }
-
-    hmi.init();
 
     // Mark sub-modules as initialized - DO NOT forget this step
     isSubModuleInited = true;
@@ -103,7 +85,7 @@ void subModuleInit()
 
 void subModuleUpdate()
 {
-    espLink.update(); // first: hand received packets to the robot before it runs its control tick
-    hmi.update();
-    robot.update();
+    SRV_EspNow_Update(); // first: hand received packets to the robot before it runs its control tick
+    SRV_Hmi_Update();
+    SWC_Robot_Update();
 }

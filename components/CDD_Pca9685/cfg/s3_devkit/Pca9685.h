@@ -3,17 +3,16 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "Pwm.h"
 
-// Lớp điều khiển chip PWM 16 kênh qua I2C, kế thừa từ giao diện IPwmSource (HAL_Pwm).
-class Pca9685 : public IPwmSource
+// Lớp điều khiển chip PWM 16 kênh qua I2C.
+class Pca9685
 {
 public:
     Pca9685(TwoWire &wire, uint8_t address) 
         : _wire(&wire), _address(address) {}
 
-    void begin(uint16_t frequencyHz) override;
-    void setDuty(uint8_t channel, uint16_t ticks) override; // 0 = tắt, 4095 = sáng/chạy tối đa
+    void begin(uint16_t frequencyHz);
+    void setDuty(uint8_t channel, uint16_t ticks); // 0 = tắt, 4095 = sáng/chạy tối đa
 
 private:
     void write(uint8_t reg, uint8_t value);

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-constexpr int ROBOT_CONFIG_EEPROM_ADDRESS = 0x10; // RobotConfig is stored here (100 bytes)
+constexpr int ROBOT_CONFIG_EEPROM_ADDRESS = 0x10; // RobotConfig is stored here (93 bytes, see Common/api/Eeprom_Map.h)
 constexpr uint16_t ROBOT_MOTOR_PWM_HZ = 1000;     // TA6586 inputs are driven at 1 kHz
 
 constexpr uint16_t ROBOT_TICK_MS = 20;            // control loop period

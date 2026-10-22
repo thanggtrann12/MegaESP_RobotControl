@@ -32,6 +32,9 @@ private:
     Mix _mix[MAX_PORT_COUNT] = {};
     uint8_t _pwmLimit = 255;
     uint8_t _accelStep = 0;
+    bool _ready = false; // cached result of ready(), refreshed by the mutators
+
+    void refreshReady(); // recompute _ready from _mix and _wheels
 };
 
 #endif

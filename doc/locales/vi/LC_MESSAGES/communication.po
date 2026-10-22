@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 10:55+0700\n"
+"POT-Creation-Date: 2026-10-22 13:52+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -23,27 +23,26 @@ msgid "Communication Protocols & ESP-NOW"
 msgstr "Giao thức truyền thông và ESP-NOW"
 
 #: ../../../source/communication.rst:4
-#, fuzzy
 msgid ""
 "The ESP32-S3 has one UART link and one wireless link. Both carry commands"
-" that end up in the same ``Robot`` object."
+" that end up in the same ``Robot`` object through the ``SWC_Robot_*`` "
+"facade."
 msgstr ""
-"Mega có hai đường UART. Cả hai đều mang lệnh đến cùng một đối tượng "
-"``Robot``."
+"ESP32-S3 có một đường UART và một đường không dây. Cả hai đều mang lệnh "
+"đến cùng một đối tượng ``Robot`` qua facade ``SWC_Robot_*``."
 
 #: ../../../source/communication.rst:6
-#, fuzzy
 msgid "**Serial1:** TJC touchscreen, ASCII text commands."
-msgstr "**Serial2:** Màn hình cảm ứng TJC, lệnh văn bản ASCII."
+msgstr "**Serial1:** Màn hình cảm ứng TJC, lệnh văn bản ASCII."
 
 #: ../../../source/communication.rst:7
 msgid "**ESP-NOW:** Remote control packets received directly by the ESP32-S3."
 msgstr ""
+"**ESP-NOW:** Các gói điều khiển từ remote nhận trực tiếp trên ESP32-S3."
 
 #: ../../../source/communication.rst:10
-#, fuzzy
 msgid "TJC Protocol (Serial1)"
-msgstr "Giao thức TJC (Serial2)"
+msgstr "Giao thức TJC (Serial1)"
 
 #: ../../../source/communication.rst:12
 msgid ""
@@ -258,9 +257,8 @@ msgid "Reads an analog input. Reply: ``AIN,<channel>,<value>``."
 msgstr "Đọc một ngõ vào analog. Phản hồi: ``AIN,<channel>,<value>``."
 
 #: ../../../source/communication.rst:85
-#, fuzzy
 msgid "Messages from the ESP32-S3"
-msgstr "Thông điệp từ Mega"
+msgstr "Thông điệp từ ESP32-S3"
 
 #: ../../../source/communication.rst:91
 msgid "Message"
@@ -307,9 +305,8 @@ msgid "Example: configure a two-wheel robot with the motors on M1 and M2."
 msgstr "Ví dụ: cấu hình robot hai bánh với động cơ ở M1 và M2."
 
 #: ../../../source/communication.rst:112
-#, fuzzy
 msgid "ESP-NOW Remote"
-msgstr "Remote ESP-NOW (Serial3)"
+msgstr "Remote ESP-NOW"
 
 #: ../../../source/communication.rst:114
 msgid ""
@@ -317,6 +314,9 @@ msgid ""
 "the ESP32-S3. Unlike the Mega UART link, ESP-NOW does not use the ``0xAA "
 "0xFF`` frame header, XOR checksum or ``0x55`` footer."
 msgstr ""
+"Remote đã ghép cặp gửi từng ``ControlPacket`` trực tiếp qua ESP-NOW tới "
+"ESP32-S3. Khác với đường UART Mega, ESP-NOW không dùng header khung "
+"``0xAA 0xFF``, checksum XOR hay footer ``0x55``."
 
 #: ../../../source/communication.rst:120
 msgid "``ControlPacket`` carries:"
@@ -335,13 +335,12 @@ msgid "Button bitmask"
 msgstr "Bitmask các nút bấm"
 
 #: ../../../source/communication.rst:125
-#, fuzzy
 msgid "Sequence number (the robot rejects duplicate and out-of-order values)"
-msgstr "Số thứ tự (loại bỏ gói trùng lặp và sai thứ tự)"
+msgstr "Số thứ tự (robot loại bỏ giá trị trùng lặp và sai thứ tự)"
 
 #: ../../../source/communication.rst:126
 msgid "CRC-8 over the preceding packet bytes"
-msgstr ""
+msgstr "CRC-8 trên các byte gói tin phía trước"
 
 #: ../../../source/communication.rst:128
 msgid ""
@@ -350,9 +349,18 @@ msgid ""
 "remote's MAC address; the checked-in address is a placeholder. The "
 "receive callback rejects packets from other MAC addresses, packets with "
 "the wrong length, invalid CRCs, and unknown message types. Accepted "
-"packets enter an eight-packet queue and are delivered to ``Robot`` from "
-"the main loop."
+"packets enter an eight-packet queue and ``SRV_EspNow_Update()`` hands "
+"them to the app handler, which forwards them to ``Robot`` through "
+"``SWC_Robot_OnRemote()`` from the main loop."
 msgstr ""
+"Hub lắng nghe trên kênh ESP-NOW 1. Đặt ``ESPNOW_REMOTE_MAC`` trong "
+"``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` thành địa chỉ MAC "
+"của remote đã ghép cặp; địa chỉ trong repo chỉ là placeholder. Callback "
+"nhận sẽ từ chối gói từ MAC khác, gói sai độ dài, CRC không hợp lệ và loại "
+"thông điệp lạ. Gói được chấp nhận vào hàng đợi tám phần tử và "
+"``SRV_EspNow_Update()`` chuyển chúng đến bộ xử lý của ứng dụng, bộ xử lý "
+"này chuyển tiếp đến ``Robot`` qua ``SWC_Robot_OnRemote()`` từ vòng lặp "
+"chính."
 
 #: ../../../source/communication.rst:130
 msgid ""
@@ -364,6 +372,12 @@ msgid ""
 "reset after a link timeout or control-source change so a restarted remote"
 " can begin again at sequence 0."
 msgstr ""
+"ESP32-S3 chỉ nhận lệnh remote khi nguồn điều khiển là ``REMOTE``. "
+"``Robot`` từ chối số thứ tự trùng lặp và sai thứ tự. Heartbeat cập nhật "
+"bộ đếm thời gian đường truyền nhưng giữ lệnh điều khiển cuối cùng. Nếu "
+"không có gói remote được chấp nhận trong 500 ms, robot xóa lệnh và dừng "
+"phần lái. Kiểm tra số thứ tự được đặt lại sau khi mất kết nối hoặc đổi "
+"nguồn điều khiển để remote khởi động lại có thể bắt đầu từ số 0."
 
 #~ msgid ""
 #~ "**Serial3:** ESP8266 receiver, framed binary"
@@ -400,4 +414,19 @@ msgstr ""
 #~ " cuối cùng tiếp tục chạy. Khi "
 #~ "khởi động, Mega gửi ``ESP_RESET`` đến"
 #~ " bộ thu."
+
+#~ msgid ""
+#~ "The hub listens on ESP-NOW channel"
+#~ " 1. Set ``ESPNOW_REMOTE_MAC`` in "
+#~ "``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to "
+#~ "the paired remote's MAC address; the "
+#~ "checked-in address is a placeholder. "
+#~ "The receive callback rejects packets "
+#~ "from other MAC addresses, packets with"
+#~ " the wrong length, invalid CRCs, and"
+#~ " unknown message types. Accepted packets"
+#~ " enter an eight-packet queue and "
+#~ "are delivered to ``Robot`` from the "
+#~ "main loop."
+#~ msgstr ""
 

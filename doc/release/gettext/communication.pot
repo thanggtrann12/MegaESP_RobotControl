@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 10:55+0700\n"
+"POT-Creation-Date: 2026-10-22 13:52+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgid "Communication Protocols & ESP-NOW"
 msgstr ""
 
 #: ../../../source/communication.rst:4
-msgid "The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object."
+msgid "The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object through the ``SWC_Robot_*`` facade."
 msgstr ""
 
 #: ../../../source/communication.rst:6
@@ -298,7 +298,7 @@ msgid "CRC-8 over the preceding packet bytes"
 msgstr ""
 
 #: ../../../source/communication.rst:128
-msgid "The hub listens on ESP-NOW channel 1. Set ``ESPNOW_REMOTE_MAC`` in ``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to ``Robot`` from the main loop."
+msgid "The hub listens on ESP-NOW channel 1. Set ``ESPNOW_REMOTE_MAC`` in ``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and ``SRV_EspNow_Update()`` hands them to the app handler, which forwards them to ``Robot`` through ``SWC_Robot_OnRemote()`` from the main loop."
 msgstr ""
 
 #: ../../../source/communication.rst:130

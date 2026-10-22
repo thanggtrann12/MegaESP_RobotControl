@@ -13,46 +13,48 @@ A layered-architecture C++ firmware for a general-purpose robot (Universal Robot
 
 ## Features
 
-- **Decoupled Kinematics Engine:** Supports multiple drive mechanisms (`DifferentialKinematics`, `MecanumKinematics`, `OmniKinematics`) through the purely mathematical `IKinematics` interface.
-- **Dynamic Motor Binding (`MotorRole`):** Maps wheel roles (`FRONT_LEFT`, `REAR_RIGHT`, ...) to hardware slots independently of wiring order or bitmasks.
-- **Event-Driven TJC HMI Service:** Talks to TJC/Nextion displays using ASCII encoding (32-127) and supports invoking internal callbacks directly from the screen.
-- **Transport Abstraction (`ITransport`):** Separates the transport layer (`UARTTransport`, `ESPNowTransport`) from the command-handling layer (`HMIService`, `RemoteControlService`).
-- **EEPROM Storage & Persistence:** Keeps settings, motor role assignments and drive mode across reboots.
-- **Safety Watchdog & Failsafe:** Automatically cuts PWM and stops all motors when the control signal is lost for longer than the timeout.
+- **Layered component architecture:** Reusable modules under `components/` (CDD drivers, SWC software components, SRV services), each with a public `api/` header and board config in `cfg/`.
+- **C-style facade API:** Every component exposes `XXX_Begin()` / `XXX_Update()` entry points; `app/Hub_Main.cpp` wires the hub without touching component internals.
+- **Six-motor chassis:** `SWC_Drive` provides six chassis presets with wheel mixing, PWM limit and acceleration limit; motors run through the TA6586 driver bank on a PCA9685.
+- **Event-driven TJC HMI service:** Talks to TJC/Nextion displays over UART and supports invoking internal callbacks directly from the screen.
+- **ESP-NOW remote link:** `SRV_EspNow` validates MAC, length, type and CRC, queues packets and delivers them to the robot from the main loop.
+- **EEPROM storage & persistence:** Keeps settings, motor role assignments and drive mode across reboots.
+- **Safety watchdog & failsafe:** Automatically cuts PWM and stops all motors when the control signal is lost for longer than the timeout.
 
 ---
 
 ## Architecture
 
-The ESP32-S3 hub firmware is organized into application and reusable component layers:
+The ESP32-S3 hub firmware is organized into application and reusable component layers. Each component publishes a small C-style facade in its `api/` folder; the composition root (`app/Hub_Main.cpp`) calls only these functions.
 
 ```mermaid
 graph TD
     subgraph App ["Application Layer"]
-        A1["RobotController · MotorManager · Kinematics · SafetyManager"]
+        A1["Hub_Main · UserCode"]
     end
 
-    subgraph Service ["Service / Protocol Layer"]
-        S1["HMIService · RemoteControlService · ConfigService"]
-        S2["Command parsing, Protocol validation, Frame CRC & State Machine"]
+    subgraph Service ["Service Layer (facades)"]
+        S1["SRV_Hmi · SRV_EspNow · SWC_Robot"]
+        S2["TJC command parsing · ESP-NOW validation & queue · control source & watchdog"]
     end
 
-    subgraph Transport ["Transport Layer (ITransport)"]
-        T1["UARTTransport · ESPNowTransport"]
-        T2["Stream/Packet buffer management & Data flow handling"]
+    subgraph SWC ["Software Component Layer"]
+        W1["SWC_Drive · SWC_Robot internals"]
+        W2["Chassis presets · wheel mixing · PWM & acceleration limits"]
     end
 
-    subgraph Hardware ["Hardware / Driver Layer"]
-        H1["HardwareSerial · ESP-NOW API · TA6586 Driver · PCA9685 PWM"]
+    subgraph Hardware ["Hardware / Driver Layer (CDD facades)"]
+        H1["CDD_Gpio · CDD_MotorTA6586 · CDD_Pca9685"]
+        H2["IoPin · TA6586 driver bank · PCA9685 PWM"]
     end
 
     App <--> Service
-    Service <--> Transport
-    Transport <--> Hardware
+    Service <--> SWC
+    SWC <--> Hardware
 
     style App fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Service fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
-    style Transport fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
+    style SWC fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
     style Hardware fill:#1e1e1e,stroke:#00acc1,stroke-width:2px,color:#fff
 ```
 
@@ -60,10 +62,11 @@ graph TD
 
 ## Hardware & PCB Design
 
-- **Supported MCUs:** Arduino Mega 2560, ESP32, ESP8266.
-- **Motor driver:** TA6586.
-- **PWM controller:** PCA9685.
-- **HMI display:** TJC / Nextion (UART).
+- **Hub MCU:** ESP32-S3 DevKitC-1 (Arduino framework, PlatformIO).
+- **Motor driver:** TA6586 (six-motor bank on PCA9685 channel 0x40).
+- **PWM controller:** PCA9685 (chip 1 at 0x40 for motors, chip 2 at 0x41 for servos).
+- **HMI display:** TJC / Nextion (UART2).
+- **Remote:** ESP-NOW (paired remote MAC in `components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`).
 
 > TODO: add schematic, PCB images and pinout table.
 

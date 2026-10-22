@@ -4,11 +4,13 @@ Development, Testing & Roadmap
 Reading the Code
 ----------------
 
-Start at ``app/Hub_Main.cpp``. ``setup()`` and ``loop()`` initialize and update the hub services:
+Start at ``app/Hub_Main.cpp``. ``setup()`` and ``loop()`` initialize and update the hub services through the C-style facade of each component:
 
-1. ``Hmi`` handles touchscreen commands and calls ``Robot``.
-2. ``EspNowLink`` validates remote packets and queues them; ``update()`` delivers them to ``Robot::onRemote()`` from the main loop.
-3. ``Robot::update()`` applies drive commands on a 20 ms tick and stops after the 500 ms link timeout.
+1. ``SRV_EspNow_Update()`` delivers queued remote packets to ``SWC_Robot_OnRemote()``; ``Robot`` validates the sequence and source.
+2. ``SRV_Hmi_Update()`` reads touchscreen commands and drives ``Robot`` through ``SWC_Robot_Joy()``, ``SWC_Robot_RunMotor()`` and friends.
+3. ``SWC_Robot_Update()`` applies drive commands on a 20 ms tick and stops after the 500 ms link timeout.
+
+``subModuleInit()`` wires the hub in one place: ``Wire.begin()`` for the I2C bus, then ``CDD_Gpio_Begin()``, ``SWC_Robot_Begin()``, ``SRV_Hmi_Begin()`` and ``SRV_EspNow_Begin()``. Each facade owns its own hardware setup (the HMI UART and the WiFi/ESP-NOW start live inside their components), so ``Hub_Main.cpp`` contains no component classes or globals.
 
 Reusable modules are under ``components/``. Public headers are in each component's ``api/`` directory, implementation files are in ``src/``, and board-specific settings are in ``cfg/s3_devkit/``.
 

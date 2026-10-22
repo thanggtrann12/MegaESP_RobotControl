@@ -1,7 +1,7 @@
 Communication Protocols & ESP-NOW
 =================================
 
-The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object.
+The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same ``Robot`` object through the ``SWC_Robot_*`` facade.
 
 * **Serial1:** TJC touchscreen, ASCII text commands.
 * **ESP-NOW:** Remote control packets received directly by the ESP32-S3.
@@ -125,6 +125,6 @@ The paired remote sends each ``ControlPacket`` directly over ESP-NOW to the ESP3
 * Sequence number (the robot rejects duplicate and out-of-order values)
 * CRC-8 over the preceding packet bytes
 
-The hub listens on ESP-NOW channel 1. Set ``ESPNOW_REMOTE_MAC`` in ``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to ``Robot`` from the main loop.
+The hub listens on ESP-NOW channel 1. Set ``ESPNOW_REMOTE_MAC`` in ``components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h`` to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and ``SRV_EspNow_Update()`` hands them to the app handler, which forwards them to ``Robot`` through ``SWC_Robot_OnRemote()`` from the main loop.
 
 The ESP32-S3 accepts remote commands only while the control source is ``REMOTE``. ``Robot`` rejects duplicate and out-of-order sequence numbers. A heartbeat updates the link timer while keeping the last control command active. If no accepted remote packet arrives for 500 ms, the robot clears the command and stops the drive. The sequence check is reset after a link timeout or control-source change so a restarted remote can begin again at sequence 0.

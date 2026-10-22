@@ -112,6 +112,93 @@ Drive and Configuration
     :project: RobotHub
     :members:
 
+Component Facades
+-----------------
+
+.. doxygenfunction:: CDD_Gpio_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Gpio_ReadPin
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Gpio_WritePin
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Gpio_SetPinMode
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Motor_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Motor_Run
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Motor_Brake
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Motor_Stop
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Motor_StopAll
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Servo_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Servo_Write
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Servo_Release
+    :project: RobotHub
+
+.. doxygenfunction:: CDD_Servo_ReleaseAll
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_Update
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_OnRemote
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_SetSource
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_Joy
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_RunMotor
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_BrakeMotor
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_Stop
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_IsReady
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_IsMoving
+    :project: RobotHub
+
+.. doxygenfunction:: SWC_Robot_IsLinkAlive
+    :project: RobotHub
+
+.. doxygenfunction:: SRV_Hmi_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: SRV_Hmi_Update
+    :project: RobotHub
+
+.. doxygenfunction:: SRV_EspNow_Begin
+    :project: RobotHub
+
+.. doxygenfunction:: SRV_EspNow_Update
+    :project: RobotHub
+
 Communication
 -------------
 
@@ -153,6 +240,7 @@ Quick Links
 - EspNowLink_
 - ControlPacket_
 - PairPacket_
+- `Component Facades`_
 
 Motor Layer
 -----------
@@ -234,6 +322,21 @@ Hmi
 ^^^
 
 - update(): Read the touchscreen UART, run commands and send the heartbeat.
+
+Component Facades
+^^^^^^^^^^^^^^^^^
+
+Every component also exposes a C-style facade; ``app/Hub_Main.cpp`` uses only these.
+
+- CDD_Gpio_Begin(int eepromAddress): Load saved pin modes and apply them.
+- CDD_Gpio_ReadPin(uint8_t), CDD_Gpio_WritePin(uint8_t, uint8_t), CDD_Gpio_SetPinMode(uint8_t, uint8_t): Pin access.
+- CDD_Motor_Begin(uint16_t pwmHz), CDD_Motor_Run(slot, pwm), CDD_Motor_Brake(slot), CDD_Motor_Stop(slot), CDD_Motor_StopAll(): Motor bank.
+- CDD_Servo_Begin(), CDD_Servo_Write(channel, angle), CDD_Servo_Release(channel), CDD_Servo_ReleaseAll(): Servo PCA9685.
+- SWC_Robot_Begin(), SWC_Robot_Update(), SWC_Robot_OnRemote(const ControlPacket&): Robot lifecycle and remote input.
+- SWC_Robot_SetSource(Source), SWC_Robot_Joy(...), SWC_Robot_RunMotor(...), SWC_Robot_BrakeMotor(...), SWC_Robot_Stop(): Manual control.
+- SWC_Robot_IsReady(), SWC_Robot_IsMoving(), SWC_Robot_IsLinkAlive(): Status queries.
+- SRV_Hmi_Begin(), SRV_Hmi_Update(): Start the touchscreen UART and run the command handler.
+- SRV_EspNow_Begin(Handler, void* context), SRV_EspNow_Update(): Start WiFi STA + ESP-NOW and deliver queued packets.
 
 Communication
 -------------

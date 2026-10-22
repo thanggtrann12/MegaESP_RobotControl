@@ -248,11 +248,8 @@ msgid "GPIO38, 47, 48, 19, 39 to 42"
 msgstr ""
 
 #: ../../../source/hardware.rst:76
-#, fuzzy
 msgid "Configured as input or output from the touchscreen."
-msgstr ""
-"Được cấu hình làm ngõ vào hoặc ngõ ra từ màn hình cảm ứng. Các chân 0 đến"
-" 1 (USB) và 14 đến 21 (UART và I2C) bị từ chối."
+msgstr "Được cấu hình làm ngõ vào hoặc ngõ ra từ màn hình cảm ứng."
 
 #: ../../../source/hardware.rst:79
 msgid "Handheld Remote Pinout"

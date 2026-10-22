@@ -33,9 +33,6 @@ private:
     QueueHandle_t _queue = nullptr;
     volatile uint32_t _rejected = 0;
     volatile uint32_t _dropped = 0;
-
-    bool _initialized = false;
-    bool _callbackRegistered = false;
 };
 
 #endif // ESPNOWLINK_H

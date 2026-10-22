@@ -294,6 +294,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <li><p><a class="reference internal" href="#espnowlink">EspNowLink</a></p></li>
 <li><p><a class="reference internal" href="#controlpacket">ControlPacket</a></p></li>
 <li><p><a class="reference internal" href="#pairpacket">PairPacket</a></p></li>
+<li><p><a class="reference internal" href="#component-facades">Các facade của component</a></p></li>
 </ul>
 </section>
 <section id="motor-layer">
@@ -350,7 +351,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <section id="drive">
 <h3>Drive<a class="headerlink" href="#drive" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role.</p></li>
+<li><p>assign(PortRole, IMotor*, bool inverted): Nối một động cơ với một vai trò bánh.</p></li>
 <li><p>clearMotors(): Ngắt kết nối mọi động cơ.</p></li>
 <li><p>setChassis(Chassis, const Mix* custom): Chọn khung gầm có sẵn hoặc bảng tùy chỉnh.</p></li>
 <li><p>setPwmLimit(uint8_t), setAccelStep(uint8_t): Đặt các giới hạn ngõ ra.</p></li>
@@ -386,15 +387,30 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <li><p>update(): Đọc UART màn hình cảm ứng, chạy lệnh và gửi heartbeat.</p></li>
 </ul>
 </section>
+<section id="component-facades">
+<h3>Các facade của component<a class="headerlink" href="#component-facades" title="Link to this heading">¶</a></h3>
+<p>Mỗi component cũng công bố một facade kiểu C; <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> chỉ dùng các hàm này.</p>
+<ul class="simple">
+<li><p>CDD_Gpio_Begin(int eepromAddress): Nạp các chế độ chân đã lưu và áp dụng chúng.</p></li>
+<li><p>CDD_Gpio_ReadPin(uint8_t), CDD_Gpio_WritePin(uint8_t, uint8_t), CDD_Gpio_SetPinMode(uint8_t, uint8_t): Truy cập chân.</p></li>
+<li><p>CDD_Motor_Begin(uint16_t pwmHz), CDD_Motor_Run(slot, pwm), CDD_Motor_Brake(slot), CDD_Motor_Stop(slot), CDD_Motor_StopAll(): Bank động cơ.</p></li>
+<li><p>CDD_Servo_Begin(), CDD_Servo_Write(channel, angle), CDD_Servo_Release(channel), CDD_Servo_ReleaseAll(): Servo PCA9685.</p></li>
+<li><p>SWC_Robot_Begin(), SWC_Robot_Update(), SWC_Robot_OnRemote(const ControlPacket&amp;): Vòng đời robot và đầu vào remote.</p></li>
+<li><p>SWC_Robot_SetSource(Source), SWC_Robot_Joy(...), SWC_Robot_RunMotor(...), SWC_Robot_BrakeMotor(...), SWC_Robot_Stop(): Điều khiển thủ công.</p></li>
+<li><p>SWC_Robot_IsReady(), SWC_Robot_IsMoving(), SWC_Robot_IsLinkAlive(): Truy vấn trạng thái.</p></li>
+<li><p>SRV_Hmi_Begin(), SRV_Hmi_Update(): Khởi động UART màn hình cảm ứng và chạy bộ xử lý lệnh.</p></li>
+<li><p>SRV_EspNow_Begin(Handler, void* context), SRV_EspNow_Update(): Khởi động WiFi STA + ESP-NOW và chuyển các gói trong hàng đợi.</p></li>
+</ul>
+</section>
 </section>
 <section id="communication">
 <h2>Truyền thông<a class="headerlink" href="#communication" title="Link to this heading">¶</a></h2>
 <section id="espnowlink">
 <h3>EspNowLink<a class="headerlink" href="#espnowlink" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>begin(Handler, void* context): Start ESP-NOW on the configured channel and register the packet handler.</p></li>
-<li><p>update(): Call from loop(); hands every queued ControlPacket to the handler.</p></li>
-<li><p>rejectedCount() const, droppedCount() const: Frames refused (length, CRC, type) and frames lost to a full queue.</p></li>
+<li><p>begin(Handler, void* context): Khởi động ESP-NOW trên kênh đã cấu hình và đăng ký bộ xử lý gói tin.</p></li>
+<li><p>update(): Gọi từ loop(); chuyển từng ControlPacket trong hàng đợi đến bộ xử lý.</p></li>
+<li><p>rejectedCount() const, droppedCount() const: Khung bị từ chối (độ dài, CRC, loại) và khung mất do hàng đợi đầy.</p></li>
 </ul>
 </section>
 </section>

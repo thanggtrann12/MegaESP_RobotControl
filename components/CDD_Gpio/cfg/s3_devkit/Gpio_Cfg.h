@@ -31,7 +31,7 @@
 #define ENCODER_PIN_NUM_4B 21
 
 // EEPROM: DigitalIo needs DigitalIo::STORE_SIZE bytes. Robot config lives at ROBOT_CONFIG_EEPROM_ADDRESS
-// (see Robot_Cfg.h) and is 100 bytes long, so keep this one clear of it.
+// (see Robot_Cfg.h) and is 93 bytes long, so keep this one clear of it.
 constexpr int GPIO_EEPROM_ADDRESS = 0x80;
 
 #endif // GPIO_CFG_H

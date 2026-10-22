@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the Robot Hub package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Robot Hub \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 10:55+0700\n"
+"POT-Creation-Date: 2026-10-22 13:52+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: vi\n"
@@ -88,120 +87,121 @@ msgstr ""
 msgid "PairPacket_"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:25
+#: ../../../source/_api_autogen.rst:23
+msgid "`Component Facades`_"
+msgstr "`Các facade của component`_"
+
+#: ../../../source/_api_autogen.rst:26
 msgid "Motor Layer"
 msgstr "Tầng động cơ"
 
-#: ../../../source/_api_autogen.rst:28
+#: ../../../source/_api_autogen.rst:29
 msgid "IMotor"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:30
+#: ../../../source/_api_autogen.rst:31
 msgid "run(int16_t pwm): Run at a signed PWM from -255 to 255."
 msgstr "run(int16_t pwm): Chạy với PWM có dấu từ -255 đến 255."
 
-#: ../../../source/_api_autogen.rst:31
+#: ../../../source/_api_autogen.rst:32
 msgid "brake(): Short the motor terminals."
 msgstr "brake(): Nối tắt hai đầu động cơ để hãm."
 
-#: ../../../source/_api_autogen.rst:32
+#: ../../../source/_api_autogen.rst:33
 msgid "stop(): Release the motor."
 msgstr "stop(): Thả động cơ (quay tự do)."
 
-#: ../../../source/_api_autogen.rst:35
+#: ../../../source/_api_autogen.rst:36
 msgid "MotorTA6586"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:37
+#: ../../../source/_api_autogen.rst:38
 msgid ""
 "run(int16_t), brake(), stop(): Drive one TA6586 through two PCA9685 "
 "channels."
 msgstr "run(int16_t), brake(), stop(): Điều khiển một TA6586 qua hai kênh PCA9685."
 
-#: ../../../source/_api_autogen.rst:40
+#: ../../../source/_api_autogen.rst:41
 msgid "MotorBank"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:42
+#: ../../../source/_api_autogen.rst:43
 msgid "begin(uint16_t pwmHz): Start the PCA9685 and stop all six motors."
 msgstr "begin(uint16_t pwmHz): Khởi động PCA9685 và dừng cả sáu động cơ."
 
-#: ../../../source/_api_autogen.rst:43
+#: ../../../source/_api_autogen.rst:44
 msgid "motor(uint8_t slot): Return the motor of slot 0 to 5."
 msgstr "motor(uint8_t slot): Trả về động cơ ở cổng 0 đến 5."
 
-#: ../../../source/_api_autogen.rst:44
+#: ../../../source/_api_autogen.rst:45
 msgid "stopAll(): Release every motor."
 msgstr "stopAll(): Thả tất cả động cơ."
 
-#: ../../../source/_api_autogen.rst:47
+#: ../../../source/_api_autogen.rst:48
 msgid "Pca9685"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:49
+#: ../../../source/_api_autogen.rst:50
 msgid "begin(uint16_t frequencyHz): Start the chip at a PWM frequency."
 msgstr "begin(uint16_t frequencyHz): Khởi động chip với tần số PWM cho trước."
 
-#: ../../../source/_api_autogen.rst:50
+#: ../../../source/_api_autogen.rst:51
 msgid "setDuty(uint8_t channel, uint16_t ticks): Set one channel from 0 to 4095."
 msgstr "setDuty(uint8_t channel, uint16_t ticks): Đặt một kênh từ 0 đến 4095."
 
-#: ../../../source/_api_autogen.rst:53
+#: ../../../source/_api_autogen.rst:54
 msgid "ServoOut"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:55
+#: ../../../source/_api_autogen.rst:56
 msgid "begin(): Start the servo PCA9685 at 50 Hz."
 msgstr "begin(): Khởi động PCA9685 của servo ở 50 Hz."
 
-#: ../../../source/_api_autogen.rst:56
+#: ../../../source/_api_autogen.rst:57
 msgid "write(uint8_t channel, uint8_t angle): Move a servo from 0 to 180 degrees."
 msgstr "write(uint8_t channel, uint8_t angle): Quay servo từ 0 đến 180 độ."
 
-#: ../../../source/_api_autogen.rst:57
+#: ../../../source/_api_autogen.rst:58
 msgid "release(uint8_t channel): Stop driving a servo."
 msgstr "release(uint8_t channel): Ngừng cấp xung cho servo."
 
-#: ../../../source/_api_autogen.rst:60
+#: ../../../source/_api_autogen.rst:61
 msgid "IoPin"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:62
+#: ../../../source/_api_autogen.rst:63
 msgid "configure(uint8_t pin, Mode mode): Set a pin as IN, OUT or IN_PULLUP."
 msgstr "configure(uint8_t pin, Mode mode): Đặt chân là IN, OUT hoặc IN_PULLUP."
 
-#: ../../../source/_api_autogen.rst:63
+#: ../../../source/_api_autogen.rst:64
 msgid "write(uint8_t pin, bool high): Write a digital output."
 msgstr "write(uint8_t pin, bool high): Ghi ngõ ra số."
 
-#: ../../../source/_api_autogen.rst:64
+#: ../../../source/_api_autogen.rst:65
 msgid "read(uint8_t pin): Read a digital input."
 msgstr "read(uint8_t pin): Đọc ngõ vào số."
 
-#: ../../../source/_api_autogen.rst:65
+#: ../../../source/_api_autogen.rst:66
 msgid "readAnalog(uint8_t channel): Read an analog input."
 msgstr "readAnalog(uint8_t channel): Đọc ngõ vào analog."
 
-#: ../../../source/_api_autogen.rst:68
+#: ../../../source/_api_autogen.rst:69
 msgid "Drive and Configuration"
 msgstr "Drive và cấu hình"
 
-#: ../../../source/_api_autogen.rst:71
+#: ../../../source/_api_autogen.rst:72
 msgid "Drive"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:73
-#, fuzzy
-msgid "assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role."
-msgstr ""
-"assign(WheelRole, IMotor*, bool inverted): Nối một động cơ với một vai "
-"trò bánh."
-
 #: ../../../source/_api_autogen.rst:74
+msgid "assign(PortRole, IMotor*, bool inverted): Connect a motor to a wheel role."
+msgstr "assign(PortRole, IMotor*, bool inverted): Nối một động cơ với một vai trò bánh."
+
+#: ../../../source/_api_autogen.rst:75
 msgid "clearMotors(): Disconnect every motor."
 msgstr "clearMotors(): Ngắt kết nối mọi động cơ."
 
-#: ../../../source/_api_autogen.rst:75
+#: ../../../source/_api_autogen.rst:76
 msgid ""
 "setChassis(Chassis, const Mix* custom): Select a chassis preset or the "
 "custom table."
@@ -209,15 +209,15 @@ msgstr ""
 "setChassis(Chassis, const Mix* custom): Chọn khung gầm có sẵn hoặc bảng "
 "tùy chỉnh."
 
-#: ../../../source/_api_autogen.rst:76
+#: ../../../source/_api_autogen.rst:77
 msgid "setPwmLimit(uint8_t), setAccelStep(uint8_t): Set the output limits."
 msgstr "setPwmLimit(uint8_t), setAccelStep(uint8_t): Đặt các giới hạn ngõ ra."
 
-#: ../../../source/_api_autogen.rst:77
+#: ../../../source/_api_autogen.rst:78
 msgid "ready() const: True when every wheel the chassis needs has a motor."
 msgstr "ready() const: Trả về true khi mọi bánh mà khung gầm cần đều có động cơ."
 
-#: ../../../source/_api_autogen.rst:78
+#: ../../../source/_api_autogen.rst:79
 msgid ""
 "move(int8_t throttle, int8_t strafe, int8_t rotation): Mix a command into"
 " wheel speeds."
@@ -225,133 +225,221 @@ msgstr ""
 "move(int8_t throttle, int8_t strafe, int8_t rotation): Trộn một lệnh "
 "thành tốc độ từng bánh."
 
-#: ../../../source/_api_autogen.rst:79
+#: ../../../source/_api_autogen.rst:80
 msgid "stop(): Release every motor."
 msgstr "stop(): Thả mọi động cơ."
 
-#: ../../../source/_api_autogen.rst:82
+#: ../../../source/_api_autogen.rst:83
 msgid "RobotConfig"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:84
+#: ../../../source/_api_autogen.rst:85
 msgid "defaults(): Return the factory configuration."
 msgstr "defaults(): Trả về cấu hình mặc định."
 
-#: ../../../source/_api_autogen.rst:85
+#: ../../../source/_api_autogen.rst:86
 msgid "isValid() const: Check version, ranges and duplicate roles."
 msgstr "isValid() const: Kiểm tra phiên bản, phạm vi giá trị và vai trò trùng lặp."
 
-#: ../../../source/_api_autogen.rst:86
+#: ../../../source/_api_autogen.rst:87
 msgid "load(int address): Load from EEPROM; false when empty or corrupt."
 msgstr "load(int address): Nạp từ EEPROM; trả về false khi trống hoặc hỏng."
 
-#: ../../../source/_api_autogen.rst:87
+#: ../../../source/_api_autogen.rst:88
 msgid "save(int address): Store with a CRC-8."
 msgstr "save(int address): Lưu kèm CRC-8."
 
-#: ../../../source/_api_autogen.rst:90
+#: ../../../source/_api_autogen.rst:91
 msgid "Robot"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:92
+#: ../../../source/_api_autogen.rst:93
 msgid "begin(): Start motors, servos and load the configuration."
 msgstr "begin(): Khởi động động cơ, servo và nạp cấu hình."
 
-#: ../../../source/_api_autogen.rst:93
+#: ../../../source/_api_autogen.rst:94
 msgid "update(): Run the 20 ms control tick and the link watchdog."
 msgstr "update(): Chạy chu kỳ điều khiển 20 ms và watchdog đường truyền."
 
-#: ../../../source/_api_autogen.rst:94
+#: ../../../source/_api_autogen.rst:95
 msgid "onRemote(const ControlPacket&): Take a remote command."
 msgstr "onRemote(const ControlPacket&): Nhận lệnh từ remote."
 
-#: ../../../source/_api_autogen.rst:95
+#: ../../../source/_api_autogen.rst:96
 msgid "setSource(Source): Choose REMOTE or MANUAL control."
 msgstr "setSource(Source): Chọn điều khiển REMOTE hoặc MANUAL."
 
-#: ../../../source/_api_autogen.rst:96
+#: ../../../source/_api_autogen.rst:97
 msgid "joy(...), runMotor(...), brakeMotor(...), stop(): Manual control."
 msgstr "joy(...), runMotor(...), brakeMotor(...), stop(): Điều khiển thủ công."
 
-#: ../../../source/_api_autogen.rst:97
+#: ../../../source/_api_autogen.rst:98
 msgid "setMotor(...), apply(), applyLimits(): Change the configuration."
 msgstr "setMotor(...), apply(), applyLimits(): Thay đổi cấu hình."
 
-#: ../../../source/_api_autogen.rst:98
+#: ../../../source/_api_autogen.rst:99
 msgid "saveConfig(), resetConfig(): Store or restore the configuration."
 msgstr "saveConfig(), resetConfig(): Lưu hoặc khôi phục cấu hình."
 
-#: ../../../source/_api_autogen.rst:101
+#: ../../../source/_api_autogen.rst:102
 msgid "Hmi"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:103
+#: ../../../source/_api_autogen.rst:104
 msgid "update(): Read the touchscreen UART, run commands and send the heartbeat."
 msgstr "update(): Đọc UART màn hình cảm ứng, chạy lệnh và gửi heartbeat."
 
-#: ../../../source/_api_autogen.rst:106
+#: ../../../source/_api_autogen.rst:107
+msgid "Component Facades"
+msgstr "Các facade của component"
+
+#: ../../../source/_api_autogen.rst:109
+msgid ""
+"Every component also exposes a C-style facade; ``app/Hub_Main.cpp`` uses "
+"only these."
+msgstr ""
+"Mỗi component cũng công bố một facade kiểu C; ``app/Hub_Main.cpp`` chỉ "
+"dùng các hàm này."
+
+#: ../../../source/_api_autogen.rst:111
+msgid "CDD_Gpio_Begin(int eepromAddress): Load saved pin modes and apply them."
+msgstr "CDD_Gpio_Begin(int eepromAddress): Nạp các chế độ chân đã lưu và áp dụng chúng."
+
+#: ../../../source/_api_autogen.rst:112
+msgid ""
+"CDD_Gpio_ReadPin(uint8_t), CDD_Gpio_WritePin(uint8_t, uint8_t), "
+"CDD_Gpio_SetPinMode(uint8_t, uint8_t): Pin access."
+msgstr ""
+"CDD_Gpio_ReadPin(uint8_t), CDD_Gpio_WritePin(uint8_t, uint8_t), "
+"CDD_Gpio_SetPinMode(uint8_t, uint8_t): Truy cập chân."
+
+#: ../../../source/_api_autogen.rst:113
+msgid ""
+"CDD_Motor_Begin(uint16_t pwmHz), CDD_Motor_Run(slot, pwm), "
+"CDD_Motor_Brake(slot), CDD_Motor_Stop(slot), CDD_Motor_StopAll(): Motor "
+"bank."
+msgstr ""
+"CDD_Motor_Begin(uint16_t pwmHz), CDD_Motor_Run(slot, pwm), "
+"CDD_Motor_Brake(slot), CDD_Motor_Stop(slot), CDD_Motor_StopAll(): Bank "
+"động cơ."
+
+#: ../../../source/_api_autogen.rst:114
+msgid ""
+"CDD_Servo_Begin(), CDD_Servo_Write(channel, angle), "
+"CDD_Servo_Release(channel), CDD_Servo_ReleaseAll(): Servo PCA9685."
+msgstr ""
+"CDD_Servo_Begin(), CDD_Servo_Write(channel, angle), "
+"CDD_Servo_Release(channel), CDD_Servo_ReleaseAll(): Servo PCA9685."
+
+#: ../../../source/_api_autogen.rst:115
+msgid ""
+"SWC_Robot_Begin(), SWC_Robot_Update(), SWC_Robot_OnRemote(const "
+"ControlPacket&): Robot lifecycle and remote input."
+msgstr ""
+"SWC_Robot_Begin(), SWC_Robot_Update(), SWC_Robot_OnRemote(const "
+"ControlPacket&): Vòng đời robot và đầu vào remote."
+
+#: ../../../source/_api_autogen.rst:116
+msgid ""
+"SWC_Robot_SetSource(Source), SWC_Robot_Joy(...), SWC_Robot_RunMotor(...),"
+" SWC_Robot_BrakeMotor(...), SWC_Robot_Stop(): Manual control."
+msgstr ""
+"SWC_Robot_SetSource(Source), SWC_Robot_Joy(...), SWC_Robot_RunMotor(...),"
+" SWC_Robot_BrakeMotor(...), SWC_Robot_Stop(): Điều khiển thủ công."
+
+#: ../../../source/_api_autogen.rst:117
+msgid ""
+"SWC_Robot_IsReady(), SWC_Robot_IsMoving(), SWC_Robot_IsLinkAlive(): "
+"Status queries."
+msgstr ""
+"SWC_Robot_IsReady(), SWC_Robot_IsMoving(), SWC_Robot_IsLinkAlive(): "
+"Truy vấn trạng thái."
+
+#: ../../../source/_api_autogen.rst:118
+msgid ""
+"SRV_Hmi_Begin(), SRV_Hmi_Update(): Start the touchscreen UART and run the"
+" command handler."
+msgstr ""
+"SRV_Hmi_Begin(), SRV_Hmi_Update(): Khởi động UART màn hình cảm ứng và "
+"chạy bộ xử lý lệnh."
+
+#: ../../../source/_api_autogen.rst:119
+msgid ""
+"SRV_EspNow_Begin(Handler, void* context), SRV_EspNow_Update(): Start WiFi"
+" STA + ESP-NOW and deliver queued packets."
+msgstr ""
+"SRV_EspNow_Begin(Handler, void* context), SRV_EspNow_Update(): Khởi động "
+"WiFi STA + ESP-NOW và chuyển các gói trong hàng đợi."
+
+#: ../../../source/_api_autogen.rst:122
 msgid "Communication"
 msgstr "Truyền thông"
 
-#: ../../../source/_api_autogen.rst:109
+#: ../../../source/_api_autogen.rst:125
 msgid "EspNowLink"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:111
+#: ../../../source/_api_autogen.rst:127
 msgid ""
 "begin(Handler, void* context): Start ESP-NOW on the configured channel "
 "and register the packet handler."
 msgstr ""
+"begin(Handler, void* context): Khởi động ESP-NOW trên kênh đã cấu hình "
+"và đăng ký bộ xử lý gói tin."
 
-#: ../../../source/_api_autogen.rst:112
+#: ../../../source/_api_autogen.rst:128
 msgid ""
 "update(): Call from loop(); hands every queued ControlPacket to the "
 "handler."
 msgstr ""
+"update(): Gọi từ loop(); chuyển từng ControlPacket trong hàng đợi đến "
+"bộ xử lý."
 
-#: ../../../source/_api_autogen.rst:113
+#: ../../../source/_api_autogen.rst:129
 msgid ""
 "rejectedCount() const, droppedCount() const: Frames refused (length, CRC,"
 " type) and frames lost to a full queue."
 msgstr ""
+"rejectedCount() const, droppedCount() const: Khung bị từ chối (độ dài, "
+"CRC, loại) và khung mất do hàng đợi đầy."
 
-#: ../../../source/_api_autogen.rst:116
+#: ../../../source/_api_autogen.rst:132
 msgid "Shared Data Types"
 msgstr "Các kiểu dữ liệu dùng chung"
 
-#: ../../../source/_api_autogen.rst:119
+#: ../../../source/_api_autogen.rst:135
 msgid "ControlPacket"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:121
+#: ../../../source/_api_autogen.rst:137
 msgid "msgType: CONTROL_MESSAGE or HEARTBEAT_MESSAGE."
 msgstr "msgType: CONTROL_MESSAGE hoặc HEARTBEAT_MESSAGE."
 
-#: ../../../source/_api_autogen.rst:122
+#: ../../../source/_api_autogen.rst:138
 msgid "throttle/strafe/rotation: Signed command channels."
 msgstr "throttle/strafe/rotation: Các kênh lệnh có dấu."
 
-#: ../../../source/_api_autogen.rst:123
+#: ../../../source/_api_autogen.rst:139
 msgid "buttons: Bitmask from remote buttons."
 msgstr "buttons: Bitmask các nút bấm của remote."
 
-#: ../../../source/_api_autogen.rst:124
+#: ../../../source/_api_autogen.rst:140
 msgid "sequenceNum: Monotonic sequence id."
 msgstr "sequenceNum: Số thứ tự tăng dần."
 
-#: ../../../source/_api_autogen.rst:125
+#: ../../../source/_api_autogen.rst:141
 msgid "crc8: Packet CRC-8."
 msgstr "crc8: CRC-8 của gói."
 
-#: ../../../source/_api_autogen.rst:128
+#: ../../../source/_api_autogen.rst:144
 msgid "PairPacket"
 msgstr ""
 
-#: ../../../source/_api_autogen.rst:130
+#: ../../../source/_api_autogen.rst:146
 msgid "cmd: Pairing command id."
 msgstr "cmd: Mã lệnh ghép cặp."
 
-#: ../../../source/_api_autogen.rst:131
+#: ../../../source/_api_autogen.rst:147
 msgid "macAddr[6]: Device MAC address."
 msgstr "macAddr[6]: Địa chỉ MAC của thiết bị."
 

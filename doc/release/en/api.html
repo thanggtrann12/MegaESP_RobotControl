@@ -295,6 +295,7 @@ It provides a practical API overview extracted from the project headers.</p>
 <li><p><a class="reference internal" href="#espnowlink">EspNowLink</a></p></li>
 <li><p><a class="reference internal" href="#controlpacket">ControlPacket</a></p></li>
 <li><p><a class="reference internal" href="#pairpacket">PairPacket</a></p></li>
+<li><p><a class="reference internal" href="#component-facades">Component Facades</a></p></li>
 </ul>
 </section>
 <section id="motor-layer">
@@ -385,6 +386,21 @@ It provides a practical API overview extracted from the project headers.</p>
 <h3>Hmi<a class="headerlink" href="#hmi" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>update(): Read the touchscreen UART, run commands and send the heartbeat.</p></li>
+</ul>
+</section>
+<section id="component-facades">
+<h3>Component Facades<a class="headerlink" href="#component-facades" title="Link to this heading">¶</a></h3>
+<p>Every component also exposes a C-style facade; <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> uses only these.</p>
+<ul class="simple">
+<li><p>CDD_Gpio_Begin(int eepromAddress): Load saved pin modes and apply them.</p></li>
+<li><p>CDD_Gpio_ReadPin(uint8_t), CDD_Gpio_WritePin(uint8_t, uint8_t), CDD_Gpio_SetPinMode(uint8_t, uint8_t): Pin access.</p></li>
+<li><p>CDD_Motor_Begin(uint16_t pwmHz), CDD_Motor_Run(slot, pwm), CDD_Motor_Brake(slot), CDD_Motor_Stop(slot), CDD_Motor_StopAll(): Motor bank.</p></li>
+<li><p>CDD_Servo_Begin(), CDD_Servo_Write(channel, angle), CDD_Servo_Release(channel), CDD_Servo_ReleaseAll(): Servo PCA9685.</p></li>
+<li><p>SWC_Robot_Begin(), SWC_Robot_Update(), SWC_Robot_OnRemote(const ControlPacket&amp;): Robot lifecycle and remote input.</p></li>
+<li><p>SWC_Robot_SetSource(Source), SWC_Robot_Joy(…), SWC_Robot_RunMotor(…), SWC_Robot_BrakeMotor(…), SWC_Robot_Stop(): Manual control.</p></li>
+<li><p>SWC_Robot_IsReady(), SWC_Robot_IsMoving(), SWC_Robot_IsLinkAlive(): Status queries.</p></li>
+<li><p>SRV_Hmi_Begin(), SRV_Hmi_Update(): Start the touchscreen UART and run the command handler.</p></li>
+<li><p>SRV_EspNow_Begin(Handler, void* context), SRV_EspNow_Update(): Start WiFi STA + ESP-NOW and deliver queued packets.</p></li>
 </ul>
 </section>
 </section>

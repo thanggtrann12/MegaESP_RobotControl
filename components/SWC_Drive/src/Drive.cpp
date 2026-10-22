@@ -55,6 +55,7 @@ void Drive::assign(PortRole role, IMotor *motor, bool inverted)
     wheel.motor = motor;
     wheel.inverted = inverted;
     wheel.last = 0;
+    refreshReady();
 }
 
 void Drive::clearMotors()
@@ -63,6 +64,7 @@ void Drive::clearMotors()
     {
         wheel = Wheel();
     }
+    refreshReady();
 }
 
 void Drive::setChassis(Chassis chassis, const Mix *custom)
@@ -77,9 +79,10 @@ void Drive::setChassis(Chassis chassis, const Mix *custom)
     {
         _mix[i] = source[i];
     }
+    refreshReady();
 }
 
-bool Drive::ready() const
+void Drive::refreshReady()
 {
     bool any = false;
     for (uint8_t i = 0; i < MAX_PORT_COUNT; ++i)
@@ -88,12 +91,18 @@ bool Drive::ready() const
         {
             if (_wheels[i].motor == nullptr)
             {
-                return false;
+                _ready = false;
+                return;
             }
             any = true;
         }
     }
-    return any;
+    _ready = any;
+}
+
+bool Drive::ready() const
+{
+    return _ready; // cached: refreshed by assign/clearMotors/setChassis
 }
 
 void Drive::move(int8_t throttle, int8_t strafe, int8_t rotation)

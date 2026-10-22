@@ -273,13 +273,13 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
         <article role="main" id="furo-main-content">
           <section id="communication-protocols-esp-now">
 <h1>Giao thức truyền thông và ESP-NOW<a class="headerlink" href="#communication-protocols-esp-now" title="Link to this heading">¶</a></h1>
-<p>The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same <code class="docutils literal notranslate"><span class="pre">Robot</span></code> object.</p>
+<p>ESP32-S3 có một đường UART và một đường không dây. Cả hai đều mang lệnh đến cùng một đối tượng <code class="docutils literal notranslate"><span class="pre">Robot</span></code> qua facade <code class="docutils literal notranslate"><span class="pre">SWC_Robot_*</span></code>.</p>
 <ul class="simple">
-<li><p><strong>Serial1:</strong> TJC touchscreen, ASCII text commands.</p></li>
-<li><p><strong>ESP-NOW:</strong> Remote control packets received directly by the ESP32-S3.</p></li>
+<li><p><strong>Serial1:</strong> Màn hình cảm ứng TJC, lệnh văn bản ASCII.</p></li>
+<li><p><strong>ESP-NOW:</strong> Các gói điều khiển từ remote nhận trực tiếp trên ESP32-S3.</p></li>
 </ul>
 <section id="tjc-protocol-serial1">
-<h2>TJC Protocol (Serial1)<a class="headerlink" href="#tjc-protocol-serial1" title="Link to this heading">¶</a></h2>
+<h2>Giao thức TJC (Serial1)<a class="headerlink" href="#tjc-protocol-serial1" title="Link to this heading">¶</a></h2>
 <p>Một lệnh là văn bản ASCII, các trường cách nhau bằng dấu phẩy. Lệnh kết thúc bằng ba byte <code class="docutils literal notranslate"><span class="pre">0xFF</span></code> (do TJC gửi) hoặc ký tự xuống dòng. Mọi phản hồi đều kết thúc bằng ba byte <code class="docutils literal notranslate"><span class="pre">0xFF</span></code>.</p>
 <ul class="simple">
 <li><p>Cổng động cơ được đánh số từ 1 (M1 đến M6).</p></li>
@@ -395,7 +395,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 </div>
 </section>
 <section id="messages-from-the-esp32-s3">
-<h3>Messages from the ESP32-S3<a class="headerlink" href="#messages-from-the-esp32-s3" title="Link to this heading">¶</a></h3>
+<h3>Thông điệp từ ESP32-S3<a class="headerlink" href="#messages-from-the-esp32-s3" title="Link to this heading">¶</a></h3>
 <div class="table-wrapper colwidths-given docutils container">
 <table class="docutils align-default">
 <colgroup>
@@ -433,8 +433,8 @@ SAVE
 </section>
 </section>
 <section id="esp-now-remote">
-<h2>ESP-NOW Remote<a class="headerlink" href="#esp-now-remote" title="Link to this heading">¶</a></h2>
-<p>The paired remote sends each <code class="docutils literal notranslate"><span class="pre">ControlPacket</span></code> directly over ESP-NOW to the ESP32-S3. Unlike the Mega UART link, ESP-NOW does not use the <code class="docutils literal notranslate"><span class="pre">0xAA</span> <span class="pre">0xFF</span></code> frame header, XOR checksum or <code class="docutils literal notranslate"><span class="pre">0x55</span></code> footer.</p>
+<h2>Remote ESP-NOW<a class="headerlink" href="#esp-now-remote" title="Link to this heading">¶</a></h2>
+<p>Remote đã ghép cặp gửi từng <code class="docutils literal notranslate"><span class="pre">ControlPacket</span></code> trực tiếp qua ESP-NOW tới ESP32-S3. Khác với đường UART Mega, ESP-NOW không dùng header khung <code class="docutils literal notranslate"><span class="pre">0xAA</span> <span class="pre">0xFF</span></code>, checksum XOR hay footer <code class="docutils literal notranslate"><span class="pre">0x55</span></code>.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ControlPacket: 8 packed bytes
 </pre></div>
 </div>
@@ -443,11 +443,11 @@ SAVE
 <li><p>Loại thông điệp: điều khiển (0x01) hoặc heartbeat (0x02)</p></li>
 <li><p>Throttle, strafe và rotation, mỗi giá trị từ -100 đến 100</p></li>
 <li><p>Bitmask các nút bấm</p></li>
-<li><p>Sequence number (the robot rejects duplicate and out-of-order values)</p></li>
-<li><p>CRC-8 over the preceding packet bytes</p></li>
+<li><p>Số thứ tự (robot loại bỏ giá trị trùng lặp và sai thứ tự)</p></li>
+<li><p>CRC-8 trên các byte gói tin phía trước</p></li>
 </ul>
-<p>The hub listens on ESP-NOW channel 1. Set <code class="docutils literal notranslate"><span class="pre">ESPNOW_REMOTE_MAC</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h</span></code> to the paired remote's MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to <code class="docutils literal notranslate"><span class="pre">Robot</span></code> from the main loop.</p>
-<p>The ESP32-S3 accepts remote commands only while the control source is <code class="docutils literal notranslate"><span class="pre">REMOTE</span></code>. <code class="docutils literal notranslate"><span class="pre">Robot</span></code> rejects duplicate and out-of-order sequence numbers. A heartbeat updates the link timer while keeping the last control command active. If no accepted remote packet arrives for 500 ms, the robot clears the command and stops the drive. The sequence check is reset after a link timeout or control-source change so a restarted remote can begin again at sequence 0.</p>
+<p>Hub lắng nghe trên kênh ESP-NOW 1. Đặt <code class="docutils literal notranslate"><span class="pre">ESPNOW_REMOTE_MAC</span></code> trong <code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h</span></code> thành địa chỉ MAC của remote đã ghép cặp; địa chỉ trong repo chỉ là placeholder. Callback nhận sẽ từ chối gói từ MAC khác, gói sai độ dài, CRC không hợp lệ và loại thông điệp lạ. Gói được chấp nhận vào hàng đợi tám phần tử và <code class="docutils literal notranslate"><span class="pre">SRV_EspNow_Update()</span></code> chuyển chúng đến bộ xử lý của ứng dụng, bộ xử lý này chuyển tiếp đến <code class="docutils literal notranslate"><span class="pre">Robot</span></code> qua <code class="docutils literal notranslate"><span class="pre">SWC_Robot_OnRemote()</span></code> từ vòng lặp chính.</p>
+<p>ESP32-S3 chỉ nhận lệnh remote khi nguồn điều khiển là <code class="docutils literal notranslate"><span class="pre">REMOTE</span></code>. <code class="docutils literal notranslate"><span class="pre">Robot</span></code> từ chối số thứ tự trùng lặp và sai thứ tự. Heartbeat cập nhật bộ đếm thời gian đường truyền nhưng giữ lệnh điều khiển cuối cùng. Nếu không có gói remote được chấp nhận trong 500 ms, robot xóa lệnh và dừng phần lái. Kiểm tra số thứ tự được đặt lại sau khi mất kết nối hoặc đổi nguồn điều khiển để remote khởi động lại có thể bắt đầu từ số 0.</p>
 </section>
 </section>
 
@@ -507,14 +507,14 @@ SAVE
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Giao thức truyền thông và ESP-NOW</a><ul>
-<li><a class="reference internal" href="#tjc-protocol-serial1">TJC Protocol (Serial1)</a><ul>
+<li><a class="reference internal" href="#tjc-protocol-serial1">Giao thức TJC (Serial1)</a><ul>
 <li><a class="reference internal" href="#configuration">Cấu hình</a></li>
 <li><a class="reference internal" href="#control">Điều khiển</a></li>
 <li><a class="reference internal" href="#servos-and-i-o">Servo và I/O</a></li>
-<li><a class="reference internal" href="#messages-from-the-esp32-s3">Messages from the ESP32-S3</a></li>
+<li><a class="reference internal" href="#messages-from-the-esp32-s3">Thông điệp từ ESP32-S3</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#esp-now-remote">ESP-NOW Remote</a></li>
+<li><a class="reference internal" href="#esp-now-remote">Remote ESP-NOW</a></li>
 </ul>
 </li>
 </ul>

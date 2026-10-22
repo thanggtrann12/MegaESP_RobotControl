@@ -274,7 +274,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
           <section id="universal-robot-hub">
 <h1>Robot Hub đa năng<a class="headerlink" href="#universal-robot-hub" title="Link to this heading">¶</a></h1>
 <p>Firmware PlatformIO phân tầng cho bộ điều khiển robot cắm, cấu hình, chạy: một firmware, nhiều khung gầm, cấu hình từ màn hình cảm ứng.</p>
-<p>The current robot hub runs on an <strong>ESP32-S3</strong> and connects to a <strong>TJC/Nextion HMI</strong> over UART. A handheld remote sends control packets directly to the hub over ESP-NOW. The older Mega 2560 and ESP8266 firmware is retained under <code class="docutils literal notranslate"><span class="pre">legacy/</span></code>.</p>
+<p>Hub robot hiện tại chạy trên <strong>ESP32-S3</strong> và kết nối với <strong>TJC/Nextion HMI</strong> qua UART. Bộ điều khiển từ xa cầm tay gửi các gói tin điều khiển trực tiếp tới hub qua ESP-NOW. Firmware Mega 2560 và ESP8266 cũ vẫn được giữ lại trong <code class="docutils literal notranslate"><span class="pre">legacy/</span></code>.</p>
 <p>Dự án được thiết kế như một <strong>nền tảng robot cho DIY, người đam mê và giáo dục</strong>. Mục tiêu chính là khám phá cách cấu trúc một bộ điều khiển robot thực tế bằng C++, trừu tượng hóa phần cứng, ánh xạ động cơ có thể cấu hình, động học, giao thức truyền thông và cơ chế an toàn, đồng thời vẫn đủ thực tiễn để sinh viên có thể tự lắp ráp và hiểu được.</p>
 <section id="design-inspiration">
 <h2>Nguồn cảm hứng thiết kế<a class="headerlink" href="#design-inspiration" title="Link to this heading">¶</a></h2>
@@ -285,6 +285,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kiến trúc hệ thống và triết lý thiết kế</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#system-overview">Tổng quan hệ thống</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#layers">Các tầng</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#facade-api">API facade</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#where-the-code-lives">Mã nguồn nằm ở đâu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#control-pipeline">Pipeline điều khiển</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#system-architecture-wireless-data-flow">Kiến trúc hệ thống và luồng dữ liệu không dây</a></li>
@@ -300,8 +301,8 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="communication.html">Giao thức truyền thông và ESP-NOW</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="communication.html#tjc-protocol-serial1">TJC Protocol (Serial1)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="communication.html#esp-now-remote">ESP-NOW Remote</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communication.html#tjc-protocol-serial1">Giao thức TJC (Serial1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communication.html#esp-now-remote">Remote ESP-NOW</a></li>
 </ul>
 </li>
 </ul>
@@ -344,7 +345,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Phát triển, kiểm thử và lộ trình</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development.html#reading-the-code">Đọc mã nguồn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#building-the-firmware">Building the Firmware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#building-the-firmware">Build firmware</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#staged-testing-strategy">Chiến lược kiểm thử theo giai đoạn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#extending-the-firmware">Mở rộng firmware</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#current-status-roadmap">Trạng thái hiện tại và lộ trình</a></li>

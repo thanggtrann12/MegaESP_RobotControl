@@ -1,4 +1,5 @@
 #include "RobotConfig.h"
+#include "Crc.h"
 #include <EEPROM.h>
 
 #if defined(ARDUINO_ARCH_ESP32)
@@ -13,17 +14,7 @@ namespace
 {
     uint8_t crc8(const RobotConfig &config)
     {
-        const uint8_t *bytes = reinterpret_cast<const uint8_t *>(&config);
-        uint8_t crc = 0;
-        for (size_t i = 0; i < sizeof(RobotConfig) - 1; ++i)
-        {
-            crc ^= bytes[i];
-            for (uint8_t bit = 0; bit < 8; ++bit)
-            {
-                crc = (crc & 0x80) ? static_cast<uint8_t>((crc << 1) ^ 0x07) : static_cast<uint8_t>(crc << 1);
-            }
-        }
-        return crc;
+        return ::crc8(reinterpret_cast<const uint8_t *>(&config), sizeof(RobotConfig) - 1);
     }
 
     bool rolesValid(const PortRole *role, uint8_t inverted)

@@ -2,6 +2,7 @@
 #define STD_TYPES_H
 
 #include <Arduino.h>
+#include "Crc.h"
 
 /**
  * @file Std_Types.h
@@ -42,20 +43,7 @@ enum ControlMessageType : uint8_t
  */
 inline uint8_t CalculateControlPacketCrc(const ControlPacket &packet)
 {
-    const uint8_t *bytes = reinterpret_cast<const uint8_t *>(&packet);
-    uint8_t crc = 0;
-
-    for (size_t index = 0; index < sizeof(ControlPacket) - 1; ++index)
-    {
-        crc ^= bytes[index];
-        for (uint8_t bit = 0; bit < 8; ++bit)
-        {
-            crc = (crc & 0x80) ? static_cast<uint8_t>((crc << 1) ^ 0x07)
-                               : static_cast<uint8_t>(crc << 1);
-        }
-    }
-
-    return crc;
+    return crc8(reinterpret_cast<const uint8_t *>(&packet), sizeof(ControlPacket) - 1);
 }
 
 /**

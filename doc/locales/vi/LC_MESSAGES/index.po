@@ -49,6 +49,10 @@ msgid ""
 "directly to the hub over ESP-NOW. The older Mega 2560 and ESP8266 "
 "firmware is retained under ``legacy/``."
 msgstr ""
+"Hub robot hiện tại chạy trên **ESP32-S3** và kết nối với **TJC/Nextion "
+"HMI** qua UART. Bộ điều khiển từ xa cầm tay gửi các gói tin điều khiển "
+"trực tiếp tới hub qua ESP-NOW. Firmware Mega 2560 và ESP8266 cũ vẫn được "
+"giữ lại trong ``legacy/``."
 
 #: ../../../source/index.rst:9
 msgid ""

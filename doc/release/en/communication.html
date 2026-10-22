@@ -273,7 +273,7 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
         <article role="main" id="furo-main-content">
           <section id="communication-protocols-esp-now">
 <h1>Communication Protocols &amp; ESP-NOW<a class="headerlink" href="#communication-protocols-esp-now" title="Link to this heading">¶</a></h1>
-<p>The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same <code class="docutils literal notranslate"><span class="pre">Robot</span></code> object.</p>
+<p>The ESP32-S3 has one UART link and one wireless link. Both carry commands that end up in the same <code class="docutils literal notranslate"><span class="pre">Robot</span></code> object through the <code class="docutils literal notranslate"><span class="pre">SWC_Robot_*</span></code> facade.</p>
 <ul class="simple">
 <li><p><strong>Serial1:</strong> TJC touchscreen, ASCII text commands.</p></li>
 <li><p><strong>ESP-NOW:</strong> Remote control packets received directly by the ESP32-S3.</p></li>
@@ -446,7 +446,7 @@ SAVE
 <li><p>Sequence number (the robot rejects duplicate and out-of-order values)</p></li>
 <li><p>CRC-8 over the preceding packet bytes</p></li>
 </ul>
-<p>The hub listens on ESP-NOW channel 1. Set <code class="docutils literal notranslate"><span class="pre">ESPNOW_REMOTE_MAC</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h</span></code> to the paired remote’s MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and are delivered to <code class="docutils literal notranslate"><span class="pre">Robot</span></code> from the main loop.</p>
+<p>The hub listens on ESP-NOW channel 1. Set <code class="docutils literal notranslate"><span class="pre">ESPNOW_REMOTE_MAC</span></code> in <code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow/cfg/s3_devkit/EspNow_Cfg.h</span></code> to the paired remote’s MAC address; the checked-in address is a placeholder. The receive callback rejects packets from other MAC addresses, packets with the wrong length, invalid CRCs, and unknown message types. Accepted packets enter an eight-packet queue and <code class="docutils literal notranslate"><span class="pre">SRV_EspNow_Update()</span></code> hands them to the app handler, which forwards them to <code class="docutils literal notranslate"><span class="pre">Robot</span></code> through <code class="docutils literal notranslate"><span class="pre">SWC_Robot_OnRemote()</span></code> from the main loop.</p>
 <p>The ESP32-S3 accepts remote commands only while the control source is <code class="docutils literal notranslate"><span class="pre">REMOTE</span></code>. <code class="docutils literal notranslate"><span class="pre">Robot</span></code> rejects duplicate and out-of-order sequence numbers. A heartbeat updates the link timer while keeping the last control command active. If no accepted remote packet arrives for 500 ms, the robot clears the command and stops the drive. The sequence check is reset after a link timeout or control-source change so a restarted remote can begin again at sequence 0.</p>
 </section>
 </section>

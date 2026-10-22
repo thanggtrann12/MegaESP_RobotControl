@@ -275,37 +275,31 @@ document.getElementById('link-vi').setAttribute('href', buildLangUrl('vi'));
 <h1>Kiến trúc hệ thống và triết lý thiết kế<a class="headerlink" href="#system-architecture-design-philosophy" title="Link to this heading">¶</a></h1>
 <section id="system-overview">
 <h2>Tổng quan hệ thống<a class="headerlink" href="#system-overview" title="Link to this heading">¶</a></h2>
-<p>The firmware turns an ESP32-S3 into a <em>plug, configure, play</em> robot controller. One firmware drives many chassis types; the TJC touchscreen chooses the chassis, maps motors to wheels, calibrates directions and saves the result to EEPROM. No rebuild is needed to change the robot.</p>
-<p>The ESP32-S3:</p>
+<p>Firmware biến ESP32-S3 thành bộ điều khiển robot <em>cắm, cấu hình, chạy</em>. Một firmware điều khiển được nhiều loại khung gầm; màn hình cảm ứng TJC chọn khung gầm, gán động cơ cho bánh xe, hiệu chỉnh chiều quay và lưu kết quả vào EEPROM. Không cần build lại khi đổi robot.</p>
+<p>ESP32-S3 có thể:</p>
 <ul class="simple">
 <li><p>Điều khiển khung gầm 2 bánh, tank, omni 4 bánh, mecanum, 6 bánh và khung gầm tùy chỉnh</p></li>
 <li><p>Chạy sáu động cơ DC (M1 đến M6) và tối đa mười sáu servo qua các chip PCA9685</p></li>
 <li><p>Dùng các chân số và analog làm ngõ vào hoặc ngõ ra đơn thuần</p></li>
-<li><p>Takes commands from the TJC touchscreen over UART and from the ESP-NOW remote directly</p></li>
+<li><p>Nhận lệnh từ màn hình cảm ứng TJC qua UART và từ remote ESP-NOW trực tiếp</p></li>
 <li><p>Dừng mọi động cơ khi mất đường truyền lệnh</p></li>
 <li><p>Lưu cấu hình robot vào EEPROM</p></li>
 </ul>
 </section>
 <section id="layers">
 <h2>Các tầng<a class="headerlink" href="#layers" title="Link to this heading">¶</a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TJC touchscreen  &lt;-- UART2 --&gt;  Hmi            parse commands, answer, report configuration
-                                 |
-                               Robot           choose control source, watchdog, own the configuration
-                                 |
-                               Drive           chassis mixing, speed scaling, output limits
-                                 |
-                               MotorBank       M1..M6: run (PWM), brake, stop
-                                 |
-                               Pca9685         I2C PWM chip (0x40) + TA6586 motor drivers
-
-ESP-NOW remote   -- ESP-NOW --&gt; EspNowLink      validate MAC, length, type and CRC; queue packets
-                                 |
-                               Robot           sequence check, source selection and watchdog
-Servos                          ServoOut        PCA9685 chip 2 (0x41)
-Digital / analog pins           IoPin           in / out only
-</pre></div>
-</div>
+<a class="reference internal image-reference" href="_images/component_stack.svg"><img alt="Ngăn xếp thành phần và luồng dữ liệu" src="_images/component_stack.svg" width="100%" /></a>
 <p>Mỗi tầng chỉ biết tầng ngay bên dưới nó. Tầng động cơ không biết bánh xe là gì, còn <code class="docutils literal notranslate"><span class="pre">Drive</span></code> không biết chip nào làm quay động cơ.</p>
+</section>
+<section id="facade-api">
+<h2>API facade<a class="headerlink" href="#facade-api" title="Link to this heading">¶</a></h2>
+<p>Tầng ứng dụng không bao giờ dùng trực tiếp các lớp bên trên. Mỗi component công bố một facade nhỏ theo kiểu C trong thư mục <code class="docutils literal notranslate"><span class="pre">api/</span></code> của nó:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">XXX_Begin()</span></code> tạo thể hiện (lazy, cục bộ trong file) và khởi động phần cứng.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XXX_Update()</span></code> chạy một nhịp phục vụ từ <code class="docutils literal notranslate"><span class="pre">loop()</span></code>.</p></li>
+<li><p>Các lệnh tính năng như <code class="docutils literal notranslate"><span class="pre">CDD_Motor_Run()</span></code> hoặc <code class="docutils literal notranslate"><span class="pre">SWC_Robot_OnRemote()</span></code> chuyển tiếp đến cùng thể hiện đó.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> chỉ gọi các hàm này, nên gốc lắp ráp không chứa chi tiết nội bộ của component và mọi module được nối cùng một cách.</p>
 </section>
 <section id="where-the-code-lives">
 <h2>Mã nguồn nằm ở đâu<a class="headerlink" href="#where-the-code-lives" title="Link to this heading">¶</a></h2>
@@ -313,40 +307,47 @@ Digital / analog pins           IoPin           in / out only
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 25.0%" />
-<col style="width: 75.0%" />
+<col style="width: 45.0%" />
+<col style="width: 30.0%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Thư mục</p></th>
 <th class="head"><p>Trách nhiệm</p></th>
+<th class="head"><p>Điểm vào facade</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
-<td><p>Chip PWM I2C: đặt chu kỳ nhiệm vụ cho một kênh.</p></td>
+<td><p>Chip PWM I2C: chu kỳ nhiệm vụ từng kênh và các ngõ servo.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CDD_Servo_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Servo_Write()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Servo_Release()</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_MotorTA6586</span></code></p></td>
-<td><p>Motor interface, TA6586 driver and six-motor bank.</p></td>
+<td><p>Giao diện động cơ, driver TA6586 và bank sáu động cơ.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CDD_Motor_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Motor_Run()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Motor_StopAll()</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Pca9685</span></code></p></td>
-<td><p>Servo output on a PCA9685 channel.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Gpio</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/CDD_Gpio</span></code></p></td>
 <td><p>Cấu hình một chân làm ngõ vào hoặc ngõ ra, đọc và ghi chân đó.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CDD_Gpio_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Gpio_ReadPin()</span></code>, <code class="docutils literal notranslate"><span class="pre">CDD_Gpio_WritePin()</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Drive</span></code></p></td>
 <td><p>Sáu khung gầm có sẵn, trộn tốc độ bánh, giới hạn PWM và giới hạn gia tốc.</p></td>
+<td><p>dùng qua <code class="docutils literal notranslate"><span class="pre">SWC_Robot</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code></p></td>
-<td><p>Robot control, configuration validation and EEPROM load and save.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SWC_Robot</span></code></p></td>
+<td><p>Điều khiển robot, kiểm tra hợp lệ cấu hình và nạp/lưu EEPROM.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SWC_Robot_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">SWC_Robot_Update()</span></code>, <code class="docutils literal notranslate"><span class="pre">SWC_Robot_OnRemote()</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code></p></td>
-<td><p>TJC command protocol and handlers.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_Hmi</span></code></p></td>
+<td><p>Giao thức lệnh TJC và các bộ xử lý.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SRV_Hmi_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">SRV_Hmi_Update()</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow</span></code></p></td>
-<td><p>ESP-NOW receive validation and packet queue.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">components/SRV_EspNow</span></code></p></td>
+<td><p>Kiểm tra gói nhận ESP-NOW và hàng đợi gói tin.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SRV_EspNow_Begin()</span></code>, <code class="docutils literal notranslate"><span class="pre">SRV_EspNow_Update()</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code></p></td>
-<td><p>Composition root and <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code> for the ESP32-S3 hub.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code></p></td>
+<td><p>Gốc lắp ráp và <code class="docutils literal notranslate"><span class="pre">setup()</span></code> / <code class="docutils literal notranslate"><span class="pre">loop()</span></code> cho hub ESP32-S3.</p></td>
+<td><p>chỉ gọi các facade bên trên</p></td>
 </tr>
 </tbody>
 </table>
@@ -364,7 +365,7 @@ Digital / analog pins           IoPin           in / out only
 <h2>Triết lý thiết kế<a class="headerlink" href="#design-philosophy" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><dl class="simple">
-<dt><strong>Simple:</strong></dt><dd><p>A newcomer should be able to read <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> and follow the whole system in a few minutes.</p>
+<dt><strong>Đơn giản:</strong></dt><dd><p>Người mới chỉ cần đọc <code class="docutils literal notranslate"><span class="pre">app/Hub_Main.cpp</span></code> là theo dõi được toàn bộ hệ thống trong vài phút.</p>
 </dd>
 </dl>
 </li>
@@ -433,6 +434,7 @@ Digital / analog pins           IoPin           in / out only
 <li><a class="reference internal" href="#">Kiến trúc hệ thống và triết lý thiết kế</a><ul>
 <li><a class="reference internal" href="#system-overview">Tổng quan hệ thống</a></li>
 <li><a class="reference internal" href="#layers">Các tầng</a></li>
+<li><a class="reference internal" href="#facade-api">API facade</a></li>
 <li><a class="reference internal" href="#where-the-code-lives">Mã nguồn nằm ở đâu</a></li>
 <li><a class="reference internal" href="#control-pipeline">Pipeline điều khiển</a></li>
 <li><a class="reference internal" href="#system-architecture-wireless-data-flow">Kiến trúc hệ thống và luồng dữ liệu không dây</a></li>

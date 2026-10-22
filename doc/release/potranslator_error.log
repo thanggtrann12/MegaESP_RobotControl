@@ -1,4 +1,39 @@
 Traceback (most recent call last):
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\util\connection.py", line 95, in create_connection
+    raise err
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connectionpool.py", line 700, in urlopen
+    self._prepare_proxy(conn)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connectionpool.py", line 996, in _prepare_proxy
+    conn.connect()
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connection.py", line 358, in connect
+    self.sock = conn = self._new_conn()
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x000001DCDC9B56C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\urllib3\util\retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='translate.google.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000001DCDC9B56C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
   File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 196, in _run_module_as_main
     return _run_code(code, main_globals, None,
   File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 86, in _run_code
@@ -32,6 +67,14 @@ Traceback (most recent call last):
     token = self.token_acquirer.do(text)
   File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\gtoken.py", line 180, in do
     self._update()
-  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\gtoken.py", line 59, in _update
-    code = unicode(self.RE_TKK.search(r.text).group(1)).replace('var ', '')
-AttributeError: 'NoneType' object has no attribute 'group'
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\googletrans\gtoken.py", line 57, in _update
+    r = self.session.get(self.host)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\requests\sessions.py", line 602, in get
+    return self.request("GET", url, **kwargs)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\rhn9hc\AppData\Local\Programs\Python\Python310\lib\site-packages\requests\adapters.py", line 671, in send
+    raise ProxyError(e, request=request)
+requests.exceptions.ProxyError: HTTPSConnectionPool(host='translate.google.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000001DCDC9B56C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')))

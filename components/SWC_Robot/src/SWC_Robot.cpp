@@ -19,6 +19,11 @@ void SWC_Robot_Update(void)
     SWC_Robot_GetInstance().update();
 }
 
+void SWC_Robot_OnRemote(const ControlPacket &packet)
+{
+    SWC_Robot_GetInstance().onRemote(packet);
+}
+
 void SWC_Robot_SetSource(Source source)
 {
     SWC_Robot_GetInstance().setSource(source);

@@ -1,7 +1,7 @@
 #ifndef COM_MANAGER_H
 #define COM_MANAGER_H
 
-#include "Std_Types.h"
+#include "ControlPacket.h"
 #include <HardwareSerial.h>
 
 /**

@@ -1,7 +1,7 @@
 #ifndef SWC_BUTTON_H
 #define SWC_BUTTON_H
 
-#include "Std_Types.h"
+#include "ControlPacket.h"
 
 /**
  * @file Swc_Button.h

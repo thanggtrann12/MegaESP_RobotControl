@@ -3,7 +3,7 @@
  * @brief Main firmware entry for remote-side Mega2560 controller.
  */
 
-#include <Std_Types.h>
+#include <ControlPacket.h>
 #include <ComManager.h>
 #include <GenericLogger.h>
 #include <Swc_Joystick.h>

@@ -1,8 +1,8 @@
 #ifndef CRC_H
 #define CRC_H
 
-#include <cstdint>
-#include <cstddef>
+#include <stdint.h>
+#include <stddef.h>
 
 /**
  * @file Crc.h

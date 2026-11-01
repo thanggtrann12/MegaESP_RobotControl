@@ -1,6 +1,8 @@
 #include "HmiInternal.h"
 #include "GenericLogger.h"
 
+#define DEBUG_MODE_ENABLE false
+
 ASSIGN_LOG_MACROS(HMI)
 
 // Line protocol: command table, framing, dispatch, drive watchdog.
@@ -196,10 +198,13 @@ void Hmi::handle(char *line)
 
         if (!quiet)
         {
-            LOG_D("Command: %s (%u field(s))", command, n);
-            for (uint8_t j = 0; j < n; ++j)
+            if (DEBUG_MODE_ENABLE)
             {
-                LOG_D("Field %u: %s", j, f[j]);
+                LOG_D("Command: %s (%u field(s))", command, n);
+                for (uint8_t j = 0; j < n; ++j)
+                {
+                    LOG_D("Field %u: %s", j, f[j]);
+                }
             }
         }
         if (n < minFields || n > maxFields)

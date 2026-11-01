@@ -90,6 +90,7 @@ bool EspNowLink::begin(Handler handler, void *context)
 
 void EspNowLink::update()
 {
+    static uint32_t lastRx = 0, maxGap = 0, count = 0, lastPrint = 0;
     if (_queue == nullptr)
     {
         return;
@@ -99,6 +100,15 @@ void EspNowLink::update()
     // At most one queue's worth per call, so a flood cannot starve the rest of loop().
     for (uint8_t n = 0; n < ESPNOW_QUEUE_DEPTH && xQueueReceive(_queue, &packet, 0) == pdTRUE; ++n)
     {
+        uint32_t now = micros();
+        if (lastRx)
+        {
+            uint32_t gap = now - lastRx;
+            if (gap > maxGap)
+                maxGap = gap;
+        }
+        lastRx = now;
+        ++count;
         if (packet.msgType == CONTROL_MESSAGE &&
             (packet.throttle != 0 || packet.strafe != 0 || packet.rotation != 0 || packet.buttons != 0))
         {
@@ -109,6 +119,14 @@ void EspNowLink::update()
         {
             _handler(packet, _context);
         }
+    }
+    if (millis() - lastPrint >= 1000)
+    {
+        lastPrint = millis();
+        LOG_I("rx=%u/s maxGap=%u us rejected=%u dropped=%u",
+              (unsigned)count, (unsigned)maxGap, (unsigned)_rejected, (unsigned)_dropped);
+        count = 0;
+        maxGap = 0;
     }
 }
 

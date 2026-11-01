@@ -5,13 +5,13 @@
 
 // General purpose IO managed by DigitalIo (8 pins)
 #define IO_PIN_NUM_1 38 // green pins
-#define IO_PIN_NUM_2 47
-#define IO_PIN_NUM_3 48
-#define IO_PIN_NUM_4 19 // yellow pins
-#define IO_PIN_NUM_5 39
-#define IO_PIN_NUM_6 40
-#define IO_PIN_NUM_7 41
-#define IO_PIN_NUM_8 42
+#define IO_PIN_NUM_2 39
+#define IO_PIN_NUM_3 40
+#define IO_PIN_NUM_4 41
+#define IO_PIN_NUM_5 42
+#define IO_PIN_NUM_6 19 // yellow pins
+#define IO_PIN_NUM_7 47
+#define IO_PIN_NUM_8 48
 
 #define ANALOG_PIN_NUM_1 1
 #define ANALOG_PIN_NUM_2 2
@@ -26,9 +26,11 @@
 #define ENCODER_PIN_NUM_2A 12
 #define ENCODER_PIN_NUM_2B 13
 #define ENCODER_PIN_NUM_3A 14
-#define ENCODER_PIN_NUM_3B 15
+#define ENCODER_PIN_NUM_3B 21
 #define ENCODER_PIN_NUM_4A 16
-#define ENCODER_PIN_NUM_4B 21
+#define ENCODER_PIN_NUM_4B 15
+
+#define SIGNAL_LED_PIN 20
 
 // EEPROM: DigitalIo needs DigitalIo::STORE_SIZE bytes. Robot config lives at ROBOT_CONFIG_EEPROM_ADDRESS
 // (see Robot_Cfg.h) and is 93 bytes long, so keep this one clear of it.

@@ -7,7 +7,7 @@
 #include <espnow.h>
 #include <GenericLogger.h>
 #include <GenericOTA.h>
-#include <Std_Types.h>
+#include <ControlPacket.h>
 #include <ComManager.h>
 
 //======================================= Constants and Global Objects ========================//
@@ -18,8 +18,71 @@ const char *password = "d12345678";
 static uint8_t robotMac[] = {0x84, 0xC7, 0xBB, 0x5A, 0x70, 0x88};
 static ComManager comBridge(Serial);
 
+// Log goes to the UART (Mega) and to a TCP client on port 23, so it can be read over WiFi/OTA.
+// The last LOG_RING_SIZE bytes are replayed when a client connects, so boot logs are not lost.
+class NetLogStream : public Stream
+{
+public:
+  void begin()
+  {
+    _server.begin();
+    _server.setNoDelay(true);
+  }
+
+  void handle()
+  {
+    if (_server.hasClient())
+    {
+      if (_client && _client.connected())
+      {
+        _client.stop();
+      }
+      _client = _server.available();
+      for (size_t i = 0; i < _len; ++i)
+      {
+        _client.write(_ring[(_head + RING_SIZE - _len + i) % RING_SIZE]);
+      }
+    }
+  }
+
+  size_t write(uint8_t byte) override { return write(&byte, 1); }
+
+  size_t write(const uint8_t *buffer, size_t size) override
+  {
+    Serial.write(buffer, size);
+    for (size_t i = 0; i < size; ++i)
+    {
+      _ring[_head] = buffer[i];
+      _head = (_head + 1) % RING_SIZE;
+      if (_len < RING_SIZE)
+      {
+        ++_len;
+      }
+    }
+    if (_client && _client.connected())
+    {
+      _client.write(buffer, size);
+    }
+    return size;
+  }
+
+  int available() override { return 0; }
+  int read() override { return -1; }
+  int peek() override { return -1; }
+
+private:
+  static constexpr size_t RING_SIZE = 2048;
+  WiFiServer _server{23};
+  WiFiClient _client;
+  uint8_t _ring[RING_SIZE];
+  size_t _head = 0;
+  size_t _len = 0;
+};
+
+static NetLogStream netLog;
+
 //======================================== Logging Macros ====================================//
-INIT_LOG(Serial);
+INIT_LOG(netLog);
 ASSIGN_LOG_MACROS(RemoteESP8266Bridge);
 
 //======================================== Function Prototypes ===============================//
@@ -63,7 +126,7 @@ void subModuleInit()
   LOG_I("ESP-NOW initialized");
 
   GenericOTA::begin(ssid, password, "esp8266-mega-wifi", WIFI_AP_STA);
-  LOG_I("Current WiFi channel: %d", WiFi.channel());
+  netLog.begin();
   LOG_I("My MAC: %s", WiFi.macAddress().c_str());
   LOG_I("Sub-modules initialized successfully");
 }
@@ -71,6 +134,17 @@ void subModuleInit()
 void subModuleUpdate()
 {
   GenericOTA::handle();
+  netLog.handle();
+  static uint8_t reportedChannel = 0;
+  const uint8_t channel = WiFi.status() == WL_CONNECTED ? WiFi.channel() : 0;
+  if (channel != reportedChannel)
+  {
+    reportedChannel = channel;
+    if (channel != 0)
+    {
+      LOG_I("Connected WiFi channel: %u", channel);
+    }
+  }
   updatePacket();
   updateCommand();
 }

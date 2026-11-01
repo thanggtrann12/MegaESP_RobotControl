@@ -208,33 +208,34 @@ Hmi::Result Hmi::handleJoy(char **f, uint8_t)
 
 Hmi::Result Hmi::handleRun(char **f, uint8_t argc)
 {
-    // Cú pháp mới: RUN, <1-6>, <0-1>, <0-255> -> Cần ít nhất 4 tham số (bao gồm cả command "RUN" ở f[0])
     long slot = 0, dir = 0, speed = 0;
 
-    // Validate 3 tham số: Motor Slot (1-MOTOR_SLOTS), Direction (0-1), Speed (0-255)
-    if (!(number(f[1], 1, MOTOR_SLOTS, slot) &&
-          number(f[2], 0, 1, dir) &&
-          number(f[3], 0, 255, speed)))
+    // RUN,<slot>,<dir>,<speed_percent>
+    // slot: 1-MOTOR_SLOTS
+    // dir:  0 = Lùi, 1 = Tiến
+    // speed: 0-100 (%)
+
+    if (argc < 4 || !number(f[1], 1, MOTOR_SLOTS, slot) || !number(f[2], 0, 1, dir) || !number(f[3], 0, 100, speed))
     {
         return Result::ERR;
     }
 
-    // Chuyển đổi dir (0: Lùi, 1: Tiến) và speed (0-255) thành giá trị PWM có dấu (-255 đến 255)
-    int16_t pwmValue = static_cast<int16_t>((dir == 1) ? speed : -speed);
-
-    // Truyền giá trị đã tính toán vào hệ thống động cơ
+    // Convert speed from 0-100% to PWM 0-255
+    const int16_t pwmMagnitude = static_cast<int16_t>((speed * 255L + 50) / 100);
+    // dir = 1: Tiến (+), dir = 0: Lùi (-)
+    const int16_t pwmValue = (dir == 1) ? pwmMagnitude : -pwmMagnitude;
     const bool ok = _robot.runMotor(static_cast<uint8_t>(slot - 1), pwmValue);
 
     if (ok)
     {
-        // Giữ armDrive nếu động cơ đang quay (pwmValue != 0)
         armDrive(pwmValue != 0 ? RUN_TIMEOUT_MS : 0);
-        LOG_D("RUN motor slot: %ld, dir: %ld, speed: %ld -> pwm: %d", slot, dir, speed, pwmValue);
+        LOG_D("RUN motor slot: %ld, dir: %ld, speed: %ld%% -> pwm: %d", slot, dir, speed, pwmValue);
     }
     else
     {
-        LOG_E("Failed to run motor slot: %ld, dir: %ld, speed: %ld -> pwm: %d", slot, dir, speed, pwmValue);
+        LOG_E("Failed to run motor slot: %ld, dir: %ld, speed: %ld%% -> pwm: %d", slot, dir, speed, pwmValue);
     }
+
     return toResult(ok);
 }
 

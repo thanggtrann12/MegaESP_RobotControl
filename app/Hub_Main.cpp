@@ -4,7 +4,7 @@
  */
 
 #include <Arduino.h>
-#include <esp_idf_version.h>
+#include <WiFi.h>
 #include "Hmi_Cfg.h"
 #include "Pca9685_Cfg.h" // I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ for Wire.begin()
 #include "CDD_Gpio.h"
@@ -69,14 +69,15 @@ void subModuleInit()
     LOG_I("Initializing sub-modules");
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ);
 
-    CDD_Gpio_Begin();    // load saved IO modes and apply them
-    SWC_Robot_Begin();   // init PCA9685 chips, load saved config, apply chassis
-    SRV_Hmi_Begin();     // start the touchscreen UART and the command handler
+    CDD_Gpio_Begin();  // load saved IO modes and apply them
+    SWC_Robot_Begin(); // init PCA9685 chips, load saved config, apply chassis
+    SRV_Hmi_Begin();   // start the touchscreen UART and the command handler
 
     if (!SRV_EspNow_Begin(onRemotePacket, nullptr))
     {
         LOG_E("Failed to initialize ESP-NOW link");
     }
+    LOG_I("Hub MAC: %s (must equal robotMac in the bridge)", WiFi.macAddress().c_str());
 
     // Mark sub-modules as initialized - DO NOT forget this step
     isSubModuleInited = true;

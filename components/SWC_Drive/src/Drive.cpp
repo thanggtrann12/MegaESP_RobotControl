@@ -14,7 +14,7 @@ namespace
     // Rows are picked with a switch on the enum, so adding or reordering a Chassis value can no
     // longer silently shift every preset by one row.
     constexpr Mix ROW_TWO_WHEEL[MAX_PORT_COUNT] = {LEFT, RIGHT, OFF, OFF, OFF, OFF};
-    constexpr Mix ROW_TANK[MAX_PORT_COUNT] = {LEFT, RIGHT, LEFT, RIGHT, OFF, OFF};
+    constexpr Mix ROW_TANK[MAX_PORT_COUNT] = {LEFT, RIGHT, OFF, OFF, OFF, OFF};
     constexpr Mix ROW_MECANUM[MAX_PORT_COUNT] = {MEC_FL, MEC_FR, MEC_RL, MEC_RR, OFF, OFF};
     constexpr Mix ROW_SIX_WHEEL[MAX_PORT_COUNT] = {LEFT, RIGHT, LEFT, RIGHT, LEFT, RIGHT};
     constexpr Mix ROW_NONE[MAX_PORT_COUNT] = {OFF, OFF, OFF, OFF, OFF, OFF};

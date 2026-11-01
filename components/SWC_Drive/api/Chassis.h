@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 // Order matches the TJC chassis list.
-// TANK is four-wheel skid steer; OMNI_4 is the X layout, which mixes exactly like mecanum.
+// TANK is two-wheel (left/right tracks); OMNI_4 is the X layout, which mixes exactly like mecanum.
 constexpr uint8_t MAX_PORT_COUNT = 6;
 
 enum class Chassis : uint8_t
@@ -98,7 +98,7 @@ inline uint8_t chassisToWheelCount(Chassis chassis)
     case Chassis::TWO_WHEEL:
         return 2;
     case Chassis::TANK:
-        return 4;
+        return 2;
     case Chassis::OMNI_3:
         return 3;
     case Chassis::OMNI_4:
@@ -128,9 +128,8 @@ struct Mix
     int8_t rotation;
 };
 
-// Which wheel roles a chassis actually uses. Keep in sync with the presets in Drive.cpp.
-// NOTE: TANK is documented above as four-wheel, but only FL/FR are accepted here and in
-// Hmi::labelCount(). Decide which one is right and change all three places together.
+// Which wheel roles a chassis actually uses. Keep in sync with the presets in Drive.cpp and
+// Hmi::labelCount(). TANK is two-wheel (left/right tracks), same wheels as TWO_WHEEL.
 inline bool roleUsedByChassis(Chassis chassis, PortRole role)
 {
     switch (chassis)

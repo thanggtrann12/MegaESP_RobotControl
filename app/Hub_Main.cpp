@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include "Hmi_Cfg.h"
 #include "Pca9685_Cfg.h" // I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ for Wire.begin()
+#include "Gpio_Cfg.h"    // SIGNAL_LED_PIN
 #include "CDD_Gpio.h"
 #include "GenericLogger.h"
 #include "SRV_EspNow.h"
@@ -29,6 +30,16 @@ constexpr uint32_t LOG_BAUD = 115200;
 static void onRemotePacket(const ControlPacket &packet, void *context)
 {
     (void)context;
+    // Heartbeat-rate blink (<= every 100 ms) for any packet, so it also blinks while CONTROL replaces heartbeats
+    static bool ledOn = false;
+    static uint32_t lastToggleMs = 0;
+    const uint32_t now = millis();
+    if (now - lastToggleMs >= 100)
+    {
+        lastToggleMs = now;
+        ledOn = !ledOn;
+        digitalWrite(SIGNAL_LED_PIN, ledOn ? HIGH : LOW);
+    }
     SWC_Robot_OnRemote(packet);
 }
 
@@ -70,6 +81,8 @@ void subModuleInit()
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_CLOCK_HZ);
 
     CDD_Gpio_Begin();  // load saved IO modes and apply them
+    pinMode(SIGNAL_LED_PIN, OUTPUT);
+    digitalWrite(SIGNAL_LED_PIN, LOW);
     SWC_Robot_Begin(); // init PCA9685 chips, load saved config, apply chassis
     SRV_Hmi_Begin();   // start the touchscreen UART and the command handler
 
@@ -89,4 +102,14 @@ void subModuleUpdate()
     SRV_EspNow_Update(); // first: hand received packets to the robot before it runs its control tick
     SRV_Hmi_Update();
     SWC_Robot_Update();
+
+    // Link lost: blink slowly (500 ms) so it differs from the fast blink driven by packets.
+    static uint32_t lastSlowBlink = 0;
+    static bool slowOn = false;
+    if (!SWC_Robot_IsLinkAlive() && millis() - lastSlowBlink >= 500)
+    {
+        lastSlowBlink = millis();
+        slowOn = !slowOn;
+        digitalWrite(SIGNAL_LED_PIN, slowOn ? HIGH : LOW);
+    }
 }

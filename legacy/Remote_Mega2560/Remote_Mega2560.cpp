@@ -65,21 +65,28 @@ void subModuleUpdate()
 
 void updatePacket(ControlPacket &packet)
 {
+    // CONTROL is sent on change; HEARTBEAT keeps the link alive while the sticks are idle.
+    // A periodic CONTROL refresh re-syncs the hub if a change (e.g. back to zero) was lost.
+    constexpr uint32_t CONTROL_MIN_GAP_MS = 20;
+    constexpr uint32_t HEARTBEAT_MS = 100;
+    constexpr uint32_t CONTROL_REFRESH_MS = 200;
+
     ControlPacket echoedPacket;
     static uint32 lastEchoLog = 0;
+    static uint32_t lastSend = 0;
+    static uint32_t lastControlSend = 0;
+    static ControlPacket lastControl = {};
     int16 joy1X;
     int16 joy1Y;
     int16 joy2X;
     joysticks.GetProcessedValues(joy1X, joy1Y, joy2X);
 
-    memset(&packet, 0, sizeof(ControlPacket));
-    packet.msgType = CONTROL_MESSAGE;
-    packet.throttle = static_cast<int8_t>(map(joy1Y, 0, 1023, -100, 100));
-    packet.strafe = static_cast<int8_t>(map(joy2X, 0, 1023, -100, 100));
-    packet.rotation = static_cast<int8_t>(map(joy1X, 0, 1023, -100, 100));
-    packet.buttons = static_cast<uint8_t>(buttons.GetState() & 0xFF);
-    packet.sequenceNum = sequenceNumber++;
-    UpdateControlPacketCrc(packet);
+    ControlPacket current = {};
+    current.msgType = CONTROL_MESSAGE;
+    current.throttle = static_cast<int8_t>(map(joy1Y, 0, 1023, -100, 100));
+    current.strafe = static_cast<int8_t>(map(joy2X, 0, 1023, -100, 100));
+    current.rotation = static_cast<int8_t>(map(joy1X, 0, 1023, -100, 100));
+    current.buttons = static_cast<uint8_t>(buttons.GetState() & 0xFF);
 
     if (comBridge.ReadPacket(echoedPacket) && millis() - lastEchoLog >= 500)
     {
@@ -92,10 +99,36 @@ void updatePacket(ControlPacket &packet)
               echoedPacket.buttons,
               echoedPacket.sequenceNum);
     }
-    static uint32_t lastSend = 0;
-    if (millis() - lastSend >= 20)
-    { // 50 Hz
-        lastSend = millis();
-        comBridge.SendPacket(packet);
+
+    const uint32_t now = millis();
+    const bool changed = current.throttle != lastControl.throttle ||
+                         current.strafe != lastControl.strafe ||
+                         current.rotation != lastControl.rotation ||
+                         current.buttons != lastControl.buttons;
+    const bool sendControl = (changed && now - lastSend >= CONTROL_MIN_GAP_MS) ||
+                             now - lastControlSend >= CONTROL_REFRESH_MS;
+    const bool sendHeartbeat = !sendControl && now - lastSend >= HEARTBEAT_MS;
+    if (!sendControl && !sendHeartbeat)
+    {
+        return;
     }
+
+    packet = current;
+    if (sendHeartbeat)
+    {
+        packet.msgType = HEARTBEAT_MESSAGE;
+        packet.throttle = 0;
+        packet.strafe = 0;
+        packet.rotation = 0;
+        packet.buttons = 0;
+    }
+    else
+    {
+        lastControl = current;
+        lastControlSend = now;
+    }
+    packet.sequenceNum = sequenceNumber++;
+    UpdateControlPacketCrc(packet);
+    lastSend = now;
+    comBridge.SendPacket(packet);
 }

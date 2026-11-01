@@ -1,8 +1,6 @@
 #include "HmiInternal.h"
 #include "GenericLogger.h"
 
-#define DEBUG_MODE_ENABLE false
-
 ASSIGN_LOG_MACROS(HMI)
 
 // Line protocol: command table, framing, dispatch, drive watchdog.
@@ -11,7 +9,7 @@ ASSIGN_LOG_MACROS(HMI)
 // Đặt trong flash. JOY / MON / ADC (tần suất cao) đứng đầu để tìm thấy sớm nhất.
 // minFields/maxFields đếm cả từ lệnh; sai số trường thì handle() trả ERR, handler không cần kiểm tra n.
 // clang-format off
-const Hmi::CommandEntry Hmi::CMD_TABLE[] PROGMEM = {
+const Hmi::CommandEntry Hmi::CMD_TABLE[] = {
     //  name                    handler                  minFields   maxFields      quiet
     {"JOY",                 &Hmi::handleJoy,                4,          4,          true},
     {"MON",                 &Hmi::handleMon,                1,          2,          true},
@@ -185,28 +183,17 @@ void Hmi::handle(char *line)
 
     for (uint8_t i = 0; i < CMD_TABLE_SIZE; ++i)
     {
-        if (strcmp_P(command, CMD_TABLE[i].name) != 0)
+        const CommandEntry &entry = CMD_TABLE[i];
+        if (strcmp(command, entry.name) != 0)
         {
             continue;
         }
 
-        CmdHandler handler;
-        memcpy_P(&handler, &CMD_TABLE[i].handler, sizeof(handler));
-        const bool quiet = pgm_read_byte(&CMD_TABLE[i].quiet) != 0;
-        const uint8_t minFields = pgm_read_byte(&CMD_TABLE[i].minFields);
-        const uint8_t maxFields = pgm_read_byte(&CMD_TABLE[i].maxFields);
+        const CmdHandler handler = entry.handler;
+        const bool quiet = entry.quiet;
+        const uint8_t minFields = entry.minFields;
+        const uint8_t maxFields = entry.maxFields;
 
-        if (!quiet)
-        {
-            if (DEBUG_MODE_ENABLE)
-            {
-                LOG_D("Command: %s (%u field(s))", command, n);
-                for (uint8_t j = 0; j < n; ++j)
-                {
-                    LOG_D("Field %u: %s", j, f[j]);
-                }
-            }
-        }
         if (n < minFields || n > maxFields)
         {
             if (!quiet)
@@ -230,6 +217,17 @@ void Hmi::handle(char *line)
 
 void Hmi::reply(const char *command, bool ok)
 {
+    // Noise on the UART must not make the hub flood the screen with ERR replies.
+    static uint32_t lastErrMs = 0;
+    if (!ok)
+    {
+        const uint32_t now = millis();
+        if (now - lastErrMs < 100)
+        {
+            return;
+        }
+        lastErrMs = now;
+    }
     Frame frame;
     frame.add(ok ? "OK," : "ERR,").add(command).send(_serial);
 }

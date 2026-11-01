@@ -33,6 +33,11 @@ private:
     QueueHandle_t _queue = nullptr;
     volatile uint32_t _rejected = 0;
     volatile uint32_t _dropped = 0;
+    volatile uint32_t _badMac = 0;
+    volatile uint32_t _badLength = 0;
+    volatile uint32_t _badPacket = 0;
+    volatile uint8_t _lastBadMac[6] = {0};
+    volatile int _lastBadLength = 0;
 };
 
 #endif // ESPNOWLINK_H

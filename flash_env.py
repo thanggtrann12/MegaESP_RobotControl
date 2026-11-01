@@ -123,6 +123,7 @@ TCP_LOG_SCRIPT = (
     "while True:\n"
     "    try:\n"
     "        s=socket.create_connection((h,p),timeout=5)\n"
+    "        s.settimeout(None)\n"
     "        print('--- connected ---',flush=True)\n"
     "        while True:\n"
     "            d=s.recv(4096)\n"
@@ -241,14 +242,16 @@ class App(tk.Tk):
         self.title("PlatformIO Flash Hub")
         self.geometry("1000x860")
         self.pio = find_pio()
-        self.proc = None
+        self.running = False
+        self.procs = []  # pio processes of the current run (several when flashing in parallel)
+        self.selected = {}  # env name -> BooleanVar of its checkbox
         self.lines = queue.Queue()
         self.buttons = []
         self.log_buttons = []
         self.log_write_failed = False
         self.on_done = None
         self.last_code = 0
-        self.monitor_proc = None
+        self.monitors = {}  # port (or host:23) -> monitor console process
 
         self.project = tk.StringVar(value=str(Path(project).resolve()))
         self.port = tk.StringVar()
@@ -270,7 +273,8 @@ class App(tk.Tk):
         steps = [[sys.executable, "-m", "pip", "install", "platformio"]]
         self.on_done = self._after_install
         self._set_busy(True, "installing platformio")
-        threading.Thread(target=self._worker, args=(steps, self.project.get()), daemon=True).start()
+        threading.Thread(target=self._run_jobs, args=([(None, "", steps)], self.project.get()),
+                         daemon=True).start()
 
     def _after_install(self):
         self.pio = find_pio()
@@ -377,6 +381,23 @@ class App(tk.Tk):
                                      tip="Build tất cả môi trường")
         btn_build_all.pack(side="right")
         self.buttons.append(btn_build_all)
+
+        btn_upload_sel = ModernButton(targets_bar, text="⬆ Upload đã chọn", variant="accent",
+                                      command=lambda: self.run_selected("upload"),
+                                      tip="Flash các target đã tick cùng lúc (cổng khác nhau chạy song song)")
+        btn_upload_sel.pack(side="right", padx=(0, 6))
+        self.buttons.append(btn_upload_sel)
+
+        btn_build_sel = ModernButton(targets_bar, text="⚙ Build đã chọn",
+                                     command=lambda: self.run_selected("build"),
+                                     tip="Build các target đã tick cùng lúc")
+        btn_build_sel.pack(side="right", padx=(0, 6))
+        self.buttons.append(btn_build_sel)
+
+        btn_select_all = ModernButton(targets_bar, text="☑ Chọn tất cả", command=self.toggle_all,
+                                      tip="Tick hoặc bỏ tick tất cả target")
+        btn_select_all.pack(side="right", padx=(0, 6))
+        self.buttons.append(btn_select_all)
         self.top_buttons = list(self.buttons)
 
         # Vùng chứa các card envs động
@@ -435,7 +456,7 @@ class App(tk.Tk):
             return None
 
     def _watch_ini(self):
-        if self.proc is None and self._ini_stamp() != self.ini_stamp:
+        if not self.running and self._ini_stamp() != self.ini_stamp:
             self.reload_envs()
         self.after(1000, self._watch_ini)
 
@@ -446,6 +467,7 @@ class App(tk.Tk):
         self.buttons[:] = self.top_buttons
 
         envs = read_envs(self.project.get())
+        self.selected = {e: self.selected.get(e) or tk.BooleanVar(value=False) for e in envs}
         self.targets_count_lbl.configure(text=f"{len(envs)} firmware targets")
 
         if not envs:
@@ -482,6 +504,12 @@ class App(tk.Tk):
 
         content = ttk.Frame(inner_card, style="Card.TFrame", padding=(12, 10))
         content.pack(side="left", fill="both", expand=True)
+
+        chk = tk.Checkbutton(content, variable=self.selected[title], bg=THEME["card"], fg=THEME["fg"],
+                             activebackground=THEME["card"], selectcolor=THEME["bg"],
+                             highlightthickness=0, bd=0, cursor="hand2")
+        chk.pack(side="left", padx=(0, 10))
+        Tooltip(chk, "Tick để flash cùng lúc với các target khác")
 
         # Thông tin tên môi trường và thông số bên trái
         left_info = ttk.Frame(content, style="Card.TFrame")
@@ -555,8 +583,54 @@ class App(tk.Tk):
                 self.log_write_failed = True
                 messagebox.showerror("Lỗi", f"Không thể ghi log:\n{exc}")
 
+    def _pio_steps(self, project, env, action, override=None):
+        base = self.pio + ["run", "-d", project]
+        if env:
+            base += ["-e", env]
+        if self.verbose.get():
+            base.append("-v")
+        if action == "build":
+            return [base]
+        if action == "clean":
+            return [base + ["-t", "clean"]]
+        up = base + ["-t", "upload"]
+        if override:
+            up += ["--upload-port", override]
+        return [up]
+
+    def toggle_all(self):
+        value = not all(v.get() for v in self.selected.values())
+        for var in self.selected.values():
+            var.set(value)
+
+    def run_selected(self, action):
+        if self.running:
+            messagebox.showinfo("Đang bận", "Tiến trình khác đang chạy.")
+            return
+        envs = [e for e, var in self.selected.items() if var.get()]
+        if not envs:
+            messagebox.showinfo("Chưa chọn target", "Tick vào ít nhất một môi trường.")
+            return
+        if not self.pio:
+            return
+        self.clear_log()
+        project = self.project.get()
+
+        # Envs sharing one upload port must run one after another; different ports run in parallel.
+        jobs = []
+        for env in envs:
+            lane = env
+            if action == "upload":
+                port = ini_ports(project, env)[0]
+                self.close_monitors(port)
+                lane = port or env
+            jobs.append((lane, env, self._pio_steps(project, env, action)))
+
+        self._set_busy(True, f"Running {action} x{len(envs)}...")
+        threading.Thread(target=self._run_jobs, args=(jobs, project), daemon=True).start()
+
     def run_pio(self, env, action):
-        if self.proc is not None:
+        if self.running:
             messagebox.showinfo("Đang bận", "Tiến trình khác đang chạy.")
             return
         if not self.pio:
@@ -566,33 +640,24 @@ class App(tk.Tk):
         port = self.port.get()
         override = None if port in ("", AUTO_PORT, "(auto)") else port
 
-        base = self.pio + ["run", "-d", project]
-        if env:
-            base += ["-e", env]
-        if self.verbose.get():
-            base.append("-v")
-
         steps = []
-        if action == "build":
-            steps = [base]
-        elif action == "clean":
-            steps = [base + ["-t", "clean"]]
+        if action in ("build", "clean"):
+            steps = self._pio_steps(project, env, action)
         elif action == "upload":
-            self.close_monitor()
-            up = base + ["-t", "upload"]
-            if override:
-                up += ["--upload-port", override]
-            steps = [up]
+            up_port = override or ini_ports(project, env)[0]
+            self.close_monitors(up_port)
+            steps = self._pio_steps(project, env, action, override)
         elif action == "monitor":
-            self.close_monitor()
             if env_option(project, env, "upload_protocol") == "espota":
-                # OTA board has no USB serial: read its TCP log server in the Activity Log.
+                # OTA board has no USB serial: read its TCP log server in a separate console.
                 host = ini_ports(project, env)[0]
                 if not host:
                     self.write("No upload_port (IP) set for this environment.\n", "err")
                     return
-                self.write(f"Opening TCP log terminal for {host}:{NET_LOG_PORT}\n", "cmd")
-                self.monitor_proc = subprocess.Popen(
+                key = f"{host}:{NET_LOG_PORT}"
+                self.close_monitors(key, serial_only=False)
+                self.write(f"Opening TCP log terminal for {key}\n", "cmd")
+                self.monitors[key] = subprocess.Popen(
                     [sys.executable, "-c", TCP_LOG_SCRIPT, host, str(NET_LOG_PORT)],
                     creationflags=subprocess.CREATE_NEW_CONSOLE if IS_WIN else 0,
                 )
@@ -602,37 +667,51 @@ class App(tk.Tk):
             if mon_port:
                 mon += ["--port", mon_port]
             if IS_WIN:
+                # Only a monitor already holding the same port is replaced; others stay open.
+                key = mon_port or f"{env} (auto)"
+                self.close_monitors(key, serial_only=False)
                 self.write("$ " + " ".join(mon) + "\n", "cmd")
-                self.monitor_proc = subprocess.Popen(mon, creationflags=subprocess.CREATE_NEW_CONSOLE)
+                self.monitors[key] = subprocess.Popen(
+                    mon, creationflags=subprocess.CREATE_NEW_CONSOLE)
                 return
             steps = [mon]
 
         self._set_busy(True, f"Running {action}...")
-        threading.Thread(target=self._worker, args=(steps, project), daemon=True).start()
+        threading.Thread(target=self._run_jobs, args=([(None, "", steps)], project), daemon=True).start()
 
-    def close_monitor(self):
-        """Close the monitor window so it releases the COM port (needed before uploading)."""
-        proc, self.monitor_proc = self.monitor_proc, None
-        if proc is None or proc.poll() is not None:
-            return
-        self.write("Closing the serial monitor to free the port...\n", "warn")
-        # /T also kills the python child that actually holds the port
-        subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
-        try:
-            proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            pass
-        time.sleep(0.5)  # give Windows a moment to release the COM handle
+    def close_monitors(self, port, serial_only=True):
+        """Close monitor windows that hold `port` (all serial ones if the port is unknown)."""
+        for key, proc in list(self.monitors.items()):
+            if proc.poll() is not None:
+                del self.monitors[key]
+                continue
+            is_net = key.endswith(f":{NET_LOG_PORT}")
+            if serial_only and is_net:
+                continue  # a TCP log never blocks an upload
+            if port and key.lower() != port.lower():
+                continue
+            del self.monitors[key]
+            self.write(f"Closing the monitor on {key} to free the port...\n", "warn")
+            # /T also kills the python child that actually holds the port
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
+            try:
+                proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                pass
+            time.sleep(0.5)  # give Windows a moment to release the COM handle
 
-    def _worker(self, steps, project):
+    def _run_job(self, label, steps, project, results):
+        prefix = f"[{label}] " if label else ""
         code = 0
         for cmd in steps:
-            self.lines.put(("$ " + " ".join(cmd) + "\n", "cmd"))
+            self.lines.put((f"{prefix}$ " + " ".join(cmd) + "\n", "cmd"))
+            proc = None
             try:
-                self.proc = subprocess.Popen(cmd, cwd=project, stdout=subprocess.PIPE,
-                                             stderr=subprocess.STDOUT, text=True, bufsize=1,
-                                             errors="replace")
-                for line in self.proc.stdout:
+                proc = subprocess.Popen(cmd, cwd=project, stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT, text=True, bufsize=1,
+                                        errors="replace")
+                self.procs.append(proc)
+                for line in proc.stdout:
                     low = line.lower()
                     if "error" in low or "failed" in low:
                         tag = "err"
@@ -642,13 +721,42 @@ class App(tk.Tk):
                         tag = "ok"
                     else:
                         tag = None
-                    self.lines.put((line, tag))
-                code = self.proc.wait()
+                    self.lines.put((prefix + line, tag))
+                code = proc.wait()
             except Exception as exc:
-                self.lines.put((f"{exc}\n", "err"))
+                self.lines.put((f"{prefix}{exc}\n", "err"))
                 code = 1
+            finally:
+                if proc in self.procs:
+                    self.procs.remove(proc)
             if code != 0:
                 break
+        results[label] = code
+
+    def _run_jobs(self, jobs, project):
+        """jobs: (lane, label, steps). Each lane runs in its own thread; jobs in a lane run in order."""
+        lanes = {}
+        for lane, label, steps in jobs:
+            lanes.setdefault(lane, []).append((label, steps))
+        results = {}
+
+        def run_lane(items):
+            for label, steps in items:
+                self._run_job(label, steps, project, results)
+
+        threads = [threading.Thread(target=run_lane, args=(items,), daemon=True)
+                   for items in lanes.values()]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        if len(results) > 1:
+            self.lines.put(("\n--- Summary ---\n", "cmd"))
+            for label, c in results.items():
+                self.lines.put((f"{label}: {'OK' if c == 0 else f'FAILED ({c})'}\n",
+                                "ok" if c == 0 else "err"))
+        code = next((c for c in results.values() if c != 0), 0)
         self.last_code = code
         self.lines.put((f"\n=== {'DONE' if code == 0 else f'FAILED ({code})'} ===\n",
                         "ok" if code == 0 else "err"))
@@ -659,7 +767,6 @@ class App(tk.Tk):
             while True:
                 item = self.lines.get_nowait()
                 if item is None:
-                    self.proc = None
                     if self.last_code == 0:
                         self._set_busy(False, "Ready", THEME["ok"])
                     else:
@@ -674,10 +781,11 @@ class App(tk.Tk):
         self.after(50, self._drain)
 
     def stop(self):
-        if self.proc is not None:
-            self.proc.terminate()
+        for proc in list(self.procs):
+            proc.terminate()
 
     def _set_busy(self, busy, text, color=None):
+        self.running = busy
         self.dot.itemconfigure(self.dot_item, fill=THEME["warn"] if busy else (color or THEME["ok"]))
         if busy:
             self.progress.pack(fill="x", after=self.status_badge.master)

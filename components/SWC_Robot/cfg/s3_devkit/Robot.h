@@ -76,6 +76,7 @@ private:
 
     uint16_t _lastSequence = 0;
     bool _hasSequence = false;
+    bool _wasAlive = false; // last link state that was logged
 
     uint8_t _testSlot = NO_TEST;
     uint32_t _testUntil = 0;

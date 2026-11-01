@@ -109,11 +109,20 @@ void EspNowLink::update()
         }
         lastRx = now;
         ++count;
-        if (packet.msgType == CONTROL_MESSAGE &&
-            (packet.throttle != 0 || packet.strafe != 0 || packet.rotation != 0 || packet.buttons != 0))
+        if (packet.msgType == CONTROL_MESSAGE)
         {
-            LOG_D("Control: throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
-                  packet.throttle, packet.strafe, packet.rotation, packet.buttons, packet.sequenceNum);
+            // Log only when the command changes, at most every 200 ms; per-packet logs slow loop().
+            static ControlPacket lastLogged = {};
+            static uint32_t lastLogMs = 0;
+            const bool changed = packet.throttle != lastLogged.throttle || packet.strafe != lastLogged.strafe ||
+                                 packet.rotation != lastLogged.rotation || packet.buttons != lastLogged.buttons;
+            if (changed && millis() - lastLogMs >= 200)
+            {
+                lastLogMs = millis();
+                lastLogged = packet;
+                LOG_D("Control: throttle=%d strafe=%d rotation=%d buttons=0x%02X seq=%u",
+                      packet.throttle, packet.strafe, packet.rotation, packet.buttons, packet.sequenceNum);
+            }
         }
         if (_handler != nullptr)
         {
@@ -123,8 +132,28 @@ void EspNowLink::update()
     if (millis() - lastPrint >= 1000)
     {
         lastPrint = millis();
-        LOG_I("rx=%u/s maxGap=%u us rejected=%u dropped=%u",
-              (unsigned)count, (unsigned)maxGap, (unsigned)_rejected, (unsigned)_dropped);
+        // Quiet while healthy: INFO only when the link is silent or the reject/drop counters grow.
+        static uint32_t lastRejected = 0, lastDropped = 0;
+        const bool anomaly = count == 0 || _rejected != lastRejected || _dropped != lastDropped;
+        if (anomaly)
+        {
+            LOG_I("rx=%u/s maxGap=%u us rejected=%u dropped=%u",
+                  (unsigned)count, (unsigned)maxGap, (unsigned)_rejected, (unsigned)_dropped);
+        }
+        else
+        {
+            LOG_D("rx=%u/s maxGap=%u us", (unsigned)count, (unsigned)maxGap);
+        }
+        const bool rejectedGrew = _rejected != lastRejected;
+        lastRejected = _rejected;
+        lastDropped = _dropped;
+        if (rejectedGrew)
+        {
+            LOG_W("rejected by: mac=%u length=%u packet(crc/type)=%u | last sender %02X:%02X:%02X:%02X:%02X:%02X len=%d",
+                  (unsigned)_badMac, (unsigned)_badLength, (unsigned)_badPacket,
+                  _lastBadMac[0], _lastBadMac[1], _lastBadMac[2], _lastBadMac[3], _lastBadMac[4],
+                  _lastBadMac[5], _lastBadLength);
+        }
         count = 0;
         maxGap = 0;
     }
@@ -142,12 +171,20 @@ void EspNowLink::receive(const uint8_t *senderMac, const uint8_t *data, int leng
     if (!isExpectedSender(senderMac))
     {
         ++self->_rejected;
+        ++self->_badMac;
+        self->_lastBadLength = length;
+        for (uint8_t i = 0; i < 6 && senderMac != nullptr; ++i)
+        {
+            self->_lastBadMac[i] = senderMac[i];
+        }
         return;
     }
 
     if (length != static_cast<int>(sizeof(ControlPacket)))
     {
         ++self->_rejected;
+        ++self->_badLength;
+        self->_lastBadLength = length;
         return;
     }
 
@@ -157,6 +194,7 @@ void EspNowLink::receive(const uint8_t *senderMac, const uint8_t *data, int leng
         (packet.msgType != CONTROL_MESSAGE && packet.msgType != HEARTBEAT_MESSAGE))
     {
         ++self->_rejected;
+        ++self->_badPacket;
         return;
     }
 

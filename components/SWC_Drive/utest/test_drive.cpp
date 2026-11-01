@@ -91,12 +91,11 @@ static void omni4MixesLikeMecanum()
     }
 }
 
-static void tankDrivesAllFourWheels()
+static void tankDrivesTwoWheels()
 {
-    Rig r(Chassis::TANK, FL | FR | RL | RR);
-    // NOTE: Robot::apply() and Hmi only accept FL/FR for TANK today (see Chassis.h); Drive itself is four-wheel.
+    Rig r(Chassis::TANK, FL | FR);
     r.drive.move(0, 0, 100);
-    CHECK(r.FL() == 255 && r.RL() == 255 && r.FR() == -255 && r.RR() == -255);
+    CHECK(r.FL() == 255 && r.FR() == -255);
 }
 
 static void sixWheel()
@@ -112,7 +111,7 @@ static void presetsAreWiredToTheRightChassis()
 {
     // Each chassis has a preset that needs exactly these wheel roles assigned.
     CHECK(Rig(Chassis::TWO_WHEEL, FL | FR).drive.ready());
-    CHECK(Rig(Chassis::TANK, FL | FR | RL | RR).drive.ready());
+    CHECK(Rig(Chassis::TANK, FL | FR).drive.ready());
     CHECK(Rig(Chassis::OMNI_4, FL | FR | RL | RR).drive.ready());
     CHECK(Rig(Chassis::MECANUM, FL | FR | RL | RR).drive.ready());
     CHECK(Rig(Chassis::SIX_WHEEL, FL | FR | RL | RR | ML | MR).drive.ready());
@@ -191,7 +190,7 @@ int main()
     twoWheel();
     mecanum();
     omni4MixesLikeMecanum();
-    tankDrivesAllFourWheels();
+    tankDrivesTwoWheels();
     sixWheel();
     presetsAreWiredToTheRightChassis();
     sparseRolesStillWork();

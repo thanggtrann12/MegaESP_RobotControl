@@ -31,6 +31,23 @@ void Robot::update()
     }
     _lastTick = now;
 
+    if (_source == Source::REMOTE)
+    {
+        const bool alive = now - _commandTime <= LINK_TIMEOUT_MS;
+        if (alive != _wasAlive)
+        {
+            _wasAlive = alive;
+            if (alive)
+            {
+                LOG_I("Remote link up");
+            }
+            else
+            {
+                LOG_W("Remote link lost (no packet for %u ms)", LINK_TIMEOUT_MS);
+            }
+        }
+    }
+
     if (now - _commandTime > LINK_TIMEOUT_MS)
     {
         _command = Command();
@@ -76,6 +93,7 @@ void Robot::setSource(Source source)
     stop();
     _source = source;
     _hasSequence = false;
+    _wasAlive = false;
 }
 
 bool Robot::joy(int8_t throttle, int8_t strafe, int8_t rotation)

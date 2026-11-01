@@ -48,9 +48,8 @@ private:
 
     using CmdHandler = Result (Hmi::*)(char **f, uint8_t n);
 
-    // One row of the command lookup table. Lives in flash (PROGMEM): the name is stored inline
-    // so it costs no RAM, and the field-count check is done once in handle() instead of in
-    // every handler.
+    // One row of the command lookup table. The field-count check is done once in handle()
+    // instead of in every handler.
     struct CommandEntry
     {
         char name[8]; // longest command ("CHASSIS", "DEFAULT") is 7 chars + '\0'

@@ -90,6 +90,8 @@ void subModuleInit();
 void subModuleUpdate();
 void onRobotDataReceived(uint8_t *macAddress, uint8_t *incomingData, uint8_t length);
 void forwardPacket(const ControlPacket &packet);
+void onRobotDataSent(uint8_t *macAddress, uint8_t status);
+void flushPendingPacket();
 void updatePacket();
 void updateCommand();
 
@@ -123,6 +125,7 @@ void subModuleInit()
     LOG_E("ESP-NOW robot peer setup failed");
   }
   esp_now_register_recv_cb(onRobotDataReceived);
+  esp_now_register_send_cb(onRobotDataSent);
   LOG_I("ESP-NOW initialized");
 
   GenericOTA::begin(ssid, password, "esp8266-mega-wifi", WIFI_AP_STA);
@@ -146,6 +149,7 @@ void subModuleUpdate()
     }
   }
   updatePacket();
+  flushPendingPacket();
   updateCommand();
 }
 
@@ -156,18 +160,105 @@ void onRobotDataReceived(uint8_t *macAddress, uint8_t *incomingData, uint8_t len
         macAddress[0], macAddress[1], macAddress[2], macAddress[3], macAddress[4], macAddress[5], length);
 }
 
+// ESP8266 allows one ESP-NOW send in flight: the next one is rejected until the send callback fires.
+static volatile bool sendBusy = false;
+static uint32_t sendStartMs = 0;
+static bool hasPending = false;
+static ControlPacket pendingPacket;
+static uint32_t sentCount = 0;
+static uint32_t replacedCount = 0;
+static uint32_t failCount = 0;
+static uint32_t fromMegaCount = 0;
+static uint32_t heartbeatCount = 0;
+static uint32_t ackFailCount = 0;
+static int lastError = 0;
+static uint32_t lastReportMs = 0;
+
+void onRobotDataSent(uint8_t *macAddress, uint8_t status)
+{
+  (void)macAddress;
+  if (status != 0)
+  {
+    ackFailCount++; // robot did not acknowledge the frame (wrong channel / robot off)
+  }
+  sendBusy = false;
+}
+
+static void sendToRobot(const ControlPacket &packet)
+{
+  const int result = esp_now_send(robotMac,
+                                  reinterpret_cast<uint8_t *>(const_cast<ControlPacket *>(&packet)),
+                                  sizeof(ControlPacket));
+  if (result == 0)
+  {
+    sendBusy = true;
+    sendStartMs = millis();
+    sentCount++;
+  }
+  else
+  {
+    failCount++;
+    lastError = result;
+  }
+}
+
+static void reportSendStats()
+{
+  const uint32_t now = millis();
+  if (now - lastReportMs < 1000)
+  {
+    return;
+  }
+  lastReportMs = now;
+  LOG_I("1s: fromMega=%lu (heartbeat=%lu) sent=%lu ackFail=%lu replaced=%lu sendErr=%lu (last %d)",
+        static_cast<unsigned long>(fromMegaCount), static_cast<unsigned long>(heartbeatCount),
+        static_cast<unsigned long>(sentCount), static_cast<unsigned long>(ackFailCount),
+        static_cast<unsigned long>(replacedCount), static_cast<unsigned long>(failCount), lastError);
+  sentCount = 0;
+  replacedCount = 0;
+  failCount = 0;
+  fromMegaCount = 0;
+  heartbeatCount = 0;
+  ackFailCount = 0;
+}
+
 // Gửi packet về Mega (echo) và sang robot qua ESP-NOW
 void forwardPacket(const ControlPacket &packet)
 {
   comBridge.SendPacket(packet);
-
-  uint8_t result = esp_now_send(robotMac,
-                                reinterpret_cast<uint8_t *>(const_cast<ControlPacket *>(&packet)),
-                                sizeof(ControlPacket));
-  if (result != 0)
+  fromMegaCount++;
+  if (packet.msgType == HEARTBEAT_MESSAGE)
   {
-    LOG_E("Send to robot failed: %u", result);
+    heartbeatCount++;
   }
+
+  if (sendBusy)
+  {
+    // Newest packet wins: stale control values are useless to the robot.
+    if (hasPending)
+    {
+      replacedCount++;
+    }
+    pendingPacket = packet;
+    hasPending = true;
+    return;
+  }
+  sendToRobot(packet);
+}
+
+void flushPendingPacket()
+{
+  // Recover if a send callback was lost (e.g. during a WiFi channel change).
+  if (sendBusy && millis() - sendStartMs > 20)
+  {
+    sendBusy = false;
+  }
+  if (!sendBusy && hasPending)
+  {
+    hasPending = false;
+    sendToRobot(pendingPacket);
+  }
+  reportSendStats();
 }
 
 void updatePacket()

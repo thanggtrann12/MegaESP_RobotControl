@@ -7,3 +7,5 @@ docs/build/
 docs/_build/
 src/TcjUi/main.HMI
 *.pro
+components/SRV_Ota/cfg/s3_devkit/hub_key.h
+components/SRV_Hmi/cfg/s3_devkit/wifi_secret.h

@@ -12,6 +12,7 @@
 #include "GenericLogger.h"
 #include "SRV_EspNow.h"
 #include "SRV_Hmi.h"
+#include "SRV_Ota.h"
 #include "SWC_Robot.h"
 #include "UserCode.h"
 
@@ -75,6 +76,29 @@ void loop()
 }
 
 //======================================== Sub-module Functions ==============================//
+// HMI commands typed on the USB serial port (e.g. TFTOTA from the flash tool), one per line.
+static void pollSerialCommand()
+{
+    static char line[96];
+    static uint8_t length = 0;
+    while (Serial.available())
+    {
+        const char c = static_cast<char>(Serial.read());
+        if (c == '\n' || c == '\r')
+        {
+            if (length > 0)
+            {
+                line[length] = '\0';
+                length = 0;
+                SRV_Hmi_ExecLine(line);
+            }
+        }
+        else if (length < sizeof(line) - 1)
+        {
+            line[length++] = c;
+        }
+    }
+}
 void subModuleInit()
 {
     LOG_I("Initializing sub-modules");
@@ -90,6 +114,7 @@ void subModuleInit()
     {
         LOG_E("Failed to initialize ESP-NOW link");
     }
+    SRV_Ota_Begin();
     LOG_I("Hub MAC: %s (must equal robotMac in the bridge)", WiFi.macAddress().c_str());
 
     // Mark sub-modules as initialized - DO NOT forget this step
@@ -99,6 +124,7 @@ void subModuleInit()
 
 void subModuleUpdate()
 {
+    pollSerialCommand();
     SRV_EspNow_Update(); // first: hand received packets to the robot before it runs its control tick
     SRV_Hmi_Update();
     SWC_Robot_Update();

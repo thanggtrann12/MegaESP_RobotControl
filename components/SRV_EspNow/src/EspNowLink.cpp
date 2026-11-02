@@ -8,7 +8,6 @@ ASSIGN_LOG_MACROS(EspNowLink);
 
 EspNowLink *EspNowLink::instance = nullptr;
 
-
 namespace
 {
     bool isExpectedSender(const uint8_t *senderMac)
@@ -135,25 +134,25 @@ void EspNowLink::update()
         // Quiet while healthy: INFO only when the link is silent or the reject/drop counters grow.
         static uint32_t lastRejected = 0, lastDropped = 0;
         const bool anomaly = count == 0 || _rejected != lastRejected || _dropped != lastDropped;
-        if (anomaly)
-        {
-            LOG_I("rx=%u/s maxGap=%u us rejected=%u dropped=%u",
-                  (unsigned)count, (unsigned)maxGap, (unsigned)_rejected, (unsigned)_dropped);
-        }
-        else
-        {
-            LOG_D("rx=%u/s maxGap=%u us", (unsigned)count, (unsigned)maxGap);
-        }
+        // if (anomaly)
+        // {
+        //     LOG_I("rx=%u/s maxGap=%u us rejected=%u dropped=%u",
+        //           (unsigned)count, (unsigned)maxGap, (unsigned)_rejected, (unsigned)_dropped);
+        // }
+        // else
+        // {
+        //     LOG_D("rx=%u/s maxGap=%u us", (unsigned)count, (unsigned)maxGap);
+        // }
         const bool rejectedGrew = _rejected != lastRejected;
         lastRejected = _rejected;
         lastDropped = _dropped;
-        if (rejectedGrew)
-        {
-            LOG_W("rejected by: mac=%u length=%u packet(crc/type)=%u | last sender %02X:%02X:%02X:%02X:%02X:%02X len=%d",
-                  (unsigned)_badMac, (unsigned)_badLength, (unsigned)_badPacket,
-                  _lastBadMac[0], _lastBadMac[1], _lastBadMac[2], _lastBadMac[3], _lastBadMac[4],
-                  _lastBadMac[5], _lastBadLength);
-        }
+        // if (rejectedGrew)
+        // {
+        // LOG_W("rejected by: mac=%u length=%u packet(crc/type)=%u | last sender %02X:%02X:%02X:%02X:%02X:%02X len=%d",
+        //       (unsigned)_badMac, (unsigned)_badLength, (unsigned)_badPacket,
+        //       _lastBadMac[0], _lastBadMac[1], _lastBadMac[2], _lastBadMac[3], _lastBadMac[4],
+        //       _lastBadMac[5], _lastBadLength);
+        // }
         count = 0;
         maxGap = 0;
     }

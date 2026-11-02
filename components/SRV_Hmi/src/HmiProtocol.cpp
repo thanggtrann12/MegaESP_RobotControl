@@ -35,6 +35,8 @@ const Hmi::CommandEntry Hmi::CMD_TABLE[] = {
     {"IO",                  &Hmi::handleIo,                 3,          4,          false},
     {"AIN",                 &Hmi::handleAin,                2,          2,          false},
     {"SYS",                 &Hmi::handleSys,                1,          2,          true},
+    {"TFTOTA",              &Hmi::handleTftOta,             1,          3,          false},
+    {"FWOTA",               &Hmi::handleFwOta,              1,          2,          false},
 };
 // clang-format on
 const uint8_t Hmi::CMD_TABLE_SIZE = sizeof(CMD_TABLE) / sizeof(CMD_TABLE[0]);
@@ -147,6 +149,17 @@ void Hmi::checkWatchdog(uint32_t now)
         _robot.stop();
         LOG_D("Drive watchdog: stopped");
     }
+}
+
+/**
+ * @brief Chạy một dòng lệnh không đến từ màn hình (ví dụ gõ từ cổng serial USB).
+ */
+void Hmi::execLine(const char *line)
+{
+    char buffer[HMI_LINE_MAX];
+    strncpy(buffer, line, HMI_LINE_MAX - 1);
+    buffer[HMI_LINE_MAX - 1] = '\0';
+    handle(buffer);
 }
 
 /**

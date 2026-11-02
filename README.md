@@ -98,6 +98,16 @@ pio device monitor -e hub
 
 Specify `-e hub` explicitly. The Mega 2560 and ESP8266 remote firmware is archived under `legacy/` and is separate from the ESP32-S3 hub build.
 
+### Hub OTA server identity
+
+The hub checks in to the OTA server every 30 seconds using Ed25519 challenge-response. Before
+building, copy `components/SRV_Ota/cfg/s3_devkit/hub_key.example.h` to
+`components/SRV_Ota/cfg/s3_devkit/hub_key.h` and replace its placeholder values with the hub
+credentials created by the server. `hub_key.h` is ignored by Git; never commit or share it.
+The check-in URL, hub name, and reported firmware versions are configured in
+`components/SRV_Ota/cfg/s3_devkit/SRV_Ota_Cfg.h`. The router must remain on Wi-Fi channel 11
+for ESP-NOW to continue working.
+
 ### 3. Build the documentation (EN / VI)
 
 Requirements: Python, `sphinx`, `sphinx-intl`, `potranslator`; Doxygen (optional, used for the API page).

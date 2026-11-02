@@ -21,3 +21,8 @@ void SRV_Hmi_Update(void)
 {
     hmi().update();
 }
+
+void SRV_Hmi_ExecLine(const char *line)
+{
+    hmi().execLine(line);
+}

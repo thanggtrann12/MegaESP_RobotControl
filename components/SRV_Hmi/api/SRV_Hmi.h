@@ -8,5 +8,6 @@
 // Các hàm API công khai cho User Code
 void SRV_Hmi_Begin(void);  // khởi động UART màn hình + bộ xử lý lệnh HMI
 void SRV_Hmi_Update(void); // gọi trong loop(): đọc và xử lý lệnh từ màn hình
+void SRV_Hmi_ExecLine(const char *line); // chạy một dòng lệnh HMI từ nguồn khác (cổng serial USB)
 
 #endif // SRV_HMI_H

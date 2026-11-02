@@ -5,9 +5,12 @@ Run:  python flash_env.py [project_dir]
 """
 
 import configparser
+import http.server
 import json
 import queue
 import shutil
+import socket
+import socketserver
 import subprocess
 import sys
 import threading
@@ -113,6 +116,68 @@ def ini_ports(project, env):
 
 
 NET_LOG_PORT = 23  # TCP log server of the OTA bridge firmware
+OTA_HTTP_PORT = 8000
+OTA_FW_WARNING = (
+    "KHÔNG TẮT NGUỒN hoặc rút dây trong khi cập nhật firmware hub!\n\n"
+    "- Hub tải file .bin mới nhất từ OTA server, kiểm tra sha256, ghi rồi tự khởi động lại.\n"
+    "- Không tắt nguồn hub/router, không rút cáp USB, không tắt OTA server cho đến khi hub khởi động lại.\n"
+    "- Robot sẽ dừng và mất liên kết ESP-NOW trong lúc cập nhật.\n"
+    "- Nếu lỗi (đứt mạng, sai sha256) hub giữ nguyên firmware cũ.\n\n"
+    "Bấm OK để bắt đầu."
+)
+OTA_WARNING = (
+    "KHÔNG TẮT NGUỒN hoặc rút dây trong khi cập nhật màn hình!\n\n"
+    "- Không tắt/cấp lại nguồn hub, màn hình TJC, router; không rút cáp USB hoặc dây UART.\n"
+    "- Không tắt server OTA hoặc đóng tool cho đến khi hub tự khởi động lại.\n"
+    "- Quá trình mất khoảng 10 phút; robot sẽ dừng và mất liên kết ESP-NOW.\n"
+    "- Nếu bị ngắt giữa chừng, màn hình có thể hỏng giao diện và phải nạp lại bằng thẻ SD / USB-TTL.\n\n"
+    "Bấm OK để bắt đầu."
+)  # local server the hub downloads the screen firmware from
+
+
+def local_ip():
+    """LAN address of this PC (the one the default route uses); the hub downloads from it."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.255.255.255", 1))  # no packet is sent, it only selects the interface
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
+
+def make_file_handler(file_path, log):
+    """HTTP handler that serves one file, at /<its name>, and reports every request."""
+    name = Path(file_path).name
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path.lstrip("/").split("?")[0] != name:
+                self.send_error(404)
+                log(f"[server] {self.client_address[0]} GET {self.path} -> 404\n", "warn")
+                return
+            data = Path(file_path).read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            log(f"[server] {self.client_address[0]} GET /{name} ({len(data)} bytes)\n", "cmd")
+            try:
+                self.wfile.write(data)
+                log(f"[server] sent {len(data)} bytes to {self.client_address[0]}\n", "ok")
+            except OSError as exc:
+                log(f"[server] transfer aborted: {exc}\n", "err")
+
+        def log_message(self, *_args):
+            pass
+
+    return Handler
+
+
+class ThreadedServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
 
 # Runs in its own console: streams the bridge's TCP log until Ctrl+C / window close.
 TCP_LOG_SCRIPT = (
@@ -236,6 +301,64 @@ class ModernButton(tk.Button):
             self.configure(state="normal", bg=self.normal_bg, fg=self.normal_fg, relief="raised", cursor="hand2")
 
 
+class WrapFrame(ttk.Frame):
+    """Flex-wrap row: children flow left to right and wrap onto new lines when the width runs out."""
+
+    def __init__(self, parent, gap=6, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.gap = gap
+        self.bind("<Configure>", self._reflow)
+        self.after_idle(self._reflow)
+
+    def _reflow(self, _event=None):
+        width = self.winfo_width()
+        x = y = row_h = 0
+        for child in self.winfo_children():
+            w, h = child.winfo_reqwidth(), child.winfo_reqheight()
+            if x and x + w > width:
+                x, y, row_h = 0, y + row_h + self.gap, 0
+            child.place(x=x, y=y)
+            x += w + self.gap
+            row_h = max(row_h, h)
+        if int(self.cget("height") or 0) != y + row_h:
+            self.configure(height=y + row_h)
+
+
+class CardGrid(tk.Frame):
+    """Responsive grid: as many equal-width columns as fit `min_col` pixels, reflowing on resize."""
+
+    def __init__(self, parent, min_col=430, gap=8, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.min_col, self.gap = min_col, gap
+        self.bind("<Configure>", self._reflow)
+
+    def _reflow(self, _event=None):
+        width = self.winfo_width()
+        cards = self.winfo_children()
+        if not cards or width < 2:
+            return
+        cols = max(1, min(len(cards), (width + self.gap) // (self.min_col + self.gap)))
+        col_w = (width - self.gap * (cols - 1)) // cols
+        y = 0
+        for start in range(0, len(cards), cols):
+            row = cards[start:start + cols]
+            row_h = max(c.winfo_reqheight() for c in row)
+            for i, card in enumerate(row):
+                card.place(x=i * (col_w + self.gap), y=y, width=col_w, height=row_h)
+            y += row_h + self.gap
+        total = max(y - self.gap, 1)
+        if int(self.cget("height") or 0) != total:
+            self.configure(height=total)
+
+    def relayout(self):
+        self.after_idle(self._reflow)
+
+
+def autowrap(label, container, margin=40):
+    """Make a Label's wraplength follow its container width."""
+    container.bind("<Configure>", lambda e: label.configure(wraplength=max(120, e.width - margin)), add="+")
+
+
 class App(tk.Tk):
     def __init__(self, project):
         super().__init__()
@@ -252,6 +375,10 @@ class App(tk.Tk):
         self.on_done = None
         self.last_code = 0
         self.monitors = {}  # port (or host:23) -> monitor console process
+        self.ota_file = tk.StringVar()
+        self.ota_url = tk.StringVar(value="(chưa chạy server)")
+        self.ota_dry = tk.BooleanVar(value=False)
+        self.ota_server = None
 
         self.project = tk.StringVar(value=str(Path(project).resolve()))
         self.port = tk.StringVar()
@@ -308,10 +435,18 @@ class App(tk.Tk):
 
     def _build_ui(self):
         self._apply_theme()
-        self.minsize(820, 650)
+        self.minsize(760, 520)
+
+        # Controls reflow to the window width (wrapping rows, multi-column cards); the log takes the rest.
+        top = ttk.Frame(self)
+        top.pack(fill="x")
+        bottom = ttk.Frame(self)
+        bottom.pack(fill="both", expand=True)
+        # Keep room for the log: the window can't shrink below controls + ~180 px of log.
+        top.bind("<Configure>", lambda e: self.minsize(760, e.height + 200))
 
         # 1. Header Section
-        header = ttk.Frame(self, padding=(20, 16, 20, 8))
+        header = ttk.Frame(top, padding=(20, 16, 20, 8))
         header.pack(fill="x")
 
         ttk.Label(header, text="⚡ PlatformIO Flash Hub", style="Title.TLabel").pack(side="left")
@@ -327,10 +462,10 @@ class App(tk.Tk):
         self.status = ttk.Label(status_inner, text="Ready", style="Status.TLabel")
         self.status.pack(side="left")
 
-        self.progress = ttk.Progressbar(self, mode="indeterminate", style="Busy.Horizontal.TProgressbar")
+        self.progress = ttk.Progressbar(top, mode="indeterminate", style="Busy.Horizontal.TProgressbar")
 
         # 2. Project Card Section (Giống mẫu)
-        proj_outer = tk.Frame(self, bg=THEME["border"])
+        proj_outer = tk.Frame(top, bg=THEME["border"])
         proj_outer.pack(fill="x", padx=20, pady=6)
         proj_card = tk.Frame(proj_outer, bg=THEME["card"])
         proj_card.pack(fill="x", padx=1, pady=1)
@@ -363,49 +498,70 @@ class App(tk.Tk):
         btn_refresh.pack(side="left", padx=(8, 0))
         ttk.Checkbutton(port_row, text="Verbose", variable=self.verbose).pack(side="left", padx=(12, 0))
 
+        # 2b. HMI screen OTA test server
+        ota_outer = tk.Frame(top, bg=THEME["border"])
+        ota_outer.pack(fill="x", padx=20, pady=6)
+        ota_card = ttk.Frame(ota_outer, style="Card.TFrame", padding=14)
+        ota_card.pack(fill="x", padx=1, pady=1)
+        ttk.Label(ota_card, text="HMI SCREEN OTA (TEST SERVER)", style="Sub.TLabel",
+                  font=(FONT[0], 8, "bold")).pack(anchor="w")
+
+        lbl_file = ttk.Label(ota_card, textvariable=self.ota_file, style="Env.TLabel", justify="left")
+        lbl_file.pack(fill="x", pady=(6, 0))
+        autowrap(lbl_file, ota_card)
+        lbl_url = ttk.Label(ota_card, textvariable=self.ota_url, style="Muted.TLabel", justify="left")
+        lbl_url.pack(fill="x", pady=(4, 0))
+        autowrap(lbl_url, ota_card)
+
+        server_row = WrapFrame(ota_card, style="Card.TFrame", height=30)
+        server_row.pack(fill="x", pady=(8, 0))
+        ModernButton(server_row, text="📄 Chọn file .tft", command=self.pick_ota_file,
+                     tip="Chọn file firmware màn hình (.tft) để hub tải về")
+        self.ota_start_btn = ModernButton(server_row, text="▶ Start server", command=self.start_ota_server,
+                                          tip="Chạy server HTTP local phục vụ file đã chọn")
+        self.ota_stop_btn = ModernButton(server_row, text="■ Stop server", variant="danger",
+                                         command=self.stop_ota_server, tip="Tắt server HTTP local")
+        self.ota_stop_btn.set_state("disabled")
+
+        send_row = WrapFrame(ota_card, style="Card.TFrame", height=30)
+        send_row.pack(fill="x", pady=(8, 0))
+        ttk.Checkbutton(send_row, text="Dry run (hub chỉ tải về, không đẩy xuống màn hình)",
+                        variable=self.ota_dry)
+        btn_send = ModernButton(send_row, text="📡 Gửi lệnh TFTOTA tới hub", variant="accent",
+                                command=self.trigger_ota,
+                                tip="Gửi TFTOTA qua cổng PORT ở trên: hub tải file từ server này")
+        self.buttons.append(btn_send)
+        btn_fw = ModernButton(send_row, text="⬆ Cập nhật firmware hub", variant="accent",
+                              command=self.trigger_hub_fw,
+                              tip="Gửi FWOTA: hub tải .bin mới nhất từ server (hub tự tải bản mới nhất, Dry run dùng chung), "
+                                  "kiểm tra sha256, ghi và khởi động lại")
+        self.buttons.append(btn_fw)
+
         # 3. Targets Header Bar & Danh sách môi trường
-        targets_bar = ttk.Frame(self, padding=(20, 8, 20, 4))
-        targets_bar.pack(fill="x")
+        targets_bar = WrapFrame(top, height=36)
+        targets_bar.pack(fill="x", padx=20, pady=(8, 4))
 
         self.targets_count_lbl = ttk.Label(targets_bar, text="0 firmware targets", font=(FONT[0], 10, "bold"))
-        self.targets_count_lbl.pack(side="left")
-
-        # Nút Build All và Clean chung ở góc phải
-        btn_clean_all = ModernButton(targets_bar, text="Clean", command=lambda: self.run_pio(None, "clean"),
-                                     tip="Xóa kết quả build của tất cả môi trường")
-        btn_clean_all.pack(side="right", padx=(6, 0))
-        self.buttons.append(btn_clean_all)
-
-        btn_build_all = ModernButton(targets_bar, text="Build All", variant="accent",
-                                     command=lambda: self.run_pio(None, "build"),
-                                     tip="Build tất cả môi trường")
-        btn_build_all.pack(side="right")
-        self.buttons.append(btn_build_all)
-
-        btn_upload_sel = ModernButton(targets_bar, text="⬆ Upload đã chọn", variant="accent",
-                                      command=lambda: self.run_selected("upload"),
-                                      tip="Flash các target đã tick cùng lúc (cổng khác nhau chạy song song)")
-        btn_upload_sel.pack(side="right", padx=(0, 6))
-        self.buttons.append(btn_upload_sel)
-
-        btn_build_sel = ModernButton(targets_bar, text="⚙ Build đã chọn",
-                                     command=lambda: self.run_selected("build"),
-                                     tip="Build các target đã tick cùng lúc")
-        btn_build_sel.pack(side="right", padx=(0, 6))
-        self.buttons.append(btn_build_sel)
-
-        btn_select_all = ModernButton(targets_bar, text="☑ Chọn tất cả", command=self.toggle_all,
-                                      tip="Tick hoặc bỏ tick tất cả target")
-        btn_select_all.pack(side="right", padx=(0, 6))
-        self.buttons.append(btn_select_all)
+        for text, variant, tip, cmd in (
+            ("☑ Chọn tất cả", "normal", "Tick hoặc bỏ tick tất cả target", self.toggle_all),
+            ("⚙ Build đã chọn", "normal", "Build các target đã tick cùng lúc",
+             lambda: self.run_selected("build")),
+            ("⬆ Upload đã chọn", "accent", "Flash các target đã tick cùng lúc (cổng khác nhau chạy song song)",
+             lambda: self.run_selected("upload")),
+            ("Build All", "accent", "Build tất cả môi trường", lambda: self.run_pio(None, "build")),
+            ("Clean", "normal", "Xóa kết quả build của tất cả môi trường", lambda: self.run_pio(None, "clean")),
+        ):
+            self.buttons.append(ModernButton(targets_bar, text=text, variant=variant, command=cmd, tip=tip))
         self.top_buttons = list(self.buttons)
 
-        # Vùng chứa các card envs động
-        self.env_frame = ttk.Frame(self, padding=(20, 2))
+        # Vùng chứa các card envs động, tự chia cột theo bề rộng cửa sổ
+        env_host = ttk.Frame(top, padding=(20, 2))
+        env_host.pack(fill="x")
+        self.env_frame = CardGrid(env_host, bg=THEME["bg"], height=1)
         self.env_frame.pack(fill="x")
 
         # 4. Activity Log Section (Đúng chuẩn mẫu)
-        log_header = ttk.Frame(self, padding=(20, 10, 20, 4))
+        log_header = ttk.Frame(bottom, padding=(20, 10, 20, 4))
         log_header.pack(fill="x")
         ttk.Label(log_header, text="Activity Log", font=(FONT[0], 11, "bold")).pack(side="left")
 
@@ -421,7 +577,7 @@ class App(tk.Tk):
         clear_btn.pack(side="right")
         self.log_buttons.extend((clear_btn, export_btn))
 
-        log_container = tk.Frame(self, bg=THEME["border"])
+        log_container = tk.Frame(bottom, bg=THEME["border"])
         log_container.pack(fill="both", padx=20, pady=(0, 16), expand=True)
         log_inner = tk.Frame(log_container, bg=THEME["log_bg"])
         log_inner.pack(fill="both", padx=1, pady=1, expand=True)
@@ -472,7 +628,7 @@ class App(tk.Tk):
 
         if not envs:
             lbl = ttk.Label(self.env_frame, text="⚠ Không tìm thấy phần [env:...] trong platformio.ini", foreground=THEME["warn"])
-            lbl.pack(anchor="w", pady=5)
+            self.env_frame.relayout()
             return
 
         for env in envs:
@@ -494,7 +650,7 @@ class App(tk.Tk):
 
     def _env_card(self, title, sub_text, accent_color, actions):
         outer = tk.Frame(self.env_frame, bg=THEME["border"])
-        outer.pack(fill="x", pady=4)
+        self.env_frame.relayout()
 
         inner_card = tk.Frame(outer, bg=THEME["card"])
         inner_card.pack(fill="x", padx=1, pady=1)
@@ -533,12 +689,19 @@ class App(tk.Tk):
     def refresh_ports(self):
         if not self.pio:
             return
-        try:
-            out = subprocess.run(self.pio + ["device", "list", "--json-output"],
-                                 capture_output=True, text=True, timeout=20).stdout
-            ports = [d["port"] for d in json.loads(out)]
-        except Exception:
-            ports = []
+
+        def scan():
+            try:
+                out = subprocess.run(self.pio + ["device", "list", "--json-output"],
+                                     capture_output=True, text=True, timeout=20).stdout
+                ports = [d["port"] for d in json.loads(out)]
+            except Exception:
+                ports = []
+            self.after(0, lambda: self._apply_ports(ports))
+
+        threading.Thread(target=scan, daemon=True).start()
+
+    def _apply_ports(self, ports):
         self.port_box["values"] = [AUTO_PORT] + ports
         if not self.port.get() or self.port.get() not in self.port_box["values"]:
             self.port.set(AUTO_PORT)
@@ -779,6 +942,137 @@ class App(tk.Tk):
         except queue.Empty:
             pass
         self.after(50, self._drain)
+
+    # ------------------------------------------------------------------ HMI screen OTA test
+    def pick_ota_file(self):
+        path = filedialog.askopenfilename(
+            title="Chọn file firmware màn hình",
+            initialdir=self.project.get(),
+            filetypes=(("TJC firmware", "*.tft"), ("All files", "*.*")),
+        )
+        if not path:
+            return
+        self.ota_file.set(path)
+        if self.ota_server:  # keep serving, but the new file replaces the old one
+            self.stop_ota_server()
+            self.start_ota_server()
+
+    def _ota_file_url(self):
+        return f"http://{local_ip()}:{OTA_HTTP_PORT}/{Path(self.ota_file.get()).name}"
+
+    def start_ota_server(self):
+        if self.ota_server:
+            return
+        path = self.ota_file.get()
+        if not path or not Path(path).is_file():
+            messagebox.showwarning("OTA", "Hãy chọn file .tft trước.")
+            return
+        handler = make_file_handler(path, lambda text, tag=None: self.lines.put((text, tag)))
+        try:
+            self.ota_server = ThreadedServer(("0.0.0.0", OTA_HTTP_PORT), handler)
+        except OSError as exc:
+            messagebox.showerror("OTA", f"Không mở được cổng {OTA_HTTP_PORT}:\n{exc}")
+            return
+        threading.Thread(target=self.ota_server.serve_forever, daemon=True).start()
+        url = self._ota_file_url()
+        self.ota_url.set(url)
+        self.ota_start_btn.set_state("disabled")
+        self.ota_stop_btn.set_state("normal")
+        self.write(f"OTA server running: {url}\n", "ok")
+        self.write("Nếu hub không tải được, cho phép Python qua Windows Firewall (mạng Private).\n", "warn")
+
+    def stop_ota_server(self):
+        if self.ota_server:
+            self.ota_server.shutdown()
+            self.ota_server.server_close()
+            self.ota_server = None
+            self.write("OTA server stopped.\n", "warn")
+        self.ota_url.set("(chưa chạy server)")
+        self.ota_start_btn.set_state("normal")
+        self.ota_stop_btn.set_state("disabled")
+
+    def _hub_port(self):
+        port = self.port.get()
+        if port in ("", AUTO_PORT, "(auto)"):
+            port = ini_ports(self.project.get(), "hub")[1]  # monitor_port of the hub env
+        if not port:
+            messagebox.showwarning("OTA", "Chọn cổng COM của hub.")
+        return port
+
+    def trigger_hub_fw(self):
+        if self.running:
+            return
+        port = self._hub_port()
+        if not port:
+            return
+        dry = self.ota_dry.get()
+        if not dry:
+            if not messagebox.askokcancel("CẢNH BÁO - Cập nhật firmware hub", OTA_FW_WARNING, icon="warning"):
+                return
+            self.write("WARNING: " + OTA_FW_WARNING.replace("\n\n", "\n").replace("\n", " | ") + "\n", "warn")
+        self.close_monitors(port)
+        self._set_busy(True, "Hub firmware OTA...")
+        threading.Thread(target=self._ota_serial, args=(port, "FWOTA,DRY" if dry else "FWOTA"), daemon=True).start()
+
+    def trigger_ota(self):
+        if self.running:
+            return
+        if not self.ota_server:
+            self.start_ota_server()
+            if not self.ota_server:
+                return
+        project = self.project.get()
+        port = self.port.get()
+        if port in ("", AUTO_PORT, "(auto)"):
+            port = ini_ports(project, "hub")[1]  # monitor_port of the hub env
+        if not port:
+            messagebox.showwarning("OTA", "Chọn cổng COM của hub.")
+            return
+        if not self.ota_dry.get():
+            if not messagebox.askokcancel("CẢNH BÁO - Cập nhật màn hình", OTA_WARNING, icon="warning"):
+                return
+            self.write("WARNING: " + OTA_WARNING.replace("\n\n", "\n").replace("\n", " | ") + "\n", "warn")
+        command = f"TFTOTA,{self._ota_file_url()}" + (",DRY" if self.ota_dry.get() else "")
+        self.close_monitors(port)
+        self._set_busy(True, "HMI OTA...")
+        threading.Thread(target=self._ota_serial, args=(port, command), daemon=True).start()
+
+    def _ota_serial(self, port, command):
+        """Send the command over USB serial, release the port, then reopen the log console on it."""
+        put = self.lines.put
+        code = 1
+        try:
+            try:
+                import serial
+            except ImportError:
+                put(("Installing pyserial...\n", "cmd"))
+                subprocess.run([sys.executable, "-m", "pip", "install", "pyserial"],
+                               capture_output=True, check=True)
+                import serial
+            link = serial.Serial()
+            link.port, link.baudrate, link.timeout = port, 115200, 0.5
+            link.dtr = link.rts = False  # opening the port must not reset the hub
+            link.open()
+            with link:
+                put((f"$ {port} <- {command}\n", "cmd"))
+                link.write((command + "\n").encode())
+                link.flush()
+                time.sleep(0.3)
+            code = 0
+            put(("Command sent. The hub log continues in the monitor console.\n", "ok"))
+        except Exception as exc:
+            put((f"{exc}\n", "err"))
+        self.last_code = code
+        self.on_done = lambda: self._open_serial_monitor(port)
+        put(None)
+
+    def _open_serial_monitor(self, port):
+        """Open the log console on `port` without toggling DTR/RTS, so the running update is not reset."""
+        mon = self.pio + ["device", "monitor", "-d", self.project.get(), "-e", "hub",
+                          "--port", port, "--dtr", "0", "--rts", "0"]
+        self.write("$ " + " ".join(mon) + "\n", "cmd")
+        self.monitors[port] = subprocess.Popen(
+            mon, creationflags=subprocess.CREATE_NEW_CONSOLE if IS_WIN else 0)
 
     def stop(self):
         for proc in list(self.procs):

@@ -28,6 +28,14 @@
 //   MON  MON,ALL  ADC                push monitor / analog test pages (no reply).
 //                                    MON only sends fields that changed; MON,ALL resends everything
 //                                    (send it once when the Monitor page opens).
+//   TFTOTA[,<url>[,DRY]]             update the screen firmware: the hub stops the robot, joins WiFi,
+//                                    downloads the url (default: newest "screen" file on the OTA server,
+//                                    sha256-checked before anything is sent) and streams it to the screen,
+//                                    then restarts. DRY only downloads and logs size/checksum (no screen).
+//                                    Answers OK,TFTOTA when it starts (it blocks until it is done).
+//   FWOTA[,DRY]                      update the hub firmware: downloads the newest "hub-firmware" file from the
+//                                    OTA server, writes it only if the sha256 matches, then restarts.
+//                                    DRY downloads and verifies without writing. Blocks until done.
 // A line longer than the buffer is dropped and answered with "ERR,LINE".
 class Hmi
 {
@@ -36,6 +44,7 @@ public:
 
     void update();
     void init();
+    void execLine(const char *line); // run one command line that did not come from the screen (USB serial)
 
 private:
     // OK / ERR are answered by handle(); NONE means the handler already answered (or must stay silent).
@@ -62,7 +71,7 @@ private:
     static const CommandEntry CMD_TABLE[];
     static const uint8_t CMD_TABLE_SIZE;
 
-    static constexpr uint8_t HMI_LINE_MAX = 48;
+    static constexpr uint8_t HMI_LINE_MAX = 96;
     static constexpr uint8_t MON_FIELDS = 24;                   // number of monitor fields cached for change detection
     static constexpr uint8_t DIO_FIELDS = 2 * DigitalIo::COUNT; // mode + status của từng chân
     static constexpr uint8_t I2C_LIST_MAX = 96;                 // text buffer for the I2C scan result
@@ -100,6 +109,9 @@ private:
     Result handleDioSet(char **f, uint8_t n);
     Result handleDioRst(char **f, uint8_t n);
     Result handleSys(char **, uint8_t);
+    Result handleTftOta(char **f, uint8_t n);
+    Result handleFwOta(char **f, uint8_t n);
+    bool runTftOta(const char *url, bool dry, const char *expectedSha256);
     // Screen sync
     void syncScreen();
     void syncChassisLabels(Chassis chassis);
